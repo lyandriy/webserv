@@ -1,0 +1,4 @@
+poll()
+https://manpages.ubuntu.com/manpages/trusty/es/man2/poll.2.html
+HTTP
+https://developer.mozilla.org/en-US/docs/Web/HTTP
