@@ -2,3 +2,14 @@ poll()
 https://manpages.ubuntu.com/manpages/trusty/es/man2/poll.2.html
 HTTP
 https://developer.mozilla.org/en-US/docs/Web/HTTP
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview
+RFC
+https://www.satec.es/blog/2016/12/28/rfc-1925-pueden-los-cerdos-volar-en-internet/
+HTTP1.1 - https://www.cloudflare.com/es-es/learning/performance/http2-vs-http1.1/
+HTML semantico - https://es.semrush.com/blog/html-semantico/
+HTML Introduccion - https://www.w3schools.com/html/html_intro.asp
+SOCKET
+https://www.reddit.com/r/learnprogramming/comments/12ifgcf/what_is_a_socket_what_does_it_mean_that_a/
+https://www.geeksforgeeks.org/socket-in-computer-network/
+https://docs.oracle.com/javase/tutorial/networking/sockets/definition.html
+https://web.mit.edu/6.031/www/fa19/classes/23-sockets-networking/

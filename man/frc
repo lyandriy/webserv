@@ -1,0 +1,3 @@
+4. STATUS LINE
+En resumen, la primera línea de una respuesta HTTP contiene la versión del protocolo, un código que indica qué pasó con la solicitud y, opcionalmente, una descripción textual de ese código. 
+Es importante que los elementos estén correctamente separados por espacios y que el cliente interprete correctamente el código numérico, no tanto la descripción.
