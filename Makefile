@@ -34,7 +34,7 @@ $(BIN_PATH)%.o: $(SRCS_PATH)%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 	
-$(NAME): $(OBJS)
+$(NAME): $(OBJS) $(INCS_PATH)/webserv.hpp
 	echo $(PURPLE)"[Creating $(NAME)]"$(NONE)
 	$(CC) -o $(NAME) $(OBJS)
 	echo $(GREEN)"$(NAME): ready to be executed"$(NONE)
