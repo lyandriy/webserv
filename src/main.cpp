@@ -59,31 +59,36 @@ int main()
 		std::cout << strerror(errno) << std::endl;
 		exit(3);
 	}
-	addrlen = sizeof(struct sockaddr);
-	int new_sock = accept(socket_fd, (struct sockaddr *)&remote_addr, &addrlen);
-	if (new_sock < 0)
-	{
-		perror("New sock connect");
-		std::cout << strerror(errno) << std::endl;
-		exit(4);
-	}
-
+	int new_sock;
 	char buffer[1024] = {0};
-	int valread = read(new_sock, buffer, sizeof(buffer));
-	if (valread <= 0)
+	while (true)
 	{
-		perror("Error al leer del socket");
-		std::cout << strerror(errno) << std::endl;
-		exit(6);
+		addrlen = sizeof(struct sockaddr);
+		new_sock = accept(socket_fd, (struct sockaddr *)&remote_addr, &addrlen);
+		if (new_sock < 0)
+		{
+			perror("New sock connect");
+			std::cout << strerror(errno) << std::endl;
+			exit(4);
+		}
+
+		int valread = recv(new_sock, buffer, sizeof(buffer), 0);
+		sleep(5);
+		if (valread <= 0)
+		{
+			perror("Error al leer del socket");
+			std::cout << strerror(errno) << std::endl;
+			exit(6);
+		}
+		else
+		{
+			const char *response = "Soy el servidor, he recibido tu petición. Hasta pronto!\n";
+			std::cout << "Info recibida:\n" << buffer << std::endl;
+			send(new_sock, response, strlen(response), 0);
+		}
+		
+		close(new_sock);
 	}
-	else
-	{
-		const char *response = "He recibido la información y te envío otra de vuelta!!\n";
-		std::cout << "Info recibida:\n" << buffer << std::endl;
-		send(new_sock, response, strlen(response), 0);
-	}
-	
-	close(new_sock);
 	close(socket_fd);
 	
 	return 0;
