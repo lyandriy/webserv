@@ -3,6 +3,8 @@
 int main()
 {
     struct sockaddr_in  socket_addr;
+    struct pollfd       fds[BACKLOG];
+    int                 pollfds;
     int                 sockfd;
     int                 new_sockfd;
 
@@ -17,5 +19,22 @@ int main()
         std::cout << strerror(errno) << std::endl;
     if (listen(sockfd, BACKLOG) == -1)
         std::cout << strerror(errno) << std::endl;
-    
+    fds[0].fd = sockfd;
+    fds[0].events = POLLIN | POLLPRI;
+    for (int i = 1; i < BACKLOG; i++)
+    {
+        if (i == sockfd)
+            i++;
+        fds[i].fd = i + 2; 
+        fds[i].events = POLLIN;
+    }
+    while (true)
+    {
+        if ((pollfds = poll(fds, BACKLOG, -1)) = -1)
+            std::cout << strerror(errno) << std::endl;
+        for (int i = 0; i < pollfds; i++)
+        {
+            
+        }
+    }
 }
