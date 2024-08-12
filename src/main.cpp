@@ -77,7 +77,11 @@ int main()
 		exit(6);
 	}
 	else
+	{
+		const char *response = "He recibido la información y te envío otra de vuelta!!\n";
 		std::cout << "Info recibida:\n" << buffer << std::endl;
+		send(new_sock, response, strlen(response), 0);
+	}
 	
 	close(new_sock);
 	close(socket_fd);
