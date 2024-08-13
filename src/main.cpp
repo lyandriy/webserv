@@ -8,9 +8,12 @@
 # include <unistd.h>
 # include <string.h>
 # include <cerrno>
+# include <poll.h>
 
 // lsof -i -P -n | grep webserv    <------    para comprobar puerto
 // nc localhost 8080   <----    para hacer peticiones
+
+# define MAX_CLIENTS 2
 
 int main()
 {
@@ -19,7 +22,11 @@ int main()
 	struct sockaddr_in remote_addr;
 	socklen_t addrlen;
 	socklen_t len = sizeof(server_addr);
+	struct pollfd poll_fd[MAX_CLIENTS + 1];
+	int num_clientes = 0; (void)num_clientes;
+	(void)poll_fd;
 	(void)len;
+
 
 	// socket_fd = socket(AF_INET, SOCK_STREAM, 0); // protocolo 0 para q elija el sistema el más apropiado
 	socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // protocolo 0 para q elija el sistema el más apropiado
@@ -50,7 +57,7 @@ int main()
 		std::cout << strerror(errno) << std::endl;
 		exit(2);
 	}
-	getsockname(socket_fd, (struct sockaddr *)&server_addr, &len);
+	// getsockname(socket_fd, (struct sockaddr *)&server_addr, &len);
 	std::cout << "Servidor escuchando en puerto: " << ntohs(server_addr.sin_port) << std::endl;
 	int listener = listen(socket_fd, 8);
 	if (listener < 0)
@@ -61,33 +68,72 @@ int main()
 	}
 	int new_sock;
 	char buffer[1024] = {0};
+
+	poll_fd[0].fd = socket_fd;
+	poll_fd[0].events = POLLIN;
 	while (true)
 	{
-		addrlen = sizeof(struct sockaddr);
-		new_sock = accept(socket_fd, (struct sockaddr *)&remote_addr, &addrlen);
-		if (new_sock < 0)
+		int poll_count = poll(poll_fd, num_clientes + 1, -1);
+		if (poll_count < 0)
 		{
-			perror("New sock connect");
-			std::cout << strerror(errno) << std::endl;
-			exit(4);
+			perror("Poll error");
+			std::cerr << strerror(errno) << std::endl;
+			exit(7);
 		}
-
-		int valread = recv(new_sock, buffer, sizeof(buffer), 0);
-		sleep(5);
-		if (valread <= 0)
+		if (poll_fd[0].revents & POLLIN)
 		{
-			perror("Error al leer del socket");
-			std::cout << strerror(errno) << std::endl;
-			exit(6);
+			addrlen = sizeof(struct sockaddr);
+			new_sock = accept(socket_fd, (struct sockaddr *)&remote_addr, &addrlen);
+			if (new_sock < 0)
+			{
+				perror("New sock connect");
+				std::cout << strerror(errno) << std::endl;
+				exit(4);
+			}
+			if (num_clientes < MAX_CLIENTS)
+			{
+				poll_fd[num_clientes + 1].fd = new_sock;
+				poll_fd[num_clientes + 1].events = POLLIN;
+				num_clientes++;
+				std::cout << "Nuevo cliente conectado, en total hay " << num_clientes << std::endl;
+			}
+			else
+			{
+				std::cerr << "Máximo de cleintes alcanzados, se cierra la nueva conexión" << std::endl;
+				close(new_sock);
+			}
 		}
-		else
+		for (int i = 1; i <= num_clientes; i++)
 		{
-			const char *response = "Soy el servidor, he recibido tu petición. Hasta pronto!\n";
-			std::cout << "Info recibida:\n" << buffer << std::endl;
-			send(new_sock, response, strlen(response), 0);
+			if (poll_fd[i].revents & POLLIN)
+			{
+				int valread = recv(poll_fd[i].fd, buffer, sizeof(buffer), 0);
+				// sleep(5);
+				if (valread <= 0)
+				{
+					if (valread == 0)
+					{
+						std::cout << "El cliente cerró la conexión" << std::endl;
+					}
+					else
+					{
+						perror("Error al leer del socket");
+						std::cout << strerror(errno) << std::endl;
+					}
+						close(poll_fd[i].fd);
+						poll_fd[i] = poll_fd[num_clientes];
+						num_clientes--;
+						i--;
+				}
+				else
+				{
+					const char *response = "Soy el servidor, he recibido tu petición. Hasta pronto!\n";
+					std::cout << "Info recibida:\n" << buffer << std::endl;
+					memset(buffer, 0, strlen(buffer));
+					send(poll_fd[i].fd, response, strlen(response), 0);
+				}
+			}
 		}
-		
-		close(new_sock);
 	}
 	close(socket_fd);
 	
@@ -135,3 +181,4 @@ struct in_addr
 };
  */
 
+		// int ret = poll(poll_fd, 2, 1000);
