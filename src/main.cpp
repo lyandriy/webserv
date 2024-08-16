@@ -13,7 +13,7 @@
 // lsof -i -P -n | grep webserv    <------    para comprobar puerto
 // nc localhost 8080   <----    para hacer peticiones
 
-# define MAX_CLIENTS 2
+# define MAX_CLIENTS 20
 
 int main()
 {
@@ -99,7 +99,7 @@ int main()
 			}
 			else
 			{
-				std::cerr << "Máximo de cleintes alcanzados, se cierra la nueva conexión" << std::endl;
+				std::cerr << "Máximo de clientes alcanzados, se cierra la nueva conexión" << std::endl;
 				close(new_sock);
 			}
 		}
@@ -127,8 +127,22 @@ int main()
 				}
 				else
 				{
-					const char *response = "Soy el servidor, he recibido tu petición. Hasta pronto!\n";
+					const char *response = 
+						"HTTP/1.1 200 OK\r\n"
+						"Content-Type: text/html\r\n"
+						"Content-Length: 26\r\n"
+						"Connection: keep-alive\r\n"
+						"Keep-Alive: timeout=5, max=1000\r\n"
+						"\r\n"
+						"<h1>Hola Lyudmyla!!!!!</h1>";
 					std::cout << "Info recibida:\n" << buffer << std::endl;
+					int diff = strncmp(buffer, "cerrar servidor", 15);
+					if (diff == 0)
+					{
+						close(poll_fd[i].fd);
+						close(socket_fd);
+						return 0;
+					}
 					memset(buffer, 0, strlen(buffer));
 					send(poll_fd[i].fd, response, strlen(response), 0);
 				}
