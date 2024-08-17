@@ -36,13 +36,13 @@ int main()
 		std::cout << strerror(errno) << std::endl;
 		exit(1);
 	}
-	int opt = 1;
-	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-	{
-		perror("Error en setsockectopt");
-		std::cout << strerror(errno) << std::endl;
-		exit(5);
-	}
+	// int opt = 1;
+	// if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+	// {
+	// 	perror("Error en setsockectopt");
+	// 	std::cout << strerror(errno) << std::endl;
+	// 	exit(5);
+	// }
 
 	server_addr.sin_family = PF_INET;
 	// sin.sin_port = 8080;
@@ -67,7 +67,7 @@ int main()
 		exit(3);
 	}
 	int new_sock;
-	char buffer[1024] = {0};
+	char buffer[20] = {0};
 
 	poll_fd[0].fd = socket_fd;
 	poll_fd[0].events = POLLIN;
@@ -130,11 +130,11 @@ int main()
 					const char *response = 
 						"HTTP/1.1 200 OK\r\n"
 						"Content-Type: text/html\r\n"
-						"Content-Length: 26\r\n"
 						"Connection: keep-alive\r\n"
 						"Keep-Alive: timeout=5, max=1000\r\n"
+						"Content-Length: 28\r\n"
 						"\r\n"
-						"<h1>Hola Lyudmyla!!!!!</h1>";
+						"<h1>Hola Lyudmyla!!!!!</h1>\n";
 					std::cout << "Info recibida:\n" << buffer << std::endl;
 					int diff = strncmp(buffer, "cerrar servidor", 15);
 					if (diff == 0)
