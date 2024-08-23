@@ -17,8 +17,6 @@ BIN_PATH = bin/
 
 SRCS =	main.cpp \
 
-
-
 OBJS = $(SRCS:%.cpp=bin/%.o)
 
 CC = g++
@@ -50,6 +48,9 @@ fclean: clean
 
 re: fclean
 	$(MAKE)	
+
+run: all
+	./${NAME}
 
 .PHONY: all clean fclean re
 
