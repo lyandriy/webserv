@@ -15,4 +15,8 @@ class Location : public Server
         std::string    index;
         std::string    cgi;
     public:
+        Location();
+        ~Location();
+        Location(const Location &);
+        Location &operator=(const Location &);
 };

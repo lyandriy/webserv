@@ -1,18 +1,20 @@
 #include "Parser.hpp"
 
-Parser::Parser(){}
+Parser::Parser(){
+    this->server_size = 0;
+    this->location_size = 0;
+}
 
 Parser::~Parser(){
     if (in_file.is_open())
         in_file.close();
 }
 
-Parser::Parser(const std::string file) : in_file(file.c_str()), server(nullptr)
+Parser::Parser(const std::string file) : in_file(file.c_str())
 {
     if (!in_file.is_open())
         throw std::runtime_error("error");
 }
-
 
 void    Parser::split(std::string &line, std::vector<std::string> &words)
 {
@@ -30,20 +32,6 @@ void    Parser::split(std::string &line, std::vector<std::string> &words)
 
 void    Parser::key_words(std::vector<std::string> &words)
 {
-    std::string    key[10] = {"listen", "server_name", "accept_method", "error_page", "index",
-                            "client_max_body_size", "redirection", "root", "autoindex", "cgi"};
-    void (Parser::*methods[])() = {
-        &Parser::listen,
-        &Parser::server_name,
-        &Parser::accept_method,
-        &Parser::error_page,
-        &Parser::index,
-        &Parser::client_max_body_size,
-        &Parser::redirection,
-        &Parser::root,
-        &Parser::autoindex,
-        &Parser::cgi
-        };
     for (int i = 0; i < 10; i++)
     {
         if (words[0] == key[i])
@@ -53,11 +41,26 @@ void    Parser::key_words(std::vector<std::string> &words)
     }
 }
 
+void    Parser::location_key(std::vector<std>>string> &words)
+{
+    server[server_size].location.bush_back(new Location());
+    if (words[1] == '/')
+    {}
+    else if (words[1] == '=')
+    {}
+    if (words[1] == '{' || words[2] == '{')
+    {
+        key_words(words);
+    }
+    location_size++;
+}
+
 void    Parser::server_pars()
 {
     std::string		            line;
     std::vector<std::string>    words;
 
+    server.push_back(new Server()); 
     while (std::getline(in_file, line, ';'))
     {
         if (!line.empty())
@@ -65,7 +68,7 @@ void    Parser::server_pars()
             split(line, words);
             if (words[0] == "location")
             {
-                
+                location_key(words);
             }
             else
             {
@@ -75,6 +78,7 @@ void    Parser::server_pars()
         else
             throw std::runtime_error("error");
     }
+    server_size++;
 }
 
 void Parser::conf_file()
