@@ -1,7 +1,9 @@
+#ifndef LOCATION_HPP
+#define LOCATION_HPP
 #include <iostream>
 #include "Server.hpp"
 
-class Location : public Server
+class Location
 {
     private:
         std::string    listen;
@@ -19,4 +21,7 @@ class Location : public Server
         ~Location();
         Location(const Location &);
         Location &operator=(const Location &);
+        Location(Server*);
 };
+
+#endif

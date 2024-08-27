@@ -4,6 +4,10 @@ Server::Server(){}
 
 Server::~Server(){}
 
+Server::Server(const Server &other){}
+
+Server &Server::operator=(const Server &other){}
+
 void    Server::setListen(std::string listen)
 {
     this->listen = listen;
@@ -76,7 +80,7 @@ std::string    Server::getErrorPage() const
 
 std::string    Server::getBodySize() const
 {
-    return(this->)client_max_body_size;
+    return(this->client_max_body_size);
 }
 
 std::string    Server::getRedirection() const

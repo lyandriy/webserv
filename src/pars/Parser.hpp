@@ -9,25 +9,14 @@
 
 class Server;
 
+class Location;
+
 class Parser
 {
     private:
-        void (Parser::*methods[])() = {
-            &Parser::listen,
-            &Parser::server_name,
-            &Parser::accept_method,
-            &Parser::error_page,
-            &Parser::index,
-            &Parser::client_max_body_size,
-            &Parser::redirection,
-            &Parser::root,
-            &Parser::autoindex,
-            &Parser::cgi
-            };
-        std::string             key[10] = {"listen", "server_name", "accept_method", "error_page", "index",
-                                            "client_max_body_size", "redirection", "root", "autoindex", "cgi"};
         std::ifstream           in_file;
-        std::vector<Server>     server;
+        std::vector<Server*>     server;
+        std::vector<Location*>   location;
         int                     server_size;
         int                     location_size;
         Parser();
@@ -38,17 +27,19 @@ class Parser
         void    conf_file();
         void    split(std::string &, std::vector<std::string> &);
         void    server_pars();
-        void    key_words(std::vector<std::string> &);
-        void    listen();
-        void    server_name();
-        void    accept_method();
-        void    error_page();
-        void    index();
-        void    client_max_body_size();
-        void    redirection();
-        void    root();
-        void    autoindex();
-        void    cgi();
+        void    key_words_server(std::vector<std::string> &, int);
+        void    key_words_location(std::vector<std::string> &, int);
+        int    listen(std::vector<std::string> &, int &);
+        int    server_name(std::vector<std::string> &, int &);
+        int    accept_method(std::vector<std::string> &, int &);
+        int    error_page(std::vector<std::string> &, int &);
+        int    index(std::vector<std::string> &, int &);
+        int    client_max_body_size(std::vector<std::string> &, int &);
+        int    redirection(std::vector<std::string> &, int &);
+        int    root(std::vector<std::string> &, int &);
+        int    autoindex(std::vector<std::string> &, int &);
+        int    cgi(std::vector<std::string> &, int &);
+        void    location_key(std::vector<std::string> &);
 };
 
 #endif
