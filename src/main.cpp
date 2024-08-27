@@ -67,7 +67,7 @@ int main()
 		exit(3);
 	}
 	int new_sock;
-	char buffer[20] = {0};
+	char buffer[1024] = {0};
 
 	poll_fd[0].fd = socket_fd;
 	poll_fd[0].events = POLLIN;
@@ -135,7 +135,7 @@ int main()
 						"Content-Length: 28\r\n"
 						"\r\n"
 						"<h1>Hola Lyudmyla!!!!!</h1>\n";
-					std::cout << "Info recibida:\n" << buffer << std::endl;
+					std::cout << buffer << std::endl;
 					int diff = strncmp(buffer, "cerrar servidor", 15);
 					if (diff == 0)
 					{
