@@ -1,14 +1,5 @@
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <iostream>
-# include <stdio.h>
-# include <stdlib.h>
-# include <unistd.h>
-# include <string.h>
-# include <cerrno>
-# include <poll.h>
+# include "../inc/Common.hpp"
+# include "../inc/Request.hpp"
 
 // lsof -i -P -n | grep webserv    <------    para comprobar puerto
 // nc localhost 8080   <----    para hacer peticiones
@@ -24,6 +15,7 @@ int main()
 	socklen_t len = sizeof(server_addr);
 	struct pollfd poll_fd[MAX_CLIENTS + 1];
 	int num_clientes = 0; (void)num_clientes;
+	std::vector<Request> requests;
 	(void)poll_fd;
 	(void)len;
 
@@ -36,13 +28,13 @@ int main()
 		std::cout << strerror(errno) << std::endl;
 		exit(1);
 	}
-	// int opt = 1;
-	// if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-	// {
-	// 	perror("Error en setsockectopt");
-	// 	std::cout << strerror(errno) << std::endl;
-	// 	exit(5);
-	// }
+	int opt = 1;
+	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+	{
+		perror("Error en setsockectopt");
+		std::cout << strerror(errno) << std::endl;
+		exit(5);
+	}
 
 	server_addr.sin_family = PF_INET;
 	// sin.sin_port = 8080;
@@ -134,8 +126,9 @@ int main()
 						"Keep-Alive: timeout=5, max=1000\r\n"
 						"Content-Length: 28\r\n"
 						"\r\n"
-						"<h1>Hola Lyudmyla!!!!!</h1>\n";
-					std::cout << buffer << std::endl;
+						"<h1></h1>\n";
+					// std::cout << buffer << std::endl;
+					Request prueba(buffer);
 					int diff = strncmp(buffer, "cerrar servidor", 15);
 					if (diff == 0)
 					{

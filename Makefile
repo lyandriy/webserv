@@ -16,6 +16,7 @@ BIN_PATH = bin/
 BIN_PATH = bin/
 
 SRCS =	main.cpp \
+		Request.cpp
 
 
 
