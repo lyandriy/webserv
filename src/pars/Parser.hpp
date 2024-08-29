@@ -29,17 +29,18 @@ class Parser
         void    server_pars();
         void    key_words_server();
         void    key_words_location();
-        int    listen();
-        int    server_name();
-        int    accept_method();
-        int    error_page();
-        int    index();
-        int    client_max_body_size();
-        int    redirection();
-        int    root();
-        int    autoindex();
-        int    cgi();
+        int     listen();
+        int     server_name();
+        int     accept_method();
+        int     error_page();
+        int     index();
+        int     client_max_body_size();
+        int     redirection();
+        int     root();
+        int     autoindex();
+        int     cgi();
         void    location_key();
+        bool    valid_path();
 };
 
 #endif

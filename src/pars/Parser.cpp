@@ -51,46 +51,84 @@ int    Parser::index(){
 }
 
 int    Parser::client_max_body_size(){
+    std::string str_number;
+    unsigned long long int  int_number;
+    int i = 0;
 
+    while (isdigit(words[0][i]) && i < words[0].size())
+    {
+        str_number += words[0][i];
+        i++;
+    }
+    if (!str_number.empty())
+    {
+        int_number = atol(str_number.c_str());
+        if (words[0][i] == 'M' && !words[0][i++])
+        {}
+        else if (words[0][i] == 'k' && !words[0][i++])
+        {}
+        else if (words[0][i] == 'G' && !words[0][i++])
+        {}
+        else
+            throw std::runtime_error("error");
+    }
 }
 
 int    Parser::redirection(){
-
+    if (valid_path())
+        return (1);
+    return (0);
 }
 
 int    Parser::root(){
 
+    if (valid_path())
+        return (1);
+    return (0);
 }
 
 int    Parser::autoindex(){
-
+    if (words[1] == "off" || words[1] == "on")
+        return (1);
+    return (0);
 }
 
 int    Parser::cgi(){
 
 }
 
+bool    Parser::valid_path()
+{
+    for (int i = 0; i < words[0].size(); i++)
+    {
+        if (!(std::isalnum(words[1][i]) || words[1][i] == '/' 
+            || words[1][i] == '-' || words[1][i] == '_' || words[1][i] == '.'))
+            return (false);
+    }
+    return (true);
+}
+
 void    Parser::key_words_server()
 {
-    if (words[0] == "listen" && listen() == 1)
+    if (words[0] == "listen" && words.size() == 2 && listen() == 1)
         this->server[server_size]->setListen(words[1]);
-    else if (words[0] == "server_name" && server_name() == 1)
+    else if (words[0] == "server_name" && words.size() == 2 && server_name() == 1)
         this->server[server_size]->setServerName(words[1]);
-    else if (words[0] == "accept_method" && accept_method() == 1)
+    else if (words[0] == "accept_method" && words.size() == 2 && accept_method() == 1)
         this->server[server_size]->setAcceptMethod(words[1]);
-    else if (words[0] == "error_page" && error_page() == 1)
+    else if (words[0] == "error_page" && words.size() == 2 && error_page() == 1)
         this->server[server_size]->setErrorPage(words[1]);
-    else if (words[0] == "index" && index() == 1)
+    else if (words[0] == "index" && words.size() == 2 && index() == 1)
         this->server[server_size]->setIndex(words[1]);
-    else if (words[0] == "client_max_body_size" && client_max_body_size() == 1)
+    else if (words[0] == "client_max_body_size" && words.size() == 2 && client_max_body_size() == 1)
         this->server[server_size]->setBodySize(words[1]);
-    else if (words[0] == "root" && root() == 1)
+    else if (words[0] == "root" && words.size() == 2 && root() == 1)
         this->server[server_size]->setRoot(words[1]);
-    else if (words[0] == "autoindex" && autoindex() == 1)
+    else if (words[0] == "autoindex" && words.size() == 2 && autoindex() == 1)
         this->server[server_size]->setAutoindex(words[1]);
-    else if (words[0] == "cgi" && cgi() == 1)
+    else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
         this->server[server_size]->setCGI(words[1]);
-    else if (words[0] == "redirection" && redirection() == 1)
+    else if (words[0] == "redirection" && words.size() == 2 && redirection() == 1)
         this->server[server_size]->setRedirection(words[1]);
     else
         throw std::runtime_error("error");
@@ -98,17 +136,17 @@ void    Parser::key_words_server()
 
 void    Parser::key_words_location()
 {
-    if (words[0] == "error_page" && error_page() == 1)
+    if (words[0] == "error_page" && words.size() == 2 && error_page() == 1)
         this->server[server_size]->setLocation(words);
-    else if (words[0] == "index" && index() == 1)
+    else if (words[0] == "index" && words.size() == 2 && index() == 1)
         this->server[server_size]->setLocation(words);
-    else if (words[0] == "client_max_body_size" && client_max_body_size() == 1)
+    else if (words[0] == "client_max_body_size" && words.size() == 2 && client_max_body_size() == 1)
         this->server[server_size]->setLocation(words);
-    else if (words[0] == "root" && root() == 1)
+    else if (words[0] == "root" && words.size() == 2 && root() == 1)
         this->server[server_size]->setLocation(words);
-    else if (words[0] == "autoindex" && autoindex() == 1)
+    else if (words[0] == "autoindex" && words.size() == 2 && autoindex() == 1)
         this->server[server_size]->setLocation(words);
-    else if (words[0] == "cgi" && cgi() == 1)
+    else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
         this->server[server_size]->setLocation(words);
     else
         throw std::runtime_error("error");
