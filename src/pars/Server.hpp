@@ -1,6 +1,10 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 #include <iostream>
+#include <vector>
+#include "Location.hpp"
+
+class Location;
 
 class Server
 {
@@ -15,6 +19,7 @@ class Server
         std::string    autoindex;
         std::string    index;
         std::string    cgi;
+        std::vector<Location*>   location;
     public:
         Server();
         ~Server();
@@ -31,6 +36,8 @@ class Server
         void    setAutoindex(std::string);
         void    setIndex(std::string);
         void    setCGI(std::string);
+        void    createLocation();
+        void    setLocation(std::vector<std::string> &);
 
         std::string    getServerName() const;
         std::string    getListen() const;
@@ -42,6 +49,7 @@ class Server
         std::string    getAutoindex() const;
         std::string    getIndex() const;
         std::string    getCGI() const;
+
 };
 
 #endif

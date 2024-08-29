@@ -107,3 +107,26 @@ std::string    Server::getCGI() const
 {
     return(this->cgi);
 }
+
+void    Server::createLocation()
+{
+    this->location.push_back(new Location(this));
+}
+void    Server::setLocation(std::vector<std::string> &words)
+{
+    Location*   back = location.back();
+    if (words[0] == "error_page")
+        back->setErrorPage(words[1]);
+    else if (words[0] == "index")
+        back->setIndex(words[1]);
+    else if (words[0] == "client_max_body_size")
+        back->setBodySize(words[1]);
+    else if (words[0] == "root")
+        back->setRoot(words[1]);
+    else if (words[0] == "autoindex")
+        back->setAutoindex(words[1]);
+    else if (words[0] == "cgi")
+        back->setCGI(words[1]);
+    else
+        throw std::runtime_error("error");
+}
