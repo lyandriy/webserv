@@ -126,9 +126,10 @@ int main()
 						"Keep-Alive: timeout=5, max=1000\r\n"
 						"Content-Length: 28\r\n"
 						"\r\n"
-						"<h1></h1>\n";
+						"<h1>Hola WOLOLO!!!</h1>\n";
 					// std::cout << buffer << std::endl;
 					Request prueba(buffer);
+					requests.push_back(prueba);
 					int diff = strncmp(buffer, "cerrar servidor", 15);
 					if (diff == 0)
 					{

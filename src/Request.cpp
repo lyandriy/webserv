@@ -12,6 +12,7 @@ Request::Request (std::string method, std::string uri, std::string protocol,
 
 Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _headers(), _body("")
 {
+	std::cout << "Constructor BUFFER" << std::endl;
 	_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
 	std::string aux(_request.begin(), _request.end());
 	_request_str = aux;
