@@ -25,12 +25,41 @@ void    Server::setAcceptMethod(std::string accept_method)
 
 void    Server::setErrorPage(std::string error_page)
 {
-    this->error_page = error_page;
+    int a = 1;
+    std::string str_number;
+    int int_number;
+
+    for (a = 1; a < (words.size() - 1); a++)
+    {
+        for (int i = 0; (isdigit(words[a][i]) && i < words[a].size()); i++)
+            str_number += words[a][i];
+        int_number = atoi(str_number.c_str());
+        this->error_page[int_number] = words[words.size() - 1];
+    }
 }
 
 void    Server::setBodySize(std::string client_max_body_size)
 {
-    this->client_max_body_size = client_max_body_size;
+    std::string str_number;
+    unsigned long long int  int_number;
+    int i = 0;
+
+    while (isdigit(words[1][i]) && i < words[1].size())
+    {
+        str_number += words[1][i];
+        i++;
+    }
+    if (!str_number.empty())
+    {
+        int_number = atol(str_number.c_str());
+        if (words[0][i] == 'M' && !words[0][i++])
+            int_number *= 1048576;
+        else if (words[0][i] == 'k' && !words[0][i++])
+            int_number *= 1024;
+        else if (words[0][i] == 'G' && !words[0][i++])
+            int_number *= 1073741824;
+        this->client_max_body_size = int_number;
+    }
 }
 
 void    Server::setRedirection(std::string redirection)

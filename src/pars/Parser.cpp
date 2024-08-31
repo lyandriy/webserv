@@ -35,19 +35,48 @@ int    Parser::listen(){
 }
 
 int    Parser::server_name(){
+    
 
 }
 
 int    Parser::accept_method(){
-
+    if (words[1] == "GET" || words[1] == "POST")
+        return (1);
+    return (0);
 }
 
 int    Parser::error_page(){
+    int a = 1;
 
+    for (a = 1; a < words.size(); a++)
+    {
+        for (int i = 0; i < words[a].size(); i++)
+        {
+            if (i == 3 || a < 63)
+                return (0);
+            else if (!isdigit(words[a][i]))
+                break;
+        }
+    }
+    if (a != 1 && a == (words.size() - 1))
+    {
+        for (int i = 0; i < words[a].size(); i++)
+        {
+            if (!isprint(words[a][i]) || words[a][i] == '/' || words[a][i] == '*' || words[a][i] == '$')
+                return (0);
+        }
+        return (1);
+    }
+    return (0);
 }
 
 int    Parser::index(){
-
+    for (int i = 0; i < words[1].size(); i++)
+    {
+        if (!isprint(words[1][i]) || words[1][i] == '/' || words[1][i] == '*' || words[1][i] == '$')
+            return (0);
+    }
+    return (1);
 }
 
 int    Parser::client_max_body_size(){
@@ -55,23 +84,17 @@ int    Parser::client_max_body_size(){
     unsigned long long int  int_number;
     int i = 0;
 
-    while (isdigit(words[0][i]) && i < words[0].size())
+    while (isdigit(words[1][i]) && i < words[1].size())
     {
-        str_number += words[0][i];
+        str_number += words[1][i];
         i++;
     }
     if (!str_number.empty())
     {
-        int_number = atol(str_number.c_str());
-        if (words[0][i] == 'M' && !words[0][i++])
-        {}
-        else if (words[0][i] == 'k' && !words[0][i++])
-        {}
-        else if (words[0][i] == 'G' && !words[0][i++])
-        {}
-        else
-            throw std::runtime_error("error");
+        if ((words[1][i] == 'M' || words[1][i] == 'k' || words[1][i] == 'G') && !words[0][i++])
+            return (1);
     }
+    return (0);
 }
 
 int    Parser::redirection(){
@@ -116,7 +139,7 @@ void    Parser::key_words_server()
         this->server[server_size]->setServerName(words[1]);
     else if (words[0] == "accept_method" && words.size() == 2 && accept_method() == 1)
         this->server[server_size]->setAcceptMethod(words[1]);
-    else if (words[0] == "error_page" && words.size() == 2 && error_page() == 1)
+    else if (words[0] == "error_page" && error_page() == 1)
         this->server[server_size]->setErrorPage(words[1]);
     else if (words[0] == "index" && words.size() == 2 && index() == 1)
         this->server[server_size]->setIndex(words[1]);
