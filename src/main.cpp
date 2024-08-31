@@ -124,7 +124,7 @@ int main()
 						"Content-Type: text/html\r\n"
 						"Connection: keep-alive\r\n"
 						"Keep-Alive: timeout=5, max=1000\r\n"
-						"Content-Length: 28\r\n"
+						"Content-Length: 24\r\n"
 						"\r\n"
 						"<h1>Hola WOLOLO!!!</h1>\n";
 					// std::cout << buffer << std::endl;
