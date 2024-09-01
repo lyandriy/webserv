@@ -4,13 +4,68 @@ Server::Server(){}
 
 Server::~Server(){}
 
-Server::Server(const Server &other){}
+Server::Server(const Server &other){
+    *this = other;
+}
 
-Server &Server::operator=(const Server &other){}
+Server &Server::operator=(const Server &other){return *this;}
 
-void    Server::setListen(std::string listen)
+struct sockaddr_in  Server::make_socaddr(std::string addr, int port)
 {
-    this->listen = listen;
+    struct sockaddr_in socket_addr;
+
+    socket_addr.sin_family = AF_INET;
+    socket_addr.sin_port = htons(port);
+    socket_addr.sin_addr.s_addr = INADDR_ANY;
+
+    return (socket_addr);
+}
+
+void    Server::setListen(std::vector<std::string> &words)
+{
+    std::string str_number;
+    int port;
+    std::string str_port;
+    int i = 0;
+    struct sockaddr_in socket_addr;
+
+
+    while (isdigit(words[1][i]) || words[1][i])
+    {
+        str_number += words[1][i];
+        i++;
+    }
+    if (words[1][i] == '.')
+    {
+        while (words[1][i] || words[1][i] != ':')
+        {
+            str_number += words[1][i];
+            i++;
+        }
+        if (words[1][i] != ':')//cuando hay solo el numero IP
+        {
+            listen.push_back(make_socaddr(str_number, 80));
+            str_number.clear();
+        }
+        if (words[1][i] == ':')
+        {
+            i++;
+            while (words[1][i])
+            {
+                str_port += words[1][i];
+                i++;
+            }
+            port = atoi(str_port.c_str());
+            str_port.clear();
+            listen.push_back(make_socaddr(str_number, port));
+        }
+    }
+    else if (!str_number.empty())//cuando hay solo puerto
+    {
+        port = atoi(str_number.c_str());
+        str_number.clear();
+        listen.push_back(make_socaddr("0.0.0.0", port));
+    }
 }
 
 void    Server::setServerName(std::string server_name)
@@ -23,7 +78,7 @@ void    Server::setAcceptMethod(std::string accept_method)
     this->accept_method = accept_method;
 }
 
-void    Server::setErrorPage(std::string error_page)
+void    Server::setErrorPage(std::vector<std::string> &words)
 {
     int a = 1;
     std::string str_number;
@@ -38,7 +93,7 @@ void    Server::setErrorPage(std::string error_page)
     }
 }
 
-void    Server::setBodySize(std::string client_max_body_size)
+void    Server::setBodySize(std::vector<std::string> &words)
 {
     std::string str_number;
     unsigned long long int  int_number;
@@ -82,17 +137,17 @@ void    Server::setIndex(std::string index)
     this->index = index;
 }
 
-void    Server::setCGI(std::string cgi)
+/*void    Server::setCGI(std::string cgi)
 {
     this->cgi = cgi;
-}
+}*/
 
 std::string    Server::getServerName() const
 {
     return(this->server_name);
 }
 
-std::string    Server::getListen() const
+std::vector<struct sockaddr_in>    Server::getListen() const
 {
     return(this->listen);
 }
@@ -102,12 +157,12 @@ std::string    Server::getAcceptMethod() const
     return(this->accept_method);
 }
 
-std::string    Server::getErrorPage() const
+std::map<int, std::string>    Server::getErrorPage() const
 {
     return(this->error_page);
 }
 
-std::string    Server::getBodySize() const
+unsigned long long int    Server::getBodySize() const
 {
     return(this->client_max_body_size);
 }
@@ -132,30 +187,30 @@ std::string    Server::getIndex() const
     return(this->index);
 }
 
-std::string    Server::getCGI() const
+/*std::string    Server::getCGI() const
 {
     return(this->cgi);
-}
+}*/
 
 void    Server::createLocation()
 {
-    this->location.push_back(new Location(this));
+    this->location.push_back(new Location(*this));
 }
 void    Server::setLocation(std::vector<std::string> &words)
 {
     Location*   back = location.back();
     if (words[0] == "error_page")
-        back->setErrorPage(words[1]);
+        back->setErrorPage(words);
     else if (words[0] == "index")
         back->setIndex(words[1]);
     else if (words[0] == "client_max_body_size")
-        back->setBodySize(words[1]);
+        back->setBodySize(words);
     else if (words[0] == "root")
         back->setRoot(words[1]);
     else if (words[0] == "autoindex")
         back->setAutoindex(words[1]);
-    else if (words[0] == "cgi")
-        back->setCGI(words[1]);
+   /* else if (words[0] == "cgi")
+        back->setCGI(words[1]);*/
     else
         throw std::runtime_error("error");
 }

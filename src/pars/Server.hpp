@@ -3,13 +3,14 @@
 #include <iostream>
 #include <vector>
 #include "Location.hpp"
+#include <netinet/in.h>
 
 class Location;
 
 class Server
 {
     private:
-        std::string    listen;
+        std::vector<struct sockaddr_in>    listen;
         std::string    server_name;
         std::string    accept_method;
         std::map<int, std::string>    error_page;
@@ -18,7 +19,7 @@ class Server
         std::string    root;
         std::string    autoindex;
         std::string    index;
-        std::string    cgi;
+        //std::string    cgi;
         std::vector<Location*>   location;
     public:
         Server();
@@ -26,30 +27,31 @@ class Server
         Server(const Server &);
         Server &operator=(const Server &);
 
-        void    setListen(std::string);
+        void    setListen(std::vector<std::string> &);
         void    setServerName(std::string);
         void    setAcceptMethod(std::string);
-        void    setErrorPage(std::string);
-        void    setBodySize(std::string);
+        void    setErrorPage(std::vector<std::string> &);
+        void    setBodySize(std::vector<std::string> &);
         void    setRedirection(std::string);
         void    setRoot(std::string);
         void    setAutoindex(std::string);
         void    setIndex(std::string);
-        void    setCGI(std::string);
+        //void    setCGI(std::string);
         void    createLocation();
         void    setLocation(std::vector<std::string> &);
 
         std::string    getServerName() const;
-        std::string    getListen() const;
+        std::vector<struct sockaddr_in>    getListen() const;
         std::string    getAcceptMethod() const;
-        std::string    getErrorPage() const;
-        std::string    getBodySize() const;
+        std::map<int, std::string>    getErrorPage() const;
+        unsigned long long int    getBodySize() const;
         std::string    getRedirection() const;
         std::string    getRoot() const;
         std::string    getAutoindex() const;
         std::string    getIndex() const;
-        std::string    getCGI() const;
+        //std::string    getCGI() const;
 
+        struct sockaddr_in  make_socaddr(std::string, int);
 };
 
 #endif

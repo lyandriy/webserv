@@ -1,14 +1,16 @@
 #include "Location.hpp"
 
+#include <cstdlib>
+
 Location::Location(){}
 
 Location::~Location(){}
 
 Location::Location(const Location &other){}
 
-Location &Location::operator=(const Location &other){}
+Location &Location::operator=(const Location &other){return *this;}
 
-void    Location::setErrorPage(std::string error_page)
+void    Location::setErrorPage(std::vector<std::string> &words)
 {
     int a = 1;
     std::string str_number;
@@ -18,11 +20,10 @@ void    Location::setErrorPage(std::string error_page)
         for (int i = 0; (isdigit(words[a][i]) && i < words[a].size()); i++)
             str_number += words[a][i];
         this->error_page[atoi(str_number.c_str())] = words[words.size() - 1];
-
     }
 }
 
-void    Location::setBodySize(std::string client_max_body_size)
+void    Location::setBodySize(std::vector<std::string> &words)
 {
     std::string str_number;
     unsigned long long int  int_number;
@@ -61,17 +62,17 @@ void    Location::setIndex(std::string index)
     this->index = index;
 }
 
-void    Location::setCGI(std::string cgi)
+/*void    Location::setCGI(std::string cgi)
 {
     this->cgi = cgi;
-}
+}*/
 
 std::string    Location::getServerName() const
 {
     return(this->server_name);
 }
 
-std::string    Location::getListen() const
+std::vector<struct sockaddr_in>    Location::getListen() const
 {
     return(this->listen);
 }
@@ -81,12 +82,12 @@ std::string    Location::getAcceptMethod() const
     return(this->accept_method);
 }
 
-std::string    Location::getErrorPage() const
+std::map<int, std::string>    Location::getErrorPage() const
 {
     return(this->error_page);
 }
 
-std::string    Location::getBodySize() const
+unsigned long long int    Location::getBodySize() const
 {
     return(this->client_max_body_size);
 }
@@ -111,20 +112,20 @@ std::string    Location::getIndex() const
     return(this->index);
 }
 
-std::string    Location::getCGI() const
+/*std::string    Location::getCGI() const
 {
     return(this->cgi);
-}
+}*/
 
-Location::Location(Server *other){
-    this->listen = other->getListen();
-    this->server_name = other->getServerName();
-    this->accept_method = other->getAcceptMethod();
-    this->error_page = other->getErrorPage();
-    this->client_max_body_size = other->getBodySize();
-    this->redirection = other->getRedirection();
-    this->root = other->getRoot();
-    this->autoindex = other->getAutoindex();
-    this->index = other->getIndex();
-    this->cgi = other->getCGI();
+Location::Location(Server &other){
+    this->listen = other.getListen();
+    this->server_name = other.getServerName();
+    this->accept_method = other.getAcceptMethod();
+    this->error_page = other.getErrorPage();
+    this->client_max_body_size = other.getBodySize();
+    this->redirection = other.getRedirection();
+    this->root = other.getRoot();
+    this->autoindex = other.getAutoindex();
+    this->index = other.getIndex();
+    //this->cgi = other->getCGI();
 }

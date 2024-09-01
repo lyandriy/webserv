@@ -18,25 +18,76 @@ Parser::Parser(const std::string file) : in_file(file.c_str())
 
 void    Parser::split(std::string &line, std::vector<std::string> &words)
 {
-    std::istringstream  iss;
-    std::string         line;
+    std::istringstream  iss(line);
+    std::string         line_;
 
-    iss.str(line);
-    while (iss >> line)
+    while (iss >> line_)
     {
-        std::cout << line << std::endl;
-        words.push_back(line);
+        std::cout << line_ << std::endl;
+        words.push_back(line_);
     }
     iss.clear();
 }
 
 int    Parser::listen(){
-    
+    int octet = 0;
+    int port =  0;
+    std::string str_number;
+    int int_number;
+
+    for (int i = 0; words[1][i]; i++)
+    {
+        if (isdigit(words[1][i]))
+            str_number += words[1][i];
+        else if (words[1][i] == '.')
+        {
+            if (!str_number.empty())
+            {
+                int_number = atoi(str_number.c_str());
+                str_number.clear();
+                if (int_number > 256 || octet == 4)
+                    return (0);
+                octet++;
+            }
+            else
+                return (0);
+        }
+        else if (words[1][i] == ':')
+        {
+            if (!str_number.empty())
+            {
+                int_number = atoi(str_number.c_str());
+                str_number.clear();
+                if (int_number > 65535 || port == 1)
+                    return (0);
+                port++;
+            }
+            else
+                return (0);
+        }
+        else
+            return (0);
+    }
+    if (!str_number.empty())
+    {
+        int_number = atoi(str_number.c_str());
+        str_number.clear();
+        if (int_number > 65535 || port == 1)
+            return (0);
+        port++;
+    }
+    if ((octet != 0 && octet != 4) || port != 1)
+        return (0);
+    return (1);
 }
 
 int    Parser::server_name(){
-    
-
+    for (int i = 0; i < words[1].size(); i++)
+    {
+        if (!std::isalnum(words[1][i]) && words[1][i] != '.' && words[1][i] != '-')
+            return (0);
+    }
+    return(1);
 }
 
 int    Parser::accept_method(){
@@ -116,9 +167,9 @@ int    Parser::autoindex(){
     return (0);
 }
 
-int    Parser::cgi(){
+/*int    Parser::cgi(){
 
-}
+}*/
 
 bool    Parser::valid_path()
 {
@@ -134,23 +185,23 @@ bool    Parser::valid_path()
 void    Parser::key_words_server()
 {
     if (words[0] == "listen" && words.size() == 2 && listen() == 1)
-        this->server[server_size]->setListen(words[1]);
+        this->server[server_size]->setListen(words);
     else if (words[0] == "server_name" && words.size() == 2 && server_name() == 1)
         this->server[server_size]->setServerName(words[1]);
     else if (words[0] == "accept_method" && words.size() == 2 && accept_method() == 1)
         this->server[server_size]->setAcceptMethod(words[1]);
     else if (words[0] == "error_page" && error_page() == 1)
-        this->server[server_size]->setErrorPage(words[1]);
+        this->server[server_size]->setErrorPage(words);
     else if (words[0] == "index" && words.size() == 2 && index() == 1)
         this->server[server_size]->setIndex(words[1]);
     else if (words[0] == "client_max_body_size" && words.size() == 2 && client_max_body_size() == 1)
-        this->server[server_size]->setBodySize(words[1]);
+        this->server[server_size]->setBodySize(words);
     else if (words[0] == "root" && words.size() == 2 && root() == 1)
         this->server[server_size]->setRoot(words[1]);
     else if (words[0] == "autoindex" && words.size() == 2 && autoindex() == 1)
         this->server[server_size]->setAutoindex(words[1]);
-    else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
-        this->server[server_size]->setCGI(words[1]);
+    /*else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
+        this->server[server_size]->setCGI(words[1]);*/
     else if (words[0] == "redirection" && words.size() == 2 && redirection() == 1)
         this->server[server_size]->setRedirection(words[1]);
     else
@@ -169,8 +220,8 @@ void    Parser::key_words_location()
         this->server[server_size]->setLocation(words);
     else if (words[0] == "autoindex" && words.size() == 2 && autoindex() == 1)
         this->server[server_size]->setLocation(words);
-    else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
-        this->server[server_size]->setLocation(words);
+    /*else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
+        this->server[server_size]->setLocation(words);*/
     else
         throw std::runtime_error("error");
 }
