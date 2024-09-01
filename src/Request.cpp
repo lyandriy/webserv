@@ -10,13 +10,17 @@ Request::Request (std::string method, std::string uri, std::string protocol,
 	// comprobar si tb vale cuando hay memoria reservada para headers, creo que sí.
 }
 
-Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _headers(), _body("")
+Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _headers(), _body(""), _lines()
 {
 	std::cout << "Constructor BUFFER" << std::endl;
 	_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
 	std::string aux(_request.begin(), _request.end());
 	_request_str = aux;
-	std::cout << "Esta es la request en bruto: " << _request_str << std::endl;
+	// std::cout << "--->>>   Esta es la request en bruto:   <<<---\n" << _request_str << std::endl;
+	// this->find_CRLF(_request_str);
+	// std::cout << "\n\nEstas son las líneas de la request:\n" << std::endl;
+	get_lines(_request_str);
+	// this->check_lines(_lines);
 }
 
 Request::Request(Request const &copy)
@@ -54,3 +58,44 @@ void Request::manage_request(int socket_fd)
 {
 	(void)socket_fd;
 }
+
+void Request::get_lines(const std::string &request)
+{
+	std::string::size_type start = 0;
+	std::string::size_type end;
+	std::string line;
+
+	end = request.find("\r\n", start);
+	while (end != std::string::npos)
+	{
+		line = request.substr(start, end - start);
+		_lines.push_back(line);
+		start = end + 2;
+		end = request.find("\r\n", start);
+	}
+	if (start < request.length())
+	{
+		_lines.push_back(request.substr(start));
+	}
+		std::cout << "WOLOLOOOOOOO!!!" << std::endl;
+}
+
+
+// --------------------  DEBUG  -------------------- //
+void Request::check_lines(std::vector<std::string> lines)
+{
+	for (size_t i = 0; i < lines.size(); i++)
+	{
+		std::cout << lines[i] << "\n";
+	}
+	std::cout << std::endl;
+	
+}
+
+void Request::find_CRLF(const std::string &str)
+{
+	size_t position;
+	position = str.find("\r\n", 15);
+	std::cout << "\\r\\n encontrado en psosición " << position << std::endl;
+}
+

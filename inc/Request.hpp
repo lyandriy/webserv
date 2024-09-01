@@ -12,6 +12,7 @@ private:
 	std::string _protocol;
 	std::map<std::string, std::string>_headers;
 	std::string _body;
+	std::vector<std::string>_lines;
 public:
 	Request(void);
 	Request(char *buffer);
@@ -26,6 +27,11 @@ public:
 
 	void manage_request(int socket_fd);
 	void parse_request(const char *buffer);
+	void get_lines(const std::string &_requests);
+
+	// Para debug //
+	void check_lines(std::vector<std::string> lines);
+	void find_CRLF(const std::string &str);
 };
 
 
