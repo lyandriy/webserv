@@ -6,8 +6,14 @@ AConfig::AConfig()
       _serverTimeOutMs(60 * 1000), _directoryListing(false),
       _directoryFile("./pages/list_dirs.html"), _cgiPythonEnable(false),
       _cgiPythonBinPath("./cgi-bins/python3"), _cgiHaskelEnable(false),
-      _cgiHaskelBinPath("./cgi-bins/haskel"), _root("./pages/default"),
-      _allowedMethods({"GET", "POST", "PUT", "DELETE"}) {}
+      _cgiHaskelBinPath("./cgi-bins/haskel"), _root("/var/www/html"),
+      _index("index.html"), _redirection("") {
+  _allowedMethods.push_back("GET");
+  _allowedMethods.push_back("POST");
+  _allowedMethods.push_back("PUT");
+  _allowedMethods.push_back("DELETE");
+  std::cout << "AConfig contructor" << std::endl;
+}
 
 AConfig::AConfig(const AConfig &other) { *this = other; }
 
@@ -25,9 +31,13 @@ AConfig &AConfig::operator=(const AConfig &other) {
   this->_cgiPythonBinPath = other._cgiPythonBinPath;
   this->_cgiHaskelEnable = other._cgiHaskelEnable;
   this->_cgiHaskelBinPath = other._cgiHaskelBinPath;
-  this->_root = other._root;
   this->_allowedMethods = other._allowedMethods;
   return *this;
+}
+
+AConfig::~AConfig()
+{
+  std::cout << "Destroying AConfig" << std::endl;
 }
 
 std::string AConfig::getErrorPath() const { return _errorPath; }
@@ -38,25 +48,95 @@ size_t AConfig::getClientMaxSizeBytes() const {
 void AConfig::setClientMaxSizeBytes(size_t size) {
   _clientBodyMaxSizeBytes = size;
 }
-size_t AConfig::getClientTimeOutMs() const {}
-void AConfig::setClientTimeOutMs(size_t size) {}
-size_t AConfig::getServerMaxSizeBytes() const {}
-void AConfig::setServerMaxSizeBytes(size_t size) {}
-size_t AConfig::getServerTimeOutMs() const {}
-void AConfig::setServerTimeOutMs(size_t timeout) {}
-bool AConfig::getDirectoryListing() const {}
-void AConfig::setDirectoryListing(bool state) {}
-std::string AConfig::getDirectoryFile() const {}
-void AConfig::setDirectoryFile(std::string path) {}
-bool AConfig::getCgiPythonEnable() const {}
-void AConfig::setCgiPythonEnable(bool state) {}
-std::string AConfig::getCgiPythonBinPath() const {}
-void AConfig::setCgiPythonBinPath(std::string path) {}
-bool AConfig::getCgiHaskelEnable() const {}
-void AConfig::setCgiHaskelEnable(bool state) {}
-std::string AConfig::getCgiHaskelBinPath() const {}
-void AConfig::setCgiHaskelBinPath(std::string path) {}
-std::string AConfig::getRoot() const {}
-void AConfig::setRoot(std::string root) {}
-std::list<std::string> AConfig::getAllowedMethods() const {}
-void AConfig::setAllowedMethods(std::list<std::string>) {}
+size_t AConfig::getClientTimeOutMs() const {
+  return _clientTimeOutMs;
+}
+
+void AConfig::setClientTimeOutMs(size_t size) {
+  _clientTimeOutMs = size;
+}
+
+size_t AConfig::getServerMaxSizeBytes() const {
+  return _serverBodyMaxSizeBytes;
+}
+
+void AConfig::setServerMaxSizeBytes(size_t size) {
+  _serverBodyMaxSizeBytes = size;
+}
+
+size_t AConfig::getServerTimeOutMs() const {
+  return _serverTimeOutMs;
+}
+
+void AConfig::setServerTimeOutMs(size_t timeout) {
+  _serverTimeOutMs = timeout;
+}
+
+bool AConfig::getDirectoryListing() const {
+  return _directoryListing;
+}
+
+void AConfig::setDirectoryListing(bool state) {
+  _directoryListing = state;
+}
+
+std::string AConfig::getDirectoryFile() const {
+  return _directoryFile;
+}
+
+void AConfig::setDirectoryFile(std::string path) {
+  _directoryFile = path;
+}
+
+bool AConfig::getCgiPythonEnable() const {
+  return _cgiPythonEnable;
+}
+
+void AConfig::setCgiPythonEnable(bool state) {
+  _cgiPythonEnable = state;
+}
+
+std::string AConfig::getCgiPythonBinPath() const {
+  return _cgiPythonBinPath;
+}
+
+void AConfig::setCgiPythonBinPath(std::string path) {
+  _cgiPythonBinPath = path;
+}
+
+bool AConfig::getCgiHaskelEnable() const {
+  return _cgiHaskelEnable;
+}
+
+void AConfig::setCgiHaskelEnable(bool state) {
+  _cgiHaskelEnable = state;
+}
+
+std::string AConfig::getCgiHaskelBinPath() const {
+  return _cgiHaskelBinPath;
+}
+
+void AConfig::setCgiHaskelBinPath(std::string path) {
+  _cgiHaskelBinPath = path;
+}
+
+std::list<std::string> AConfig::getAllowedMethods() const {
+  return _allowedMethods;
+}
+
+void AConfig::setAllowedMethods(std::list<std::string> methods) {
+  _allowedMethods = methods;
+}
+
+const char *AConfig::rootNotAvailable::what () const throw() {
+  return "Root not available in this class";
+}
+
+const char *AConfig::indexNotAvailable::what () const throw() {
+  return "Index not available in this class";
+}
+
+const char *AConfig::redirectionNotAvailable::what () const throw() {
+  return "Redirection not available in this class";
+}
+

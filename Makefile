@@ -16,11 +16,15 @@ BIN_PATH = bin/
 BIN_PATH = bin/
 
 SRCS =	main.cpp \
+				AConfig.cpp \
+				WebServer.cpp \
+				Server.cpp \
+				Location.cpp \
 
 OBJS = $(SRCS:%.cpp=bin/%.o)
 
 CC = g++
-CFLAGS = -std=c++98 -Wall -Werror -Wextra #-g -O0
+CFLAGS = -std=c++98 -Wall -Werror -Wextra -g3
 RM = rm -f
 
 ###	--- RULES --- ###
@@ -49,7 +53,7 @@ fclean: clean
 re: fclean
 	$(MAKE)	
 
-run: all
+run: re
 	./${NAME}
 
 .PHONY: all clean fclean re

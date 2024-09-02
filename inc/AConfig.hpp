@@ -2,16 +2,23 @@
 #define ACONFIG_HPP
 
 #include <cstddef>
+#include <exception>
 #include <list>
 #include <string>
+#include <iostream>
 
 class AConfig {
 public:
   AConfig();
   AConfig(const AConfig &other);
   AConfig &operator=(const AConfig &other);
-  virtual ~AConfig();
-
+  virtual ~AConfig() = 0;
+  virtual std::string getRoot() = 0;
+  virtual void setRoot(std::string root) = 0;
+  virtual std::string getIndex() = 0;
+  virtual void setIndex(std::string index) = 0;
+  virtual std::string getRedirection() = 0;
+  virtual void setRedirection(std::string redirection) = 0;
   std::string getErrorPath() const;
   void setErrorPath(std::string path);
   size_t getClientMaxSizeBytes() const;
@@ -34,11 +41,8 @@ public:
   void setCgiHaskelEnable(bool state);
   std::string getCgiHaskelBinPath() const;
   void setCgiHaskelBinPath(std::string path);
-  std::string getRoot() const;
-  void setRoot(std::string root);
   std::list<std::string> getAllowedMethods() const;
   void setAllowedMethods(std::list<std::string>);
-
 protected:
   std::string _errorPath;
   size_t _clientBodyMaxSizeBytes;
@@ -51,8 +55,14 @@ protected:
   std::string _cgiPythonBinPath;
   bool _cgiHaskelEnable;
   std::string _cgiHaskelBinPath;
-  std::string _root;
   std::list<std::string> _allowedMethods;
+  std::string _root;
+  std::string _index;
+  std::string _redirection;
+  class rootNotAvailable : public std::exception { virtual const char *what () const throw(); };
+  class indexNotAvailable : public std::exception { virtual const char *what () const throw(); };
+  class redirectionNotAvailable : public std::exception { virtual const char *what () const throw(); };
+private:
 };
 
 #endif // !ACONFIG_HPP
