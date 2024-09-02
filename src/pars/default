@@ -1,3 +1,7 @@
 server {
         listen 8080;
+        server_name example.com;
+        index index.hpp;
+
+        error_page 403 401 402 404 /404.html;
 }

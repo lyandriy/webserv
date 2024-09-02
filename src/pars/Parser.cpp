@@ -25,14 +25,35 @@ void    Parser::split(std::string &line, std::vector<std::string> &words)
 
     while (iss >> line_)
     {
-        std::cout << line_ << std::endl;
+        //std::cout << line_ << std::endl;
         words.push_back(line_);
     }
     iss.clear();
-    std::cout << "fin de split" << std::endl;
+    //std::cout << "fin de split" << std::endl;
+}
+int    Parser::listen(){
+    std::string str_number;
+    int int_number;
+
+    for (int i = 0; words[1][i]; i++)
+    {
+        if (isdigit(words[1][i]))
+            str_number += words[1][i];
+        else
+            return (0);
+    }
+    if (!str_number.empty())
+    {
+        int_number = atoi(str_number.c_str());
+        str_number.clear();
+        if (int_number > 65535)
+            return (0);
+    }
+    return (1);
 }
 
-int    Parser::listen(){
+
+/*int    Parser::listen(){
     int octet = 0;
     int port =  0;
     std::string str_number;
@@ -41,9 +62,13 @@ int    Parser::listen(){
     for (int i = 0; words[1][i]; i++)
     {
         if (isdigit(words[1][i]))
+        {
             str_number += words[1][i];
+            std::cout << "isdigit" << std::endl;
+        }
         else if (words[1][i] == '.')
         {
+            std::cout << "soy punto" << std::endl;
             if (!str_number.empty())
             {
                 int_number = atoi(str_number.c_str());
@@ -51,6 +76,7 @@ int    Parser::listen(){
                 if (int_number > 256 || octet == 4)
                     return (0);
                 octet++;
+                std::cout << "soy octeto " << octet << std::endl;
             }
             else
                 return (0);
@@ -64,6 +90,7 @@ int    Parser::listen(){
                 if (int_number > 65535 || port == 1)
                     return (0);
                 port++;
+                std::cout << "soy port " << port << std::endl;
             }
             else
                 return (0);
@@ -71,18 +98,29 @@ int    Parser::listen(){
         else
             return (0);
     }
-    if (!str_number.empty())
+    if (octet == 3)
     {
+        if (!str_number.empty())
+        {
+            int_number = atoi(str_number.c_str());
+            str_number.clear();
+            if (int_number > 256 || octet == 4)
+                return (0);
+            octet++;
+            std::cout << "soy octeto " << octet << std::endl;
+        }
+    }
+    else if (!str_number.empty())
+    {
+        std::cout << "soy solo puerto" << std::endl;
         int_number = atoi(str_number.c_str());
         str_number.clear();
         if (int_number > 65535 || port == 1)
             return (0);
         port++;
     }
-    if ((octet != 0 && octet != 4) || port != 1)
-        return (0);
     return (1);
-}
+}*/
 
 int    Parser::server_name(){
     for (int i = 0; i < words[1].size(); i++)
@@ -90,6 +128,7 @@ int    Parser::server_name(){
         if (!std::isalnum(words[1][i]) && words[1][i] != '.' && words[1][i] != '-')
             return (0);
     }
+    std::cout << "todo bien!\n";
     return(1);
 }
 
@@ -106,20 +145,31 @@ int    Parser::error_page(){
     {
         for (int i = 0; i < words[a].size(); i++)
         {
-            if (i == 3 || a < 63)
+            std::cout << i << " hola " << words[a] << "\n";
+            if (i == 3 || a > 63)
+            {
                 return (0);
+            }
+            /*for (int i = 0; (isdigit(words[a][i]) && i < words[a].size()); i++)
+            str_number += words[a][i];
+            int_number = atoi(str_number.c_str());
+            str_number.clear();*/
             else if (!isdigit(words[a][i]))
-                break;
+            {
+                if (a != 1 && a == (words.size() - 1))
+                {
+                    for (int i = 0; i < words[a].size(); i++)
+                    {
+                        if (!isprint(words[a][i]) || words[a][i] == '*' || words[a][i] == '$')
+                        {
+                            std::cout << "hola 2" << "\n";
+                            return (0);
+                        }
+                    }
+                    return (1);
+                }
+            }
         }
-    }
-    if (a != 1 && a == (words.size() - 1))
-    {
-        for (int i = 0; i < words[a].size(); i++)
-        {
-            if (!isprint(words[a][i]) || words[a][i] == '/' || words[a][i] == '*' || words[a][i] == '$')
-                return (0);
-        }
-        return (1);
     }
     return (0);
 }
@@ -130,6 +180,7 @@ int    Parser::index(){
         if (!isprint(words[1][i]) || words[1][i] == '/' || words[1][i] == '*' || words[1][i] == '$')
             return (0);
     }
+    std::cout << "todo ok\n";
     return (1);
 }
 
@@ -187,13 +238,8 @@ bool    Parser::valid_path()
 
 void    Parser::key_words_server()
 {
-    std::cout << words[0] << " " << words[1] << std::endl;
-    std::cout << words.size() << " " << listen() << std::endl;
     if (words[0] == "listen" && words.size() == 2 && listen() == 1)
-    {
-        std::cout << server_size << " entro" << std::endl;
-        this->server[server_size]->setListen(words);
-    }
+        this->server[server_size]->setListen(words[1]);
     else if (words[0] == "server_name" && words.size() == 2 && server_name() == 1)
         this->server[server_size]->setServerName(words[1]);
     else if (words[0] == "accept_method" && words.size() == 2 && accept_method() == 1)
@@ -268,7 +314,7 @@ void    Parser::server_pars()
             }
             else
             {
-                std::cout << "directivas" << words[0] << std::endl;
+                std::cout << "directivas " << words[0] << std::endl;
                 key_words_server();//cuando no es location
             }
             words.clear();
@@ -290,7 +336,6 @@ void Parser::conf_file()
             split(line, words);//separa la linea en palabras
             if (words[0] == "server" && words.size() == 1)//si encuentra server en primera posicion y no ha nada mas despues de server
             {
-                std::cout << "parser server" << std::endl;
                 words.clear();
                 server_pars();
             }

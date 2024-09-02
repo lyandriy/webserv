@@ -27,7 +27,7 @@ class Server
         Server(const Server &);
         Server &operator=(const Server &);
 
-        void    setListen(std::vector<std::string> &);
+        void    setListen(std::string);
         void    setServerName(std::string);
         void    setAcceptMethod(std::string);
         void    setErrorPage(std::vector<std::string> &);

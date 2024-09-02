@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 Server::Server(){
-    std::cout << "constructor de server" << std::endl;
+    //std::cout << "constructor de server" << std::endl;
 }
 
 Server::~Server(){}
@@ -12,7 +12,7 @@ Server::Server(const Server &other){
 
 Server &Server::operator=(const Server &other){return *this;}
 
-struct sockaddr_in  Server::make_socaddr(std::string addr, int port)
+/*struct sockaddr_in  Server::make_socaddr(std::string addr, int port)
 {
     struct sockaddr_in socket_addr;
 
@@ -21,9 +21,19 @@ struct sockaddr_in  Server::make_socaddr(std::string addr, int port)
     socket_addr.sin_addr.s_addr = INADDR_ANY;
 
     return (socket_addr);
-}
+}*/
+void    Server::setListen(std::string word)
+{
+    int port;
+    struct sockaddr_in socket_addr;
 
-void    Server::setListen(std::vector<std::string> &words)
+    port = atoi(word.c_str());
+    socket_addr.sin_family = AF_INET;
+    socket_addr.sin_port = htons(port);
+    socket_addr.sin_addr.s_addr = INADDR_ANY;
+    listen.push_back(socket_addr);
+}
+/*void    Server::setListen(std::vector<std::string> &words)
 {
     std::string str_number;
     int port;
@@ -33,7 +43,7 @@ void    Server::setListen(std::vector<std::string> &words)
 
     while (isdigit(words[1][i]) || words[1][i])
     {
-        std::cout << "sera aqui" << std::endl;
+        std::cout << "sera aqui " << words[1] << std::endl;
         str_number += words[1][i];
         i++;
     }
@@ -70,11 +80,12 @@ void    Server::setListen(std::vector<std::string> &words)
         str_number.clear();
         listen.push_back(make_socaddr("0.0.0.0", port));
     }
-}
+}*/
 
 void    Server::setServerName(std::string server_name)
 {
     this->server_name = server_name; 
+    std::cout << this->server_name << "\n";
 }
 
 void    Server::setAcceptMethod(std::string accept_method)
@@ -93,6 +104,7 @@ void    Server::setErrorPage(std::vector<std::string> &words)
         for (int i = 0; (isdigit(words[a][i]) && i < words[a].size()); i++)
             str_number += words[a][i];
         int_number = atoi(str_number.c_str());
+        str_number.clear();
         this->error_page[int_number] = words[words.size() - 1];
     }
 }
@@ -139,6 +151,7 @@ void    Server::setAutoindex(std::string autoindex)
 void    Server::setIndex(std::string index)
 {
     this->index = index;
+    std::cout << this->index << "\n";
 }
 
 /*void    Server::setCGI(std::string cgi)
