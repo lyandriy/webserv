@@ -78,12 +78,11 @@ void Request::get_lines(const std::string &request)
 	{
 		_lines.push_back(request.substr(start));
 	}
-		std::cout << "WOLOLOOOOOOO!!!" << std::endl;
 }
 
 void get_lines(const std::vector<char> &request)
 {
-	(void)request;
+	std::vector<char>::iterator begin = request.begin();
 }
 
 
@@ -104,4 +103,15 @@ void Request::find_CRLF(const std::string &str)
 	position = str.find("\r\n", 15);
 	std::cout << "\\r\\n encontrado en psosición " << position << std::endl;
 }
+
+void Request::check_vector(const std::vector<char> &request)
+{
+	std::cout << "Chequeo del vector:\n";
+	for (size_t i = 0; i < request.size(); i++)
+	{
+		std::cout << request[i];
+	}
+	std::cout << std::endl;
+}
+
 
