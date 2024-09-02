@@ -21,6 +21,7 @@ Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _headers(
 	// std::cout << "\n\nEstas son las líneas de la request:\n" << std::endl;
 	get_lines(_request_str);
 	// this->check_lines(_lines);
+	check_vector(_request);
 }
 
 Request::Request(Request const &copy)
@@ -78,6 +79,11 @@ void Request::get_lines(const std::string &request)
 		_lines.push_back(request.substr(start));
 	}
 		std::cout << "WOLOLOOOOOOO!!!" << std::endl;
+}
+
+void get_lines(const std::vector<char> &request)
+{
+	(void)request;
 }
 
 

@@ -27,11 +27,14 @@ public:
 
 	void manage_request(int socket_fd);
 	void parse_request(const char *buffer);
-	void get_lines(const std::string &_requests);
+	void get_lines(const std::string &request);
+	void get_lines(const std::vector<char> &request);
 
 	// Para debug //
 	void check_lines(std::vector<std::string> lines);
 	void find_CRLF(const std::string &str);
+	void find_CRLF(const std::vector<char> &request);
+	void check_vector(const std::vector<char> &request);
 };
 
 
