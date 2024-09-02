@@ -1,6 +1,8 @@
 #include "Server.hpp"
 
-Server::Server(){}
+Server::Server(){
+    std::cout << "constructor de server" << std::endl;
+}
 
 Server::~Server(){}
 
@@ -29,9 +31,9 @@ void    Server::setListen(std::vector<std::string> &words)
     int i = 0;
     struct sockaddr_in socket_addr;
 
-
     while (isdigit(words[1][i]) || words[1][i])
     {
+        std::cout << "sera aqui" << std::endl;
         str_number += words[1][i];
         i++;
     }
@@ -52,6 +54,7 @@ void    Server::setListen(std::vector<std::string> &words)
             i++;
             while (words[1][i])
             {
+                std::cout << "sera aqui2" << std::endl;
                 str_port += words[1][i];
                 i++;
             }
@@ -63,6 +66,7 @@ void    Server::setListen(std::vector<std::string> &words)
     else if (!str_number.empty())//cuando hay solo puerto
     {
         port = atoi(str_number.c_str());
+        std::cout << "port numero " << port << std::endl;
         str_number.clear();
         listen.push_back(make_socaddr("0.0.0.0", port));
     }
@@ -212,5 +216,5 @@ void    Server::setLocation(std::vector<std::string> &words)
    /* else if (words[0] == "cgi")
         back->setCGI(words[1]);*/
     else
-        throw std::runtime_error("error");
+        throw std::runtime_error("error_setLocation");
 }

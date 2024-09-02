@@ -12,8 +12,10 @@ Parser::~Parser(){
 
 Parser::Parser(const std::string file) : in_file(file.c_str())
 {
+    this->server_size = 0;
+    this->location_size = 0;
     if (!in_file.is_open())
-        throw std::runtime_error("error");
+        throw std::runtime_error("error_Parder_constructor");
 }
 
 void    Parser::split(std::string &line, std::vector<std::string> &words)
@@ -27,6 +29,7 @@ void    Parser::split(std::string &line, std::vector<std::string> &words)
         words.push_back(line_);
     }
     iss.clear();
+    std::cout << "fin de split" << std::endl;
 }
 
 int    Parser::listen(){
@@ -184,8 +187,13 @@ bool    Parser::valid_path()
 
 void    Parser::key_words_server()
 {
+    std::cout << words[0] << " " << words[1] << std::endl;
+    std::cout << words.size() << " " << listen() << std::endl;
     if (words[0] == "listen" && words.size() == 2 && listen() == 1)
+    {
+        std::cout << server_size << " entro" << std::endl;
         this->server[server_size]->setListen(words);
+    }
     else if (words[0] == "server_name" && words.size() == 2 && server_name() == 1)
         this->server[server_size]->setServerName(words[1]);
     else if (words[0] == "accept_method" && words.size() == 2 && accept_method() == 1)
@@ -205,7 +213,7 @@ void    Parser::key_words_server()
     else if (words[0] == "redirection" && words.size() == 2 && redirection() == 1)
         this->server[server_size]->setRedirection(words[1]);
     else
-        throw std::runtime_error("error");
+        throw std::runtime_error("error_key_words_server");
 }
 
 void    Parser::key_words_location()
@@ -223,7 +231,7 @@ void    Parser::key_words_location()
     /*else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
         this->server[server_size]->setLocation(words);*/
     else
-        throw std::runtime_error("error");
+        throw std::runtime_error("error_key_words_location");
 }
 
 void    Parser::location_key()
@@ -239,7 +247,7 @@ void    Parser::location_key()
         key_words_location();
     }
     else
-        throw std::runtime_error("error");
+        throw std::runtime_error("error_locationKey");
     location_size++;
 }
 
@@ -254,16 +262,19 @@ void    Parser::server_pars()
         {
             split(line, words);//separa la linea en palabras
             if (words[0] == "location")//cuando encuentra location
+            {
+                std::cout << "parser location" << std::endl;
                 location_key();
+            }
             else
             {
-                words.erase(words.begin());
+                std::cout << "directivas" << words[0] << std::endl;
                 key_words_server();//cuando no es location
             }
             words.clear();
         }
         else
-            throw std::runtime_error("error");
+             std::runtime_error("error");
     }
     server_size++;
 }
@@ -279,16 +290,17 @@ void Parser::conf_file()
             split(line, words);//separa la linea en palabras
             if (words[0] == "server" && words.size() == 1)//si encuentra server en primera posicion y no ha nada mas despues de server
             {
+                std::cout << "parser server" << std::endl;
                 words.clear();
                 server_pars();
             }
             else
             {
                 words.clear();
-                throw std::runtime_error("error");
+                throw std::runtime_error("error_conf_file1");
             }
         }
         else
-            throw std::runtime_error("error");
+            throw std::runtime_error("error_conf_file2");
     }
 }
