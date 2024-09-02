@@ -1,9 +1,8 @@
 
 #include "../inc/Server.hpp"
 
-Server::Server(const WebServer &other)
+Server::Server(const WebServer &other): WebServer(other)
 {
-  *static_cast<AConfig *>(this) = static_cast<const AConfig &>(other);
   std::cout << "Server created" << std::endl;
 }
 
@@ -12,9 +11,9 @@ Server::~Server()
   std::cout << "Server destroyed" << std::endl;
 }
 
-std::string Server::getRoot()
+std::string Server::getRoot() const
 {
-  return _root;
+  return this->_root;
 }
 
 void Server::setRoot(std::string root)
@@ -22,9 +21,9 @@ void Server::setRoot(std::string root)
   _root = root;
 }
 
-std::string Server::getIndex()
+std::string Server::getIndex() const
 {
-  return _index;
+  return this->_index;
 }
 
 void Server::setIndex(std::string index)
@@ -32,9 +31,9 @@ void Server::setIndex(std::string index)
   _index = index;
 }
 
-std::string Server::getRedirection()
+std::string Server::getRedirection() const
 {
-  return _redirection;
+  return this->_redirection;
 }
 
 void Server::setRedirection(std::string redirection)

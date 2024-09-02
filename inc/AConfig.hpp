@@ -65,4 +65,5 @@ protected:
 private:
 };
 
+
 #endif // !ACONFIG_HPP

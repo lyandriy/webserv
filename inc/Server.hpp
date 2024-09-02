@@ -7,11 +7,11 @@ class Server : public WebServer{
 public:
   Server(const WebServer &other);
   ~Server();
-  std::string getRoot();
+  std::string getRoot() const;
   void setRoot(std::string root);
-  std::string getIndex();
+  std::string getIndex() const;
   void setIndex(std::string index);
-  std::string getRedirection();
+  std::string getRedirection() const;
   void setRedirection(std::string redirection);
 protected:
 private:

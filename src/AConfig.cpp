@@ -32,6 +32,9 @@ AConfig &AConfig::operator=(const AConfig &other) {
   this->_cgiHaskelEnable = other._cgiHaskelEnable;
   this->_cgiHaskelBinPath = other._cgiHaskelBinPath;
   this->_allowedMethods = other._allowedMethods;
+  this->_root = other._root;
+  this->_index = other._index;
+  this->_redirection = other._redirection;
   return *this;
 }
 
@@ -40,16 +43,16 @@ AConfig::~AConfig()
   std::cout << "Destroying AConfig" << std::endl;
 }
 
-std::string AConfig::getErrorPath() const { return _errorPath; }
+std::string AConfig::getErrorPath() const { return this->_errorPath; }
 void AConfig::setErrorPath(std::string path) { _errorPath = path; }
 size_t AConfig::getClientMaxSizeBytes() const {
-  return _clientBodyMaxSizeBytes;
+  return this->_clientBodyMaxSizeBytes;
 }
 void AConfig::setClientMaxSizeBytes(size_t size) {
   _clientBodyMaxSizeBytes = size;
 }
 size_t AConfig::getClientTimeOutMs() const {
-  return _clientTimeOutMs;
+  return this->_clientTimeOutMs;
 }
 
 void AConfig::setClientTimeOutMs(size_t size) {
@@ -57,7 +60,7 @@ void AConfig::setClientTimeOutMs(size_t size) {
 }
 
 size_t AConfig::getServerMaxSizeBytes() const {
-  return _serverBodyMaxSizeBytes;
+  return this->_serverBodyMaxSizeBytes;
 }
 
 void AConfig::setServerMaxSizeBytes(size_t size) {
@@ -65,7 +68,7 @@ void AConfig::setServerMaxSizeBytes(size_t size) {
 }
 
 size_t AConfig::getServerTimeOutMs() const {
-  return _serverTimeOutMs;
+  return this->_serverTimeOutMs;
 }
 
 void AConfig::setServerTimeOutMs(size_t timeout) {
@@ -73,7 +76,7 @@ void AConfig::setServerTimeOutMs(size_t timeout) {
 }
 
 bool AConfig::getDirectoryListing() const {
-  return _directoryListing;
+  return this->_directoryListing;
 }
 
 void AConfig::setDirectoryListing(bool state) {
@@ -81,7 +84,7 @@ void AConfig::setDirectoryListing(bool state) {
 }
 
 std::string AConfig::getDirectoryFile() const {
-  return _directoryFile;
+  return this->_directoryFile;
 }
 
 void AConfig::setDirectoryFile(std::string path) {
@@ -89,7 +92,7 @@ void AConfig::setDirectoryFile(std::string path) {
 }
 
 bool AConfig::getCgiPythonEnable() const {
-  return _cgiPythonEnable;
+  return this->_cgiPythonEnable;
 }
 
 void AConfig::setCgiPythonEnable(bool state) {
@@ -97,7 +100,7 @@ void AConfig::setCgiPythonEnable(bool state) {
 }
 
 std::string AConfig::getCgiPythonBinPath() const {
-  return _cgiPythonBinPath;
+  return this->_cgiPythonBinPath;
 }
 
 void AConfig::setCgiPythonBinPath(std::string path) {
@@ -105,7 +108,7 @@ void AConfig::setCgiPythonBinPath(std::string path) {
 }
 
 bool AConfig::getCgiHaskelEnable() const {
-  return _cgiHaskelEnable;
+  return this->_cgiHaskelEnable;
 }
 
 void AConfig::setCgiHaskelEnable(bool state) {
@@ -113,7 +116,7 @@ void AConfig::setCgiHaskelEnable(bool state) {
 }
 
 std::string AConfig::getCgiHaskelBinPath() const {
-  return _cgiHaskelBinPath;
+  return this->_cgiHaskelBinPath;
 }
 
 void AConfig::setCgiHaskelBinPath(std::string path) {
@@ -121,7 +124,7 @@ void AConfig::setCgiHaskelBinPath(std::string path) {
 }
 
 std::list<std::string> AConfig::getAllowedMethods() const {
-  return _allowedMethods;
+  return this->_allowedMethods;
 }
 
 void AConfig::setAllowedMethods(std::list<std::string> methods) {

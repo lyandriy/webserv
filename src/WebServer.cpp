@@ -1,8 +1,7 @@
 #include "../inc/WebServer.hpp"
 
-WebServer::WebServer(): AConfig() 
+WebServer::WebServer()  
 {
-  this->_index = "asdad1111111111111111";
   std::cout << "WebServer created" << std::endl;
 } 
 
