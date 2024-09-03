@@ -3,6 +3,7 @@
 Parser::Parser(){
     this->server_size = 0;
     this->location_size = 0;
+    this->flag = 0;
 }
 
 Parser::~Parser(){
@@ -14,6 +15,7 @@ Parser::Parser(const std::string file) : in_file(file.c_str())
 {
     this->server_size = 0;
     this->location_size = 0;
+    this->flag = 0;
     if (!in_file.is_open())
         throw std::runtime_error("error_Parder_constructor");
 }
@@ -24,12 +26,8 @@ void    Parser::split(std::string &line, std::vector<std::string> &words)
     std::string         line_;
 
     while (iss >> line_)
-    {
-        //std::cout << line_ << std::endl;
         words.push_back(line_);
-    }
     iss.clear();
-    //std::cout << "fin de split" << std::endl;
 }
 int    Parser::listen(){
     std::string str_number;
@@ -128,7 +126,6 @@ int    Parser::server_name(){
         if (!std::isalnum(words[1][i]) && words[1][i] != '.' && words[1][i] != '-')
             return (0);
     }
-    std::cout << "todo bien!\n";
     return(1);
 }
 
@@ -138,37 +135,59 @@ int    Parser::accept_method(){
     return (0);
 }
 
+int Parser::error_code(std::string str_number)
+{
+    int int_number;
+    int code[38] = {400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412,
+                  413, 414, 415, 416, 417, 421, 422, 423, 424, 425, 426, 428, 429,
+                  431, 451, 500, 501, 502, 503, 504, 505, 506, 507, 508, 511};
+
+    if (!str_number.empty())
+       int_number = atoi(str_number.c_str());
+    for (int i = 0; i < 38; i++)
+    {
+        if (int_number == code[i])
+            return (1);
+    }
+    return (0);
+}
+
+int Parser::is_number(std::string word)
+{
+    std::string str_number;
+
+    for (int i = 0; i < word.size(); i++)
+    {
+        if (isdigit(word[i]))
+            str_number += word[i];
+        else
+        {
+            str_number.clear();
+            return (0);
+        }
+    }
+    return (1);
+}
+
 int    Parser::error_page(){
     int a = 1;
-
-    for (a = 1; a < words.size(); a++)
+    
+    
+    if (words.size() >= 3)
     {
-        for (int i = 0; i < words[a].size(); i++)
+        for (a = 1; (a < words.size() && is_number(words[a])); a++)
         {
-            std::cout << i << " hola " << words[a] << "\n";
-            if (i == 3 || a > 63)
-            {
+            if (!error_code(words[a]))
                 return (0);
-            }
-            /*for (int i = 0; (isdigit(words[a][i]) && i < words[a].size()); i++)
-            str_number += words[a][i];
-            int_number = atoi(str_number.c_str());
-            str_number.clear();*/
-            else if (!isdigit(words[a][i]))
+        }
+        if (a == (words.size() - 1))
+        {
+            for (int i = 0; i < words[a].size(); i++)
             {
-                if (a != 1 && a == (words.size() - 1))
-                {
-                    for (int i = 0; i < words[a].size(); i++)
-                    {
-                        if (!isprint(words[a][i]) || words[a][i] == '*' || words[a][i] == '$')
-                        {
-                            std::cout << "hola 2" << "\n";
-                            return (0);
-                        }
-                    }
-                    return (1);
-                }
+                if (!isprint(words[a][i]) || words[a][i] == '*' || words[a][i] == '$')
+                    return (0);
             }
+            return (1);
         }
     }
     return (0);
@@ -180,7 +199,6 @@ int    Parser::index(){
         if (!isprint(words[1][i]) || words[1][i] == '/' || words[1][i] == '*' || words[1][i] == '$')
             return (0);
     }
-    std::cout << "todo ok\n";
     return (1);
 }
 
@@ -196,7 +214,7 @@ int    Parser::client_max_body_size(){
     }
     if (!str_number.empty())
     {
-        if ((words[1][i] == 'M' || words[1][i] == 'k' || words[1][i] == 'G') && !words[0][i++])
+        if ((words[1][i] == 'M' || words[1][i] == 'k' || words[1][i] == 'G') && i == (words[1].size() - 1))
             return (1);
     }
     return (0);
@@ -227,7 +245,7 @@ int    Parser::autoindex(){
 
 bool    Parser::valid_path()
 {
-    for (int i = 0; i < words[0].size(); i++)
+    for (int i = 0; i < words[1].size(); i++)
     {
         if (!(std::isalnum(words[1][i]) || words[1][i] == '/' 
             || words[1][i] == '-' || words[1][i] == '_' || words[1][i] == '.'))
@@ -264,8 +282,12 @@ void    Parser::key_words_server()
 
 void    Parser::key_words_location()
 {
-    if (words[0] == "error_page" && words.size() == 2 && error_page() == 1)
+    std::cout << words[0] << std::endl;
+    if (words[0] == "error_page" && error_page() == 1)
+    {
+        std::cout << words[0] << std::endl;
         this->server[server_size]->setLocation(words);
+    }
     else if (words[0] == "index" && words.size() == 2 && index() == 1)
         this->server[server_size]->setLocation(words);
     else if (words[0] == "client_max_body_size" && words.size() == 2 && client_max_body_size() == 1)
@@ -284,11 +306,13 @@ void    Parser::location_key()
 {
     if ((words[1] == "/" || words[1][0] == '/') && words[2] == "{")
     {
+        std::cout << "/" << std::endl;
         words.erase(words.begin(), words.begin()+3);//elimina location, /, y {
         key_words_location();
     }
     else if (words[1] == "=" && words[3] == "{")//si url tiene que ser igual
     {
+        std::cout << "=" << std::endl;
         words.erase(words.begin(), words.begin()+4);//elimina location, =, url, y {
         key_words_location();
     }
@@ -312,11 +336,10 @@ void    Parser::server_pars()
                 std::cout << "parser location" << std::endl;
                 location_key();
             }
+            /*else if (words[0] == "}")
+                flag--;*/
             else
-            {
-                std::cout << "directivas " << words[0] << std::endl;
                 key_words_server();//cuando no es location
-            }
             words.clear();
         }
         else
@@ -327,10 +350,11 @@ void    Parser::server_pars()
 
 void Parser::conf_file()
 {
-    std::string		            line;
+    std::string line;
 
     while (std::getline(in_file, line, '{'))
     {
+        flag++;
         if (!line.empty())//lee haste ell final de fd
         {
             split(line, words);//separa la linea en palabras

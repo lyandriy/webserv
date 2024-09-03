@@ -15,6 +15,7 @@ class Parser
 {
     private:
         std::ifstream           in_file;
+        int         flag;
         std::vector<Server*>     server;
         std::vector<std::string>    words;
         int                     server_size;
@@ -38,9 +39,11 @@ class Parser
         int     redirection();
         int     root();
         int     autoindex();
-        int     cgi();
+        //int     cgi();
         void    location_key();
         bool    valid_path();
+        int     error_code(std::string);
+        int     is_number(std::string);
 };
 
 #endif

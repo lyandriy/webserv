@@ -2,6 +2,18 @@ server {
         listen 8080;
         server_name example.com;
         index index.hpp;
+        root /etc;
+        autoindex off;
 
-        error_page 403 401 402 404 /404.html;
+        location /404.html
+        {
+                error_page 403 403 405 /hola;
+                autoindex off;
+        }
+        error_page 403 403 405 /hola;
+        accept_method GET;
+        root /etc/www;
+        error_page 403 /si;
+        error_page 404 /aqui;
+        client_max_body_size 50G;
 }

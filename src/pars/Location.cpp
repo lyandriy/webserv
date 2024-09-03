@@ -14,12 +14,15 @@ void    Location::setErrorPage(std::vector<std::string> &words)
 {
     int a = 1;
     std::string str_number;
+    int int_number;
 
     for (a = 1; a < (words.size() - 1); a++)
     {
         for (int i = 0; (isdigit(words[a][i]) && i < words[a].size()); i++)
             str_number += words[a][i];
-        this->error_page[atoi(str_number.c_str())] = words[words.size() - 1];
+        int_number = atoi(str_number.c_str());
+        str_number.clear();
+        this->error_page[int_number] = words[words.size() - 1];
     }
 }
 
@@ -37,11 +40,11 @@ void    Location::setBodySize(std::vector<std::string> &words)
     if (!str_number.empty())
     {
         int_number = atol(str_number.c_str());
-        if (words[0][i] == 'M' && !words[0][i++])
+        if (words[1][i] == 'M')
             int_number *= 1048576;
-        else if (words[0][i] == 'k' && !words[0][i++])
+        else if (words[1][i] == 'k')
             int_number *= 1024;
-        else if (words[0][i] == 'G' && !words[0][i++])
+        else if (words[1][i] == 'G')
             int_number *= 1073741824;
         this->client_max_body_size = int_number;
     }

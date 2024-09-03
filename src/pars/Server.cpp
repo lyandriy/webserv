@@ -123,11 +123,11 @@ void    Server::setBodySize(std::vector<std::string> &words)
     if (!str_number.empty())
     {
         int_number = atol(str_number.c_str());
-        if (words[0][i] == 'M' && !words[0][i++])
+        if (words[1][i] == 'M')
             int_number *= 1048576;
-        else if (words[0][i] == 'k' && !words[0][i++])
+        else if (words[1][i] == 'k')
             int_number *= 1024;
-        else if (words[0][i] == 'G' && !words[0][i++])
+        else if (words[1][i] == 'G')
             int_number *= 1073741824;
         this->client_max_body_size = int_number;
     }
@@ -151,7 +151,6 @@ void    Server::setAutoindex(std::string autoindex)
 void    Server::setIndex(std::string index)
 {
     this->index = index;
-    std::cout << this->index << "\n";
 }
 
 /*void    Server::setCGI(std::string cgi)
