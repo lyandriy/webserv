@@ -7,5 +7,7 @@ RUN apt install openssl -y
 RUN apt-get clean
 
 COPY ./default /etc/nginx/sites-available/
+COPY ./default /var/www/html/
+EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]

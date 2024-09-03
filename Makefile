@@ -15,7 +15,10 @@ BIN_PATH = bin/
 
 BIN_PATH = bin/
 
-SRCS =	main.cpp \
+SRCS =	pars/main.cpp \
+		pars/Location.cpp \
+		pars/Server.cpp \
+		pars/Parser.cpp \
 
 
 
