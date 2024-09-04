@@ -8,7 +8,7 @@ class Server;
 
 class Location
 {
-    private:
+    public:
         std::vector<struct sockaddr_in>    listen;
         std::string    server_name;
         std::string    accept_method;
@@ -16,14 +16,14 @@ class Location
         unsigned long long int    client_max_body_size;
         std::string    redirection;
         std::string    root;
-        std::string    autoindex;
         std::string    index;
+        std::string    autoindex;
         //std::string    cgi;
     public:
         Location();
         ~Location();
         Location(const Location &);
-        Location(Server &);
+        //Location(Server &);
         Location &operator=(const Location &);
 
         void    setErrorPage(std::vector<std::string> &words);

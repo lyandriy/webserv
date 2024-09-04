@@ -21,6 +21,7 @@ class Server
         std::string    index;
         //std::string    cgi;
         std::vector<Location*>   location;
+        int location_size;
     public:
         Server();
         ~Server();
@@ -39,6 +40,7 @@ class Server
         //void    setCGI(std::string);
         void    createLocation();
         void    setLocation(std::vector<std::string> &);
+        void    sfillLocation();
 
         std::string    getServerName() const;
         std::vector<struct sockaddr_in>    getListen() const;

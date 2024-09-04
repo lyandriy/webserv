@@ -14,8 +14,9 @@ class Server;
 class Parser
 {
     private:
+        bool inServerBlock;
+        bool inLocationBlock;
         std::ifstream           in_file;
-        int         flag;
         std::vector<Server*>     server;
         std::vector<std::string>    words;
         int                     server_size;

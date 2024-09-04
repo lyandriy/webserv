@@ -1,6 +1,7 @@
 #include "Server.hpp"
 
 Server::Server(){
+    location_size = 0;
     //std::cout << "constructor de server" << std::endl;
 }
 
@@ -146,6 +147,7 @@ void    Server::setRoot(std::string root)
 void    Server::setAutoindex(std::string autoindex)
 {
     this->autoindex = autoindex;
+    std::cout << "server" << this->autoindex << std::endl;
 }
 
 void    Server::setIndex(std::string index)
@@ -208,25 +210,42 @@ std::string    Server::getIndex() const
     return(this->cgi);
 }*/
 
-void    Server::createLocation()
+void    Server::sfillLocation()
 {
-    this->location.push_back(new Location(*this));
+    for (int i = 0; i < location_size; i++)
+    {
+        this->location[i]->listen = this->listen;
+        this->location[i]->server_name = this->server_name;
+        this->location[i]->accept_method = this->accept_method;
+        this->location[i]->redirection = this->redirection;
+        this->location[i]->cgi = this->cgi;
+        if (!this->location[i]->root)
+            this->location[i]->root = this->root;
+        if (!this->location[i]->error_page)
+            this->location[i]->error_page = this->error_page;
+        if (!this->location[i]->client_max_body_size)
+            this->location[i]->client_max_body_size = this->client_max_body_size;
+        if (!this->location[i]->autoindex)
+            this->location[i]->autoindex = this->autoindex;
+        if (!this->location[i]->index)
+            this->location[i]->index = this->index;
+    }
 }
+
 void    Server::setLocation(std::vector<std::string> &words)
 {
-    Location*   back = location.back();
     if (words[0] == "error_page")
-        back->setErrorPage(words);
+        this->location[location_size]->setErrorPage(words);
     else if (words[0] == "index")
-        back->setIndex(words[1]);
+        this->location[location_size]->setIndex(words[1]);
     else if (words[0] == "client_max_body_size")
-        back->setBodySize(words);
+        this->location[location_size]->setBodySize(words);
     else if (words[0] == "root")
-        back->setRoot(words[1]);
+        this->location[location_size]->setRoot(words[1]);
     else if (words[0] == "autoindex")
-        back->setAutoindex(words[1]);
+        this->location[location_size]->setAutoindex(words[1]);
    /* else if (words[0] == "cgi")
-        back->setCGI(words[1]);*/
+        this->location[location_size]->setCGI(words[1]);*/
     else
         throw std::runtime_error("error_setLocation");
 }

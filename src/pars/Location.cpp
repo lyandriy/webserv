@@ -24,6 +24,9 @@ void    Location::setErrorPage(std::vector<std::string> &words)
         str_number.clear();
         this->error_page[int_number] = words[words.size() - 1];
     }
+    for (std::map<int, std::string>::iterator it = error_page.begin(); it != error_page.end(); ++it) {
+        std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
+    }
 }
 
 void    Location::setBodySize(std::vector<std::string> &words)
@@ -58,6 +61,7 @@ void    Location::setRoot(std::string root)
 void    Location::setAutoindex(std::string autoindex)
 {
     this->autoindex = autoindex;
+    std::cout << "location " << this->autoindex << std::endl;
 }
 
 void    Location::setIndex(std::string index)
@@ -120,7 +124,7 @@ std::string    Location::getIndex() const
     return(this->cgi);
 }*/
 
-Location::Location(Server &other){
+/*Location::Location(Server &other){
     this->listen = other.getListen();
     this->server_name = other.getServerName();
     this->accept_method = other.getAcceptMethod();
@@ -131,4 +135,4 @@ Location::Location(Server &other){
     this->autoindex = other.getAutoindex();
     this->index = other.getIndex();
     //this->cgi = other->getCGI();
-}
+}*/

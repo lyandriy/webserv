@@ -3,7 +3,7 @@
 Parser::Parser(){
     this->server_size = 0;
     this->location_size = 0;
-    this->flag = 0;
+    inLocationBlock = false
 }
 
 Parser::~Parser(){
@@ -13,9 +13,10 @@ Parser::~Parser(){
 
 Parser::Parser(const std::string file) : in_file(file.c_str())
 {
+    inServerBlock = false;
+    inLocationBlock = false;
     this->server_size = 0;
     this->location_size = 0;
-    this->flag = 0;
     if (!in_file.is_open())
         throw std::runtime_error("error_Parder_constructor");
 }
@@ -282,50 +283,64 @@ void    Parser::key_words_server()
 
 void    Parser::key_words_location()
 {
-    std::cout << words[0] << std::endl;
-    if (words[0] == "error_page" && error_page() == 1)
+     while (std::getline(in_file, line, ';'))//lee hasta encontrar ;
     {
-        std::cout << words[0] << std::endl;
-        this->server[server_size]->setLocation(words);
+        if (!line.empty())//si encuentra ;
+        {
+            if (words[0] == "error_page" && error_page() == 1)
+                this->server[server_size]->setLocation(words);
+            else if (words[0] == "index" && words.size() == 2 && index() == 1)
+                this->server[server_size]->setLocation(words);
+            else if (words[0] == "client_max_body_size" && words.size() == 2 && client_max_body_size() == 1)
+                this->server[server_size]->setLocation(words);
+            else if (words[0] == "root" && words.size() == 2 && root() == 1)
+                this->server[server_size]->setLocation(words);
+            else if (words[0] == "autoindex" && words.size() == 2 && autoindex() == 1)
+                this->server[server_size]->setLocation(words);
+            /*else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
+                this->server[server_size]->setLocation(words);*/
+            else if (words[0] == "}")
+            {
+                location_size++;
+                inLocationBlock = false;
+                return ;
+            }
+            else
+                throw std::runtime_error("error_key_words_location");
+        }
+        else
+            throw std::runtime_error("error_key_words_location");
     }
-    else if (words[0] == "index" && words.size() == 2 && index() == 1)
-        this->server[server_size]->setLocation(words);
-    else if (words[0] == "client_max_body_size" && words.size() == 2 && client_max_body_size() == 1)
-        this->server[server_size]->setLocation(words);
-    else if (words[0] == "root" && words.size() == 2 && root() == 1)
-        this->server[server_size]->setLocation(words);
-    else if (words[0] == "autoindex" && words.size() == 2 && autoindex() == 1)
-        this->server[server_size]->setLocation(words);
-    /*else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
-        this->server[server_size]->setLocation(words);*/
-    else
-        throw std::runtime_error("error_key_words_location");
 }
 
 void    Parser::location_key()
 {
     if ((words[1] == "/" || words[1][0] == '/') && words[2] == "{")
     {
+        inLocationBlock = true;
+        this->location.push_back(new Location());
         std::cout << "/" << std::endl;
         words.erase(words.begin(), words.begin()+3);//elimina location, /, y {
+        std::cout << words[0]<< std::endl;
         key_words_location();
     }
     else if (words[1] == "=" && words[3] == "{")//si url tiene que ser igual
     {
+        inLocationBlock = true;
+        this->location.push_back(new Location());
         std::cout << "=" << std::endl;
         words.erase(words.begin(), words.begin()+4);//elimina location, =, url, y {
         key_words_location();
     }
     else
         throw std::runtime_error("error_locationKey");
-    location_size++;
+    
 }
 
 void    Parser::server_pars()
 {
-    std::string		            line;
+    std::string line;
 
-    this->server.push_back(new Server());//crear un objeto nuevo de server
     while (std::getline(in_file, line, ';'))//lee hasta encontrar ;
     {
         if (!line.empty())//si encuentra ;
@@ -333,11 +348,17 @@ void    Parser::server_pars()
             split(line, words);//separa la linea en palabras
             if (words[0] == "location")//cuando encuentra location
             {
+                
                 std::cout << "parser location" << std::endl;
                 location_key();
             }
-            /*else if (words[0] == "}")
-                flag--;*/
+            else if (words[0] == "}" && inServerBlock == true)
+            {
+                inServerBlock = false;
+                this->server[server_size]->fillLocation();
+                server_size++;
+                return ;
+            }
             else
                 key_words_server();//cuando no es location
             words.clear();
@@ -345,7 +366,6 @@ void    Parser::server_pars()
         else
              std::runtime_error("error");
     }
-    server_size++;
 }
 
 void Parser::conf_file()
@@ -360,6 +380,8 @@ void Parser::conf_file()
             split(line, words);//separa la linea en palabras
             if (words[0] == "server" && words.size() == 1)//si encuentra server en primera posicion y no ha nada mas despues de server
             {
+                this->server.push_back(new Server());
+                inServerBlock = true;
                 words.clear();
                 server_pars();
             }
