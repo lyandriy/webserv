@@ -1,27 +1,25 @@
 # include "../inc/Request.hpp"
 
-Request::Request() : _request(), _request_str(""), _method(""),  _uri(""), _protocol(""), _headers(), _body("")
+Request::Request() : _request(), _body(), _method(""), _request_str(""), _uri(""), _protocol(""), _headers(), _lines(), _request_line(), index_aux(0)
 {}
 
-Request::Request (std::string method, std::string uri, std::string protocol, 
+/* Request::Request (std::string method, std::string uri, std::string protocol, 
 					std::map<std::string, std::string> headers, std::string body):
-				_method(method), _uri(uri), _protocol(protocol), _headers(headers), _body(body)
+				_method(method), _uri(uri), _protocol(protocol), _headers(headers), _body()
 {
 	// comprobar si tb vale cuando hay memoria reservada para headers, creo que sí.
-}
+} */
 
-Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _headers(), _body(""), _lines()
+Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""), _protocol(""), _headers(), _lines(), _request_line(""), index_aux(0)
 {
-	std::cout << "Constructor BUFFER" << std::endl;
-	_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
+	std::cout << "\nConstructor BUFFER" << std::endl;
+	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
 	std::string aux(_request.begin(), _request.end());
 	_request_str = aux;
-	// std::cout << "--->>>   Esta es la request en bruto:   <<<---\n" << _request_str << std::endl;
-	// this->find_CRLF(_request_str);
-	// std::cout << "\n\nEstas son las líneas de la request:\n" << std::endl;
-	get_lines(_request_str);
-	// this->check_lines(_lines);
-	check_vector(_request);
+	// get_lines(_request_str);
+	extract_request_lines(_request);
+	// check_lines(_lines);
+	// check_vector(_body);
 }
 
 Request::Request(Request const &copy)
@@ -48,6 +46,38 @@ Request& Request::operator=(Request const & other)
 
 Request::~Request()
 {}
+
+void Request::extract_request_lines(std::vector<char> &request)
+{
+	std::vector<char>::iterator it = request.begin();
+	std::vector<char>::iterator line_start = it;
+	while (it != request.end())
+	{
+		if (*it == '\r' && (it + 1) != request.end() && *(it + 1) == '\n')
+		{
+			std::string line(line_start, it);
+
+			_lines.push_back(line);
+			std::cout << "->" << line << "<-" << _lines.size() << std::endl;
+			it += 2;
+			line_start = it;
+			if (it != request.end() && *it == '\r' && (it + 1) != request.end() && *(it + 1) == '\n')
+			{
+				it += 2;
+				if (it != request.end())
+				{
+					_body = std::vector<char> (it, request.end());
+				}
+			}
+		}
+		else
+		{
+			it++;
+		}
+	}
+}
+
+
 
 void Request::parse_request(const char *buffer)
 {
@@ -80,15 +110,18 @@ void Request::get_lines(const std::string &request)
 	}
 }
 
-void get_lines(const std::vector<char> &request)
+void get_lines(std::vector<char> &request)
 {
 	std::vector<char>::iterator begin = request.begin();
+	(void)begin;
 }
 
 
 // --------------------  DEBUG  -------------------- //
+
 void Request::check_lines(std::vector<std::string> lines)
 {
+	std::cout << "\nLíneas antes del body (" << lines.size() << "):\n";
 	for (size_t i = 0; i < lines.size(); i++)
 	{
 		std::cout << lines[i] << "\n";

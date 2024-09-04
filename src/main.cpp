@@ -5,6 +5,7 @@
 // nc localhost 8080   <----    para hacer peticiones
 
 # define MAX_CLIENTS 20
+# define BUFFER_SIZE 1024
 
 int main()
 {
@@ -99,7 +100,7 @@ int main()
 		{
 			if (poll_fd[i].revents & POLLIN)
 			{
-				int valread = recv(poll_fd[i].fd, buffer, sizeof(buffer), 0);
+				int valread = recv(poll_fd[i].fd, buffer, BUFFER_SIZE, 0);
 				// sleep(5);
 				if (valread <= 0)
 				{
@@ -123,7 +124,7 @@ int main()
 						"HTTP/1.1 200 OK\r\n"
 						"Content-Type: text/html\r\n"
 						"Connection: keep-alive\r\n"
-						"Keep-Alive: timeout=5, max=1000\r\n"
+						"Keep-Alive: timeout=2, max=10\r\n"
 						"Content-Length: 24\r\n"
 						"\r\n"
 						"<h1>Hola WOLOLO!!!</h1>\n";
