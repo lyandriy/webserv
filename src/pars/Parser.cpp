@@ -3,7 +3,8 @@
 Parser::Parser(){
     this->server_size = 0;
     this->location_size = 0;
-    inLocationBlock = false
+    inLocationBlock = false;
+    inServerBlock = false;
 }
 
 Parser::~Parser(){
@@ -283,7 +284,9 @@ void    Parser::key_words_server()
 
 void    Parser::key_words_location()
 {
-     while (std::getline(in_file, line, ';'))//lee hasta encontrar ;
+    std::string line;
+
+    while (std::getline(in_file, line, ';'))//lee hasta encontrar ;
     {
         if (!line.empty())//si encuentra ;
         {
@@ -318,7 +321,7 @@ void    Parser::location_key()
     if ((words[1] == "/" || words[1][0] == '/') && words[2] == "{")
     {
         inLocationBlock = true;
-        this->location.push_back(new Location());
+        this->server[server_size]->make_location();
         std::cout << "/" << std::endl;
         words.erase(words.begin(), words.begin()+3);//elimina location, /, y {
         std::cout << words[0]<< std::endl;
@@ -327,7 +330,7 @@ void    Parser::location_key()
     else if (words[1] == "=" && words[3] == "{")//si url tiene que ser igual
     {
         inLocationBlock = true;
-        this->location.push_back(new Location());
+        this->server[server_size]->make_location();
         std::cout << "=" << std::endl;
         words.erase(words.begin(), words.begin()+4);//elimina location, =, url, y {
         key_words_location();
@@ -374,7 +377,6 @@ void Parser::conf_file()
 
     while (std::getline(in_file, line, '{'))
     {
-        flag++;
         if (!line.empty())//lee haste ell final de fd
         {
             split(line, words);//separa la linea en palabras

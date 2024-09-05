@@ -210,24 +210,29 @@ std::string    Server::getIndex() const
     return(this->cgi);
 }*/
 
-void    Server::sfillLocation()
+void    Server::fillLocation()
 {
+    std::map<int, std::string>::iterator it;
+
     for (int i = 0; i < location_size; i++)
     {
         this->location[i]->listen = this->listen;
         this->location[i]->server_name = this->server_name;
         this->location[i]->accept_method = this->accept_method;
         this->location[i]->redirection = this->redirection;
-        this->location[i]->cgi = this->cgi;
-        if (!this->location[i]->root)
+        //this->location[i]->cgi = this->cgi;
+        if (this->location[i]->root.empty())
             this->location[i]->root = this->root;
-        if (!this->location[i]->error_page)
-            this->location[i]->error_page = this->error_page;
+        for (it = this->error_page.begin(); it != this->error_page.end(); ++it)
+        {
+            if (this->location[i]->error_page.find(it->first) == this->location[i]->error_page.end())
+                this->location[i]->error_page[it->first] = it->second;
+        }
         if (!this->location[i]->client_max_body_size)
             this->location[i]->client_max_body_size = this->client_max_body_size;
-        if (!this->location[i]->autoindex)
+        if (this->location[i]->autoindex.empty())
             this->location[i]->autoindex = this->autoindex;
-        if (!this->location[i]->index)
+        if (this->location[i]->index.empty())
             this->location[i]->index = this->index;
     }
 }
@@ -248,4 +253,9 @@ void    Server::setLocation(std::vector<std::string> &words)
         this->location[location_size]->setCGI(words[1]);*/
     else
         throw std::runtime_error("error_setLocation");
+}
+
+void    Server::make_location()
+{
+    this->location.push_back(new Location());
 }

@@ -40,7 +40,8 @@ class Server
         //void    setCGI(std::string);
         void    createLocation();
         void    setLocation(std::vector<std::string> &);
-        void    sfillLocation();
+        void    fillLocation();
+        void    make_location();
 
         std::string    getServerName() const;
         std::vector<struct sockaddr_in>    getListen() const;
