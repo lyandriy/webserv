@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include "Server.hpp"
+#include <algorithm>
 
 
 class Server;
@@ -27,7 +28,7 @@ class Parser
         ~Parser();
 
         void    conf_file();
-        void    split(std::string &, std::vector<std::string> &);
+        void    split(std::string &);
         void    server_pars();
         void    key_words_server();
         void    key_words_location();

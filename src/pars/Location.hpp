@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include "Server.hpp"
+#include <arpa/inet.h>
 
 class Server;
 
@@ -43,6 +44,7 @@ class Location
         std::string    getAutoindex() const;
         std::string    getIndex() const;
         //std::string    getCGI() const;
+        void printValues() const;
 };
 
 #endif

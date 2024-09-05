@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "Location.hpp"
+#include <arpa/inet.h>
 #include <netinet/in.h>
 
 class Location;
@@ -55,6 +56,7 @@ class Server
         //std::string    getCGI() const;
 
         struct sockaddr_in  make_socaddr(std::string, int);
+        void printValuesServer() const;
 };
 
 #endif

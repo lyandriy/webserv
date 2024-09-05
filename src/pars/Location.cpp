@@ -24,9 +24,9 @@ void    Location::setErrorPage(std::vector<std::string> &words)
         str_number.clear();
         this->error_page[int_number] = words[words.size() - 1];
     }
-    for (std::map<int, std::string>::iterator it = error_page.begin(); it != error_page.end(); ++it) {
+    /*for (std::map<int, std::string>::iterator it = error_page.begin(); it != error_page.end(); ++it) {
         std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
-    }
+    }*/
 }
 
 void    Location::setBodySize(std::vector<std::string> &words)
@@ -61,7 +61,6 @@ void    Location::setRoot(std::string root)
 void    Location::setAutoindex(std::string autoindex)
 {
     this->autoindex = autoindex;
-    std::cout << "location " << this->autoindex << std::endl;
 }
 
 void    Location::setIndex(std::string index)
@@ -136,3 +135,25 @@ std::string    Location::getIndex() const
     this->index = other.getIndex();
     //this->cgi = other->getCGI();
 }*/
+
+void Location::printValues() const {
+    std::cout << "Server Name: " << server_name << std::endl;
+    std::cout << "Accept Method: " << accept_method << std::endl;
+    std::cout << "Client Max Body Size: " << client_max_body_size << std::endl;
+    std::cout << "Redirection: " << redirection << std::endl;
+    std::cout << "Root: " << root << std::endl;
+    std::cout << "Autoindex: " << autoindex << std::endl;
+    std::cout << "Index: " << index << std::endl;
+    // Imprimir listen (direcciones)
+    std::cout << "Listen Addresses: " << std::endl;
+    for (size_t i = 0; i < listen.size(); i++) {
+        char ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &(listen[i].sin_addr), ip, INET_ADDRSTRLEN);
+        std::cout << "  IP: " << ip << ", Port: " << ntohs(listen[i].sin_port) << std::endl;
+    }
+    // Imprimir error_page (páginas de error)
+    std::cout << "Error Pages: " << std::endl;
+    for (std::map<int, std::string>::const_iterator it = error_page.begin(); it != error_page.end(); ++it) {
+        std::cout << "  Error Code: " << it->first << ", Page: " << it->second << std::endl;
+    }
+}

@@ -86,7 +86,7 @@ void    Server::setListen(std::string word)
 void    Server::setServerName(std::string server_name)
 {
     this->server_name = server_name; 
-    std::cout << this->server_name << "\n";
+    //std::cout << this->server_name << "\n";
 }
 
 void    Server::setAcceptMethod(std::string accept_method)
@@ -147,7 +147,7 @@ void    Server::setRoot(std::string root)
 void    Server::setAutoindex(std::string autoindex)
 {
     this->autoindex = autoindex;
-    std::cout << "server" << this->autoindex << std::endl;
+    //std::cout << "server" << this->autoindex << std::endl;
 }
 
 void    Server::setIndex(std::string index)
@@ -259,3 +259,34 @@ void    Server::make_location()
 {
     this->location.push_back(new Location());
 }
+
+void Server::printValuesServer() const {
+            std::cout << "Server Name: " << server_name << std::endl;
+            std::cout << "Accept Method: " << accept_method << std::endl;
+            std::cout << "Client Max Body Size: " << client_max_body_size << std::endl;
+            std::cout << "Redirection: " << redirection << std::endl;
+            std::cout << "Root: " << root << std::endl;
+            std::cout << "Autoindex: " << autoindex << std::endl;
+            std::cout << "Index: " << index << std::endl;
+
+            // Imprimir listen (direcciones)
+            std::cout << "Listen Addresses: " << std::endl;
+            for (size_t i = 0; i < listen.size(); i++) {
+                char ip[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &(listen[i].sin_addr), ip, INET_ADDRSTRLEN);
+                std::cout << "  IP: " << ip << ", Port: " << ntohs(listen[i].sin_port) << std::endl;
+            }
+
+            // Imprimir error_page (páginas de error)
+            std::cout << "Error Pages: " << std::endl;
+            for (std::map<int, std::string>::const_iterator it = error_page.begin(); it != error_page.end(); ++it) {
+                std::cout << "  Error Code: " << it->first << ", Page: " << it->second << std::endl;
+            }
+
+            // Imprimir cada Location en el vector location
+            std::cout << "Locations (" << location.size() << "): " << std::endl;
+            for (size_t i = 0; i < location.size(); ++i) {
+                std::cout << "Location " << i + 1 << ":" << std::endl;
+                location[i]->printValues();
+            }
+        }
