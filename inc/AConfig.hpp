@@ -5,9 +5,12 @@
 #include <exception>
 #include <iostream>
 #include <list>
-#include <map>
 #include <string>
-#include <vector>
+
+class AConfig;
+
+std::ostream &operator<<( std::ostream& os , std::list<std::string> const&  other );
+std::ostream &operator<<( std::ostream& os , AConfig const&  other );
 
 class AConfig {
 public:
@@ -80,8 +83,19 @@ protected:
   class redirectionNotAvailable : public std::exception {
     virtual const char *what() const throw();
   };
+  class servernamesNotAvailable : public std::exception {
+    virtual const char *what() const throw();
+  };
+  class locationNotAvailable : public std::exception {
+    virtual const char *what() const throw();
+  };
+  class listensNotAvailable : public std::exception {
+    virtual const char *what() const throw();
+  };
 
 private:
 };
+
+
 
 #endif // !ACONFIG_HPP

@@ -3,6 +3,10 @@
 
 #include "WebServer.hpp"
 
+class Server;
+
+std::ostream &operator<<( std::ostream& os , Server const&  other );
+
 class Server : public WebServer {
 public:
   Server(const WebServer &other);

@@ -38,7 +38,7 @@ $(BIN_PATH)%.o: $(SRCS_PATH)%.cpp
 	
 $(NAME): $(OBJS)
 	echo $(PURPLE)"[Creating $(NAME)]"$(NONE)
-	$(CC) -o $(NAME) $(OBJS)
+	$(CC) ${CFLAGS} -o $(NAME) $(OBJS)
 	echo $(GREEN)"$(NAME): ready to be executed"$(NONE)
 
 clean:

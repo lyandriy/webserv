@@ -1,6 +1,17 @@
 
 #include "../inc/Server.hpp"
 
+std::ostream &operator<<( std::ostream& os , Server const&  other )
+{
+  return os << "---------\nServer\n" <<  (AConfig &) other << \
+  "_root: " << other.getRoot() << "\n" << \
+  "_redirection: " << other.getRedirection() << "\n" << \
+  "_servernames: " << other.getServernames() << "\n" << \
+  "_listens: " << other.getListens() << "\n" << \
+  "_location: " << other.getLocation() << "\n" << \
+  "_index: " << other.getIndex() << std::endl;
+}
+
 Server::Server(const WebServer &other) : WebServer(other) {}
 
 Server::~Server() {}

@@ -15,6 +15,9 @@ int main(int argc, char **args, char **envs) {
     Server server(webServer);
     Location loca(server);
 
+    std::cout << webServer << std::endl;
+    std::cout << server << std::endl;
+    std::cout << loca << std::endl;
     /*std::cout << "webServer index" << webServer.getIndex() << std::endl;*/
     /*std::cout << "webServer root" << webServer.getRoot() << std::endl;*/
     /*std::cout << "webServer redirection" << webServer.getRedirection() <<

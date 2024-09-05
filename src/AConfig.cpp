@@ -1,4 +1,32 @@
 #include "../inc/AConfig.hpp"
+#include <list>
+#include <ostream>
+#include <string>
+
+std::ostream &operator<<( std::ostream& os , std::list<std::string> const&  other )
+{
+  os << std::endl;
+  for (std::list<std::string>::const_iterator it = other.begin(); it != other.end(); it++)
+    os << "\t" << *it << std::endl;
+  return os;
+}
+
+std::ostream &operator<<( std::ostream& os , AConfig const&  other )
+{
+  return os << "Printing AConfig " << &other << "\n" << \
+  "_errorPath: " << other.getErrorPath() << "\n" << \
+  "_clientBodyMaxSizeBytes: " << other.getClientMaxSizeBytes() << "\n" << \
+  "_clientTimeOutMs: " << other.getClientTimeOutMs() << "\n" << \
+  "_serverBodyMaxSizeBytes: " << other.getServerMaxSizeBytes() << "\n" << \
+  "_serverTimeOutMs: " << other.getServerTimeOutMs() << "\n" << \
+  "_directoryListing: " << other.getDirectoryListing() << "\n" << \
+  "_directoryFile: " << other.getDirectoryFile() << "\n" << \
+  "_cgiPythonEnable: " << other.getCgiPythonEnable() << "\n" << \
+  "_cgiPythonBinPath: " << other.getCgiPythonBinPath() << "\n" << \
+  "_cgiHaskelEnable: " << other.getCgiHaskelEnable() << "\n" << \
+  "_cgiHaskelBinPath: " << other.getCgiHaskelBinPath() << "\n" << \
+  "_allowedMethods: " << other.getAllowedMethods() << std::endl;
+}
 
 AConfig::AConfig()
     : _errorPath("./pages/errors"), _clientBodyMaxSizeBytes(1024 * 1024 * 4),
@@ -6,8 +34,12 @@ AConfig::AConfig()
       _serverTimeOutMs(60 * 1000), _directoryListing(false),
       _directoryFile("./pages/list_dirs.html"), _cgiPythonEnable(false),
       _cgiPythonBinPath("./cgi-bins/python3"), _cgiHaskelEnable(false),
-      _cgiHaskelBinPath("./cgi-bins/haskel"), _root("/var/www/html"),
-      _index("index.html"), _redirection(""), _location("/") {
+      _cgiHaskelBinPath("./cgi-bins/haskel"),
+  _location("/"),
+  _root("/var/www/html"),
+      _index("index.html"),
+  _redirection("")
+{
   _allowedMethods.push_back("GET");
   _allowedMethods.push_back("POST");
   _allowedMethods.push_back("PUT");
@@ -117,4 +149,16 @@ const char *AConfig::indexNotAvailable::what() const throw() {
 
 const char *AConfig::redirectionNotAvailable::what() const throw() {
   return "Redirection not available in this class";
+}
+
+const char *AConfig::servernamesNotAvailable::what() const throw() {
+  return "Servernames not available in this class";
+}
+
+const char *AConfig::locationNotAvailable::what() const throw() {
+  return "Location not available in this class";
+}
+
+const char *AConfig::listensNotAvailable::what() const throw() {
+  return "Listens not available in this class";
 }
