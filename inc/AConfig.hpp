@@ -3,9 +3,11 @@
 
 #include <cstddef>
 #include <exception>
-#include <list>
-#include <string>
 #include <iostream>
+#include <list>
+#include <map>
+#include <string>
+#include <vector>
 
 class AConfig {
 public:
@@ -13,12 +15,18 @@ public:
   AConfig(const AConfig &other);
   AConfig &operator=(const AConfig &other);
   virtual ~AConfig() = 0;
-  virtual std::string getRoot() = 0;
+  virtual std::string getRoot() const = 0;
   virtual void setRoot(std::string root) = 0;
-  virtual std::string getIndex() = 0;
+  virtual std::string getIndex() const = 0;
   virtual void setIndex(std::string index) = 0;
-  virtual std::string getRedirection() = 0;
+  virtual std::string getRedirection() const = 0;
   virtual void setRedirection(std::string redirection) = 0;
+  virtual std::list<std::string> getServernames() const = 0;
+  virtual void setServernames(std::list<std::string> servernames) = 0;
+  virtual std::list<std::string> getListens() const = 0;
+  virtual void setListens(std::list<std::string> listens) = 0;
+  virtual std::string getLocation() const = 0;
+  virtual void setLocation(std::string location) = 0;
   std::string getErrorPath() const;
   void setErrorPath(std::string path);
   size_t getClientMaxSizeBytes() const;
@@ -43,6 +51,7 @@ public:
   void setCgiHaskelBinPath(std::string path);
   std::list<std::string> getAllowedMethods() const;
   void setAllowedMethods(std::list<std::string>);
+
 protected:
   std::string _errorPath;
   size_t _clientBodyMaxSizeBytes;
@@ -56,14 +65,23 @@ protected:
   bool _cgiHaskelEnable;
   std::string _cgiHaskelBinPath;
   std::list<std::string> _allowedMethods;
+  std::list<std::string> _servernames;
+  std::list<std::string> _listens;
+  std::string _location;
   std::string _root;
   std::string _index;
   std::string _redirection;
-  class rootNotAvailable : public std::exception { virtual const char *what () const throw(); };
-  class indexNotAvailable : public std::exception { virtual const char *what () const throw(); };
-  class redirectionNotAvailable : public std::exception { virtual const char *what () const throw(); };
+  class rootNotAvailable : public std::exception {
+    virtual const char *what() const throw();
+  };
+  class indexNotAvailable : public std::exception {
+    virtual const char *what() const throw();
+  };
+  class redirectionNotAvailable : public std::exception {
+    virtual const char *what() const throw();
+  };
+
 private:
 };
-
 
 #endif // !ACONFIG_HPP

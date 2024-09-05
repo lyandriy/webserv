@@ -15,10 +15,10 @@ int main(int argc, char **args, char **envs) {
     Server server(webServer);
     Location loca(server);
 
-
     /*std::cout << "webServer index" << webServer.getIndex() << std::endl;*/
     /*std::cout << "webServer root" << webServer.getRoot() << std::endl;*/
-    /*std::cout << "webServer redirection" << webServer.getRedirection() << std::endl;*/
+    /*std::cout << "webServer redirection" << webServer.getRedirection() <<
+     * std::endl;*/
     std::cout << "webServer errors" << webServer.getErrorPath() << std::endl;
 
     std::cout << "server index" << server.getIndex() << std::endl;
@@ -39,10 +39,10 @@ int main(int argc, char **args, char **envs) {
     server.setErrorPath("/test1/error/path/server");
     Location loca(server);
 
-
     /*std::cout << "webServer index" << webServer.getIndex() << std::endl;*/
     /*std::cout << "webServer root" << webServer.getRoot() << std::endl;*/
-    /*std::cout << "webServer redirection" << webServer.getRedirection() << std::endl;*/
+    /*std::cout << "webServer redirection" << webServer.getRedirection() <<
+     * std::endl;*/
     std::cout << "webServer errors" << webServer.getErrorPath() << std::endl;
 
     std::cout << "server index" << server.getIndex() << std::endl;
@@ -61,10 +61,10 @@ int main(int argc, char **args, char **envs) {
     Server server(webServer);
     Location loca(server);
 
-
     /*std::cout << "webServer index" << webServer.getIndex() << std::endl;*/
     /*std::cout << "webServer root" << webServer.getRoot() << std::endl;*/
-    /*std::cout << "webServer redirection" << webServer.getRedirection() << std::endl;*/
+    /*std::cout << "webServer redirection" << webServer.getRedirection() <<
+     * std::endl;*/
     std::cout << "webServer errors" << webServer.getErrorPath() << std::endl;
 
     std::cout << "server index" << server.getIndex() << std::endl;

@@ -1,13 +1,5 @@
 #include "../inc/WebServer.hpp"
 
-WebServer::WebServer()  
-{
-  std::cout << "WebServer created" << std::endl;
-} 
+WebServer::WebServer() {}
 
-WebServer::~WebServer()
-{
-  std::cout << "WebServer destroyed" << std::endl;
-}
-
-
+WebServer::~WebServer() {}

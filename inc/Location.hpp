@@ -3,13 +3,13 @@
 
 #include "Server.hpp"
 
-class Location : public Server{
+class Location : public Server {
 public:
   Location(const Server &other);
   ~Location();
+
 protected:
 private:
-  
 };
 
 #endif // !LOCATION_HPP
