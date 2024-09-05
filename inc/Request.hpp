@@ -1,7 +1,7 @@
 # pragma once
 
 # include "Common.hpp"
-
+# define SP ' '
 class Request
 {
 private:
@@ -34,6 +34,7 @@ public:
 	void get_lines(std::vector<char> &request);
 
 	void extract_request_lines(std::vector<char> &request);
+	void extract_first_line(std::vector<std::string> &lines);
 
 	// Para debug //
 	void check_lines(std::vector<std::string> lines);

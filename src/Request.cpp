@@ -16,10 +16,10 @@ Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""
 	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
 	std::string aux(_request.begin(), _request.end());
 	_request_str = aux;
-	// get_lines(_request_str);
 	extract_request_lines(_request);
 	// check_lines(_lines);
 	// check_vector(_body);
+	extract_first_line(_lines);
 }
 
 Request::Request(Request const &copy)
@@ -47,6 +47,15 @@ Request& Request::operator=(Request const & other)
 Request::~Request()
 {}
 
+void Request::extract_first_line(std::vector<std::string> &lines)
+{
+	std::string first_line = lines[0];
+	std::vector<std::string> result;
+	std::string aux;
+
+
+}
+
 void Request::extract_request_lines(std::vector<char> &request)
 {
 	std::vector<char>::iterator it = request.begin();
@@ -58,7 +67,6 @@ void Request::extract_request_lines(std::vector<char> &request)
 			std::string line(line_start, it);
 
 			_lines.push_back(line);
-			std::cout << "->" << line << "<-" << _lines.size() << std::endl;
 			it += 2;
 			line_start = it;
 			if (it != request.end() && *it == '\r' && (it + 1) != request.end() && *(it + 1) == '\n')
