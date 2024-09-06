@@ -15,7 +15,10 @@ private:
 	// std::string _body;
 	std::vector<std::string>_lines;
 	std::string _request_line;
-	int index_aux;
+	int _index_aux;
+	bool _valid;
+	int _error_code;
+
 public:
 	Request(void);
 	Request(char *buffer);
@@ -35,6 +38,8 @@ public:
 
 	void extract_request_lines(std::vector<char> &request);
 	void extract_first_line(std::vector<std::string> &lines);
+
+	void check_any_valid_line();
 
 	// Para debug //
 	void check_lines(std::vector<std::string> lines);

@@ -1,6 +1,7 @@
 # include "../inc/Request.hpp"
 
-Request::Request() : _request(), _body(), _method(""), _request_str(""), _uri(""), _protocol(""), _headers(), _lines(), _request_line(), index_aux(0)
+Request::Request() : _request(), _body(), _method(""), _request_str(""), _uri(""), _protocol(""),
+					_headers(), _lines(), _request_line(), _index_aux(0), _valid(true), _error_code(0)
 {}
 
 /* Request::Request (std::string method, std::string uri, std::string protocol, 
@@ -10,13 +11,15 @@ Request::Request() : _request(), _body(), _method(""), _request_str(""), _uri(""
 	// comprobar si tb vale cuando hay memoria reservada para headers, creo que sí.
 } */
 
-Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""), _protocol(""), _headers(), _lines(), _request_line(""), index_aux(0)
+Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""), _protocol(""), 
+								_headers(), _lines(), _request_line(""), _index_aux(0), _valid(true), _error_code(0) 
 {
 	std::cout << "\nConstructor BUFFER" << std::endl;
 	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
 	std::string aux(_request.begin(), _request.end());
 	_request_str = aux;
 	extract_request_lines(_request);
+	check_any_valid_line();
 	// check_lines(_lines);
 	// check_vector(_body);
 	extract_first_line(_lines);
@@ -47,13 +50,53 @@ Request& Request::operator=(Request const & other)
 Request::~Request()
 {}
 
+void Request::check_any_valid_line()
+{
+	if (this->_lines.empty())
+	{
+		this->_valid = false;
+		this->_error_code = 400;
+	}
+}
+
 void Request::extract_first_line(std::vector<std::string> &lines)
 {
+	if (this->_valid == false)
+		return;
 	std::string first_line = lines[0];
 	std::vector<std::string> result;
 	std::string aux;
+	std::string::iterator it = first_line.begin();
 
+	while (it != first_line.end())
+	{
+		if (*it == SP)
+		{
+			if (!aux.empty())
+			{
+				result.push_back(aux);
+				aux.clear();
+			}
+		}
+		else
+		{
+			aux += *it;
+		}
+		it++;
+	}
+	if (!aux.empty())
+	{
+		result.push_back(aux);
+	}
 
+	//para debug
+	std::cout << "Estos son los componentes de la primera línea:\n";
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		std::cout << result[i] << "\n";
+	}
+	std::cout << std::endl;
+	
 }
 
 void Request::extract_request_lines(std::vector<char> &request)

@@ -23,7 +23,7 @@ SRCS =	main.cpp \
 OBJS = $(SRCS:%.cpp=bin/%.o)
 
 CC = g++
-CFLAGS = -std=c++98 -Wall -Werror -Wextra #-g -O0
+CFLAGS = -std=c++98 -Wall -Werror -Wextra -g -O0
 RM = rm -f
 
 ###	--- RULES --- ###
@@ -50,7 +50,10 @@ fclean: clean
 	echo $(RED)"[Executable File Deleted]"$(NONE)
 
 re: fclean
-	$(MAKE)	
+	$(MAKE)
+
+run: all
+	./$(NAME)
 
 .PHONY: all clean fclean re
 

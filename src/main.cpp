@@ -98,6 +98,7 @@ int main()
 		}
 		for (int i = 1; i <= num_clientes; i++)
 		{
+			// std::cout << "POLLFD[" << i << "] Revents: " << poll_fd[i].revents << std::endl; 
 			if (poll_fd[i].revents & POLLIN)
 			{
 				int valread = recv(poll_fd[i].fd, buffer, BUFFER_SIZE, 0);
