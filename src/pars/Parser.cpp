@@ -2,7 +2,7 @@
 
 Parser::Parser(){
     this->server_size = 0;
-    this->location_size = 0;
+    this->location_size = -1;
     inLocationBlock = false;
     inServerBlock = false;
 }
@@ -17,7 +17,7 @@ Parser::Parser(const std::string file) : in_file(file.c_str())
     inServerBlock = false;
     inLocationBlock = false;
     this->server_size = 0;
-    this->location_size = 0;
+    this->location_size = -1;
     if (!in_file.is_open())
         throw std::runtime_error("error_Parder_constructor");
 }
@@ -109,29 +109,19 @@ int    Parser::error_page(){
     {
         for (a = 1; (a < words.size() && is_number(words[a])); a++)
         {
-            std::cout << words[a] << std::endl;
             if (!error_code(words[a]))
-            {
-                std::cout << words[a] << std::endl;
                 return (0);
-            }
         }
-        /*for (int i = 0; i != 7; i++)
-            std::cout << words[i] << "   " << a << " y " << words.size() << std::endl;*/
         if (a == (words.size() - 1))
         {
             for (int i = 0; i < words[a].size(); i++)
             {
                 if (!isprint(words[a][i]) || words[a][i] == '*' || words[a][i] == '$')
-                {
-                    std::cout << words[a] << std::endl;
                     return (0);
-                }
             }
             return (1);
         }
     }
-    //std::cout << "donde estoy " << words[a] << std::endl;
     return (0);
 }
 
@@ -181,9 +171,11 @@ int    Parser::autoindex(){
     return (0);
 }
 
-/*int    Parser::cgi(){
-
-}*/
+int    Parser::cgi(){
+    if (words[1] == "off" || words[1] == "on")
+        return (1);
+    return (0);
+}
 
 bool    Parser::valid_path()
 {
@@ -199,20 +191,19 @@ bool    Parser::valid_path()
 void    Parser::location_key()
 {
     std::vector<std::string>    location_words;
-    std::string line;
+
+    if (location_size == -1)
+        location_size = 0;
     this->server[server_size]->make_location();
+    
     words.erase(words.begin(), words.begin()+3);
     (words.end() - 1)->push_back(';');
     std::getline(in_file, line, '}');
     split(line);
     location_words = words;
     words.clear();
-    /*for (int i = 0; i < location_words.size(); i++)
-                std::cout << location_words[i] << "   " << " y " << location_words.size() << std::endl;
-    */
     for (std::vector<std::string>::iterator it = location_words.begin(); it != location_words.end(); ++it)
     {
-        std::cout <<"aqui que pasa " << *it << std::endl;
         if ((*it)[(*it).size() - 1] != ';')
             words.push_back(*it);
         else
@@ -221,8 +212,6 @@ void    Parser::location_key()
             words.push_back(*it);
             key_words_location();
             words.clear();
-            /*for (int i = 0; i < words.size(); i++)
-                std::cout << words[i] << "   " << " y " << words.size() << std::endl;*/
         }
     }
     location_size++;
@@ -246,8 +235,8 @@ void    Parser::key_words_server()
         this->server[server_size]->setRoot(words[1]);
     else if (words[0] == "autoindex" && words.size() == 2 && autoindex() == 1)
         this->server[server_size]->setAutoindex(words[1]);
-    /*else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
-        this->server[server_size]->setCGI(words[1]);*/
+    else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
+        this->server[server_size]->setCGI(words[1]);
     else if (words[0] == "redirection" && words.size() == 2 && redirection() == 1)
         this->server[server_size]->setRedirection(words[1]);
     else if (words.size() > 4 && words[0] == "location" && words[1][0] == '/' && words[2] == "{")
@@ -258,37 +247,67 @@ void    Parser::key_words_server()
 
 void    Parser::key_words_location()
 {
-    std::cout << error_page() << " aqui " << words[0] << std::endl;
     if (words[0] == "error_page" && error_page() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size]->setLocation(words, location_size);
     else if (words[0] == "index" && words.size() == 2 && index() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size]->setLocation(words, location_size);
     else if (words[0] == "client_max_body_size" && words.size() == 2 && client_max_body_size() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size]->setLocation(words, location_size);
     else if (words[0] == "root" && words.size() == 2 && root() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size]->setLocation(words, location_size);
     else if (words[0] == "autoindex" && words.size() == 2 && autoindex() == 1)
-        this->server[server_size]->setLocation(words);
-    /*else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
-        this->server[server_size]->setLocation(words);*/
+        this->server[server_size]->setLocation(words, location_size);
+    else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
+        this->server[server_size]->setLocation(words, location_size);
     else
-        throw std::runtime_error("error_key_words_location1");
+        throw std::runtime_error("error_key_words_location");
+}
+
+void    Parser::check_content()
+{
+    for (int i = 0; i < server_size; i++)
+    {
+        if (this->server[i]->getServerName().empty())
+            throw std::runtime_error("error. not server name");
+        if (this->server[i]->getListen().empty())
+            this->server[i]->setListen("80");
+        if (this->server[i]->getAcceptMethod().empty())
+            throw std::runtime_error("error. not accept method");
+        if (this->server[i]->getErrorPage().empty())
+            throw std::runtime_error("error. not error page");
+        /*if (!this->server[i]->getBodySize())
+            this->server[i]->setBodySize(words);*/
+        if (this->server[i]->getRoot().empty())
+            throw std::runtime_error("error. not root");
+        if (!this->server[i]->getAutoindex())
+            this->server[i]->setAutoindex("off");
+        if (this->server[i]->getIndex().empty())
+            this->server[i]->setIndex("/error/404.html");//cambiar la dirreccion del archivo de error
+        if (!this->server[i]->getCGI())
+            this->server[i]->setCGI("off");        
+    }
 }
 
 void    Parser::server_pars()
 {
-    std::string line;
-
+    if (!words.empty())
+    {
+        key_words_server();
+        words.clear();
+    }
     while (std::getline(in_file, line, ';'))
     {
         if (!line.empty())
         {
             split(line);
-            if (words[0] == "}" && inServerBlock == true)//falta hacer esta caso: server{...}server {...}
+            if (words[0] == "}" && inServerBlock == true)
             {
+                check_content();
                 inServerBlock = false;
-                this->server[server_size]->fillLocation();
+                if (location_size != -1)
+                    this->server[server_size]->fillLocation();
                 server_size++;
+                words.erase(words.begin());
                 return ;
             }
             else
@@ -296,26 +315,34 @@ void    Parser::server_pars()
             words.clear();
         }
         else
-             std::runtime_error("error");
+            std::runtime_error("error");
+    }
+}
+
+void    Parser::IaMServer()
+{
+    this->server.push_back(new Server());
+    inServerBlock = true;
+    if (words.size() == 1 && words[0] == "server")
+        words.clear();
+    server_pars();
+    if (words[0] == "server")
+    {
+        location_size = -1;
+        words.erase(words.begin(), words.begin()+2);
+        IaMServer();
     }
 }
 
 void Parser::conf_file()
 {
-    std::string line;
-
     while (std::getline(in_file, line, '{'))
     {
         if (!line.empty())
         {
             split(line);
             if (words[0] == "server" && words.size() == 1)
-            {
-                this->server.push_back(new Server());
-                inServerBlock = true;
-                words.clear();
-                server_pars();
-            }
+                IaMServer();
             else
             {
                 words.clear();
@@ -325,6 +352,6 @@ void Parser::conf_file()
         else
             throw std::runtime_error("error_conf_file");
     }
-    std::cout << "server_size = " << server_size << std::endl;
-    this->server[server_size - 1]->printValuesServer();
+    for (int i = 0; i < server_size; i++)
+        this->server[i]->printValuesServer();
 }

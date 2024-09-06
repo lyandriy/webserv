@@ -13,6 +13,10 @@ server {
         {
                 error_page 403 403 405 /hola;
                 autoindex on;
+                error_page 403 403 405 /hola;
+                autoindex on;
+                error_page 403 403 405 /hola;
+                autoindex on;
         }
         error_page 403 403 405 /hola;
         accept_method GET;
@@ -21,3 +25,6 @@ server {
         error_page 404 /aqui;
         client_max_body_size 50G;
 }
+server {
+      client_max_body_size 50G;  
+}web/

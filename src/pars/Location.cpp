@@ -24,9 +24,6 @@ void    Location::setErrorPage(std::vector<std::string> &words)
         str_number.clear();
         this->error_page[int_number] = words[words.size() - 1];
     }
-    /*for (std::map<int, std::string>::iterator it = error_page.begin(); it != error_page.end(); ++it) {
-        std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
-    }*/
 }
 
 void    Location::setBodySize(std::vector<std::string> &words)
@@ -60,7 +57,10 @@ void    Location::setRoot(std::string root)
 
 void    Location::setAutoindex(std::string autoindex)
 {
-    this->autoindex = autoindex;
+    if (autoindex == "on")
+        this->autoindex = true;
+    else if (autoindex == "off")
+        this->autoindex = false;
 }
 
 void    Location::setIndex(std::string index)
@@ -68,10 +68,18 @@ void    Location::setIndex(std::string index)
     this->index = index;
 }
 
-/*void    Location::setCGI(std::string cgi)
+void    Location::setCGI(std::string cgi)
 {
-    this->cgi = cgi;
-}*/
+    if (cgi == "on")
+        this->cgi = true;
+    else if (cgi == "off")
+        this->cgi = false;
+}
+
+void    Location::setUri(std::string Uri)
+{
+    this->locationUri = Uri;
+}
 
 std::string    Location::getServerName() const
 {
@@ -108,7 +116,7 @@ std::string    Location::getRoot() const
     return(this->root);
 }
 
-std::string    Location::getAutoindex() const
+bool    Location::getAutoindex() const
 {
     return(this->autoindex);
 }
@@ -118,23 +126,14 @@ std::string    Location::getIndex() const
     return(this->index);
 }
 
-/*std::string    Location::getCGI() const
+bool    Location::getCGI() const
 {
     return(this->cgi);
-}*/
+}
 
-/*Location::Location(Server &other){
-    this->listen = other.getListen();
-    this->server_name = other.getServerName();
-    this->accept_method = other.getAcceptMethod();
-    this->error_page = other.getErrorPage();
-    this->client_max_body_size = other.getBodySize();
-    this->redirection = other.getRedirection();
-    this->root = other.getRoot();
-    this->autoindex = other.getAutoindex();
-    this->index = other.getIndex();
-    //this->cgi = other->getCGI();
-}*/
+std::string Location::getUri() const{
+    return (this->locationUri);
+}
 
 void Location::printValues() const {
     std::cout << "Server Name: " << server_name << std::endl;
@@ -144,6 +143,7 @@ void Location::printValues() const {
     std::cout << "Root: " << root << std::endl;
     std::cout << "Autoindex: " << autoindex << std::endl;
     std::cout << "Index: " << index << std::endl;
+    std::cout << "CGI: " << cgi << std::endl;
     // Imprimir listen (direcciones)
     std::cout << "Listen Addresses: " << std::endl;
     for (size_t i = 0; i < listen.size(); i++) {

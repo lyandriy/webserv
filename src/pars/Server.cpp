@@ -2,7 +2,6 @@
 
 Server::Server(){
     location_size = 0;
-    //std::cout << "constructor de server" << std::endl;
 }
 
 Server::~Server(){}
@@ -13,16 +12,6 @@ Server::Server(const Server &other){
 
 Server &Server::operator=(const Server &other){return *this;}
 
-/*struct sockaddr_in  Server::make_socaddr(std::string addr, int port)
-{
-    struct sockaddr_in socket_addr;
-
-    socket_addr.sin_family = AF_INET;
-    socket_addr.sin_port = htons(port);
-    socket_addr.sin_addr.s_addr = INADDR_ANY;
-
-    return (socket_addr);
-}*/
 void    Server::setListen(std::string word)
 {
     int port;
@@ -34,59 +23,10 @@ void    Server::setListen(std::string word)
     socket_addr.sin_addr.s_addr = INADDR_ANY;
     listen.push_back(socket_addr);
 }
-/*void    Server::setListen(std::vector<std::string> &words)
-{
-    std::string str_number;
-    int port;
-    std::string str_port;
-    int i = 0;
-    struct sockaddr_in socket_addr;
-
-    while (isdigit(words[1][i]) || words[1][i])
-    {
-        std::cout << "sera aqui " << words[1] << std::endl;
-        str_number += words[1][i];
-        i++;
-    }
-    if (words[1][i] == '.')
-    {
-        while (words[1][i] || words[1][i] != ':')
-        {
-            str_number += words[1][i];
-            i++;
-        }
-        if (words[1][i] != ':')//cuando hay solo el numero IP
-        {
-            listen.push_back(make_socaddr(str_number, 80));
-            str_number.clear();
-        }
-        if (words[1][i] == ':')
-        {
-            i++;
-            while (words[1][i])
-            {
-                std::cout << "sera aqui2" << std::endl;
-                str_port += words[1][i];
-                i++;
-            }
-            port = atoi(str_port.c_str());
-            str_port.clear();
-            listen.push_back(make_socaddr(str_number, port));
-        }
-    }
-    else if (!str_number.empty())//cuando hay solo puerto
-    {
-        port = atoi(str_number.c_str());
-        std::cout << "port numero " << port << std::endl;
-        str_number.clear();
-        listen.push_back(make_socaddr("0.0.0.0", port));
-    }
-}*/
 
 void    Server::setServerName(std::string server_name)
 {
     this->server_name = server_name; 
-    //std::cout << this->server_name << "\n";
 }
 
 void    Server::setAcceptMethod(std::string accept_method)
@@ -146,8 +86,10 @@ void    Server::setRoot(std::string root)
 
 void    Server::setAutoindex(std::string autoindex)
 {
-    this->autoindex = autoindex;
-    //std::cout << "server" << this->autoindex << std::endl;
+    if (autoindex == "on")
+        this->autoindex = true;
+    else if (autoindex == "off")
+        this->autoindex = false;
 }
 
 void    Server::setIndex(std::string index)
@@ -155,10 +97,18 @@ void    Server::setIndex(std::string index)
     this->index = index;
 }
 
-/*void    Server::setCGI(std::string cgi)
+void    Server::setCGI(std::string cgi)
 {
-    this->cgi = cgi;
-}*/
+    if (cgi == "on")
+        this->cgi = true;
+    else if (cgi == "off")
+        this->cgi = false;
+}
+
+void    Server::setUri(std::string Uri)
+{
+    this->location[location_size]->locationUri = Uri;
+}
 
 std::string    Server::getServerName() const
 {
@@ -195,7 +145,7 @@ std::string    Server::getRoot() const
     return(this->root);
 }
 
-std::string    Server::getAutoindex() const
+bool    Server::getAutoindex() const
 {
     return(this->autoindex);
 }
@@ -205,22 +155,27 @@ std::string    Server::getIndex() const
     return(this->index);
 }
 
-/*std::string    Server::getCGI() const
+bool   Server::getCGI() const
 {
     return(this->cgi);
-}*/
+}
+
+std::string    Server::getUri() const
+{
+    return (this->location[location_size]->getUri());
+}
 
 void    Server::fillLocation()
 {
     std::map<int, std::string>::iterator it;
 
-    for (int i = 0; i < location_size; i++)
+    for (int i = 0; i <= location_size; i++)
     {
         this->location[i]->listen = this->listen;
         this->location[i]->server_name = this->server_name;
         this->location[i]->accept_method = this->accept_method;
         this->location[i]->redirection = this->redirection;
-        //this->location[i]->cgi = this->cgi;
+        this->location[i]->cgi = this->cgi;
         if (this->location[i]->root.empty())
             this->location[i]->root = this->root;
         for (it = this->error_page.begin(); it != this->error_page.end(); ++it)
@@ -230,15 +185,17 @@ void    Server::fillLocation()
         }
         if (!this->location[i]->client_max_body_size)
             this->location[i]->client_max_body_size = this->client_max_body_size;
-        if (this->location[i]->autoindex.empty())
+        if (!this->location[i]->autoindex)
             this->location[i]->autoindex = this->autoindex;
         if (this->location[i]->index.empty())
             this->location[i]->index = this->index;
     }
+
 }
 
-void    Server::setLocation(std::vector<std::string> &words)
+void    Server::setLocation(std::vector<std::string> &words, int pos)
 {
+    location_size = pos;
     if (words[0] == "error_page")
         this->location[location_size]->setErrorPage(words);
     else if (words[0] == "index")
@@ -249,8 +206,8 @@ void    Server::setLocation(std::vector<std::string> &words)
         this->location[location_size]->setRoot(words[1]);
     else if (words[0] == "autoindex")
         this->location[location_size]->setAutoindex(words[1]);
-   /* else if (words[0] == "cgi")
-        this->location[location_size]->setCGI(words[1]);*/
+    else if (words[0] == "cgi")
+        this->location[location_size]->setCGI(words[1]);
     else
         throw std::runtime_error("error_setLocation");
 }
@@ -268,6 +225,7 @@ void Server::printValuesServer() const {
             std::cout << "Root: " << root << std::endl;
             std::cout << "Autoindex: " << autoindex << std::endl;
             std::cout << "Index: " << index << std::endl;
+            std::cout << "CGI: " << cgi << std::endl;
 
             // Imprimir listen (direcciones)
             std::cout << "Listen Addresses: " << std::endl;

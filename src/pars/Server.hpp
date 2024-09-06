@@ -11,16 +11,16 @@ class Location;
 class Server
 {
     private:
-        std::vector<struct sockaddr_in>    listen;
-        std::string    server_name;
-        std::string    accept_method;
-        std::map<int, std::string>    error_page;
-        unsigned long long int    client_max_body_size;
+        std::vector<struct sockaddr_in>    listen;//tiene que haber si no, es un 80
+        std::string    server_name;//tiene que haber
+        std::string    accept_method;//tiene que haber
+        std::map<int, std::string>    error_page;//tiene que haber
+        unsigned long long int    client_max_body_size;//0
         std::string    redirection;
-        std::string    root;
-        std::string    autoindex;
-        std::string    index;
-        //std::string    cgi;
+        std::string    root;//tiene que haber
+        bool    autoindex;//bool off
+        std::string    index;//404
+        bool    cgi;//bool off
         std::vector<Location*>   location;
         int location_size;
     public:
@@ -38,9 +38,9 @@ class Server
         void    setRoot(std::string);
         void    setAutoindex(std::string);
         void    setIndex(std::string);
-        //void    setCGI(std::string);
-        void    createLocation();
-        void    setLocation(std::vector<std::string> &);
+        void    setCGI(std::string);
+        void    setUri(std::string);
+        void    setLocation(std::vector<std::string> &, int);
         void    fillLocation();
         void    make_location();
 
@@ -51,11 +51,11 @@ class Server
         unsigned long long int    getBodySize() const;
         std::string    getRedirection() const;
         std::string    getRoot() const;
-        std::string    getAutoindex() const;
+        bool    getAutoindex() const;
         std::string    getIndex() const;
-        //std::string    getCGI() const;
+        bool    getCGI() const;
+        std::string     getUri() const;
 
-        struct sockaddr_in  make_socaddr(std::string, int);
         void printValuesServer() const;
 };
 

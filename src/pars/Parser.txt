@@ -22,7 +22,7 @@ Parser::Parser(const std::string file) : in_file(file.c_str())
         throw std::runtime_error("error_Parder_constructor");
 }
 
-void    Parser::split(std::string &line, std::vector<std::string> &words)
+void    Parser::split(std::string &line)
 {
     std::istringstream  iss(line);
     std::string         line_;
@@ -303,14 +303,6 @@ void    Parser::key_words_location()
 void    Parser::location_key()
 {
     std::string line;
-
-    std::getline(in_file, line, '}');
-    
-}
-
-void    Parser::location_key()
-{
-    std::string line;
     if (words[1][0] == '/' && words[2] == "{")
     {
         inLocationBlock = true;
@@ -368,7 +360,6 @@ void    Parser::server_pars()
                 inServerBlock = false;
                 this->server[server_size]->fillLocation();
                 server_size++;
-                words.clear();
                 return ;
             }
             else
@@ -395,6 +386,8 @@ void Parser::conf_file()
                 inServerBlock = true;
                 words.clear();
                 server_pars();
+                
+
             }
             else
             {

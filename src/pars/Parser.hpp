@@ -22,6 +22,7 @@ class Parser
         std::vector<std::string>    words;
         int                     server_size;
         int                     location_size;
+        std::string             line;
         Parser();
     public:
         Parser(const std::string);
@@ -41,11 +42,13 @@ class Parser
         int     redirection();
         int     root();
         int     autoindex();
-        //int     cgi();
+        int     cgi();
         void    location_key();
         bool    valid_path();
         int     error_code(std::string);
         int     is_number(std::string);
+        void    IaMServer();
+        void    check_content();
 };
 
 #endif
