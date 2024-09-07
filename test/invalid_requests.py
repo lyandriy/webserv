@@ -2,7 +2,7 @@ import socket
 
 requests = []
 
-requests.append("GET / HTTP/1.1\r\nHost: localhost:8080\r\n")
+requests.append("GET / HTTP/1.1\r\nHost: localhost:8080\r\n") # falta un \r\n más al final
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(('localhost', 8080))

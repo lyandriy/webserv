@@ -14,6 +14,13 @@ Request::Request() : _request(), _body(), _method(""), _request_str(""), _uri(""
 Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""), _protocol(""), 
 								_headers(), _lines(), _request_line(""), _index_aux(0), _valid(true), _error_code(0) 
 {
+	debug = true;
+	if (debug == true)
+	{
+		_accept_metod.push_back("GET");
+		_accept_metod.push_back("POST");
+		_accept_metod.push_back("DELETE");
+	}
 	std::cout << "\nConstructor BUFFER" << std::endl;
 	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
 	std::string aux(_request.begin(), _request.end());
@@ -22,7 +29,8 @@ Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""
 	check_any_valid_line();
 	// check_lines(_lines);
 	// check_vector(_body);
-	extract_first_line(_lines);
+	extract_first_line();
+	check_request_line();
 }
 
 Request::Request(Request const &copy)
@@ -50,6 +58,42 @@ Request& Request::operator=(Request const & other)
 Request::~Request()
 {}
 
+void Request::check_request_line()
+{
+	size_t i = 0;
+	if (this->_valid == false)
+		return;
+	if (this->_lines[0][0] == SP)
+	{
+		//verifica que la request no empiece con un espacio, no está permitido
+		this->_valid = false;
+		this->_error_code = 400;
+	}
+	// chequear que el método está en los válidos del servidor
+	// para eso hay que saber a qué servidor va dirigido ¿y el puerto?
+	// revisar el campo location los métodos permitidos
+	//este código verifica si el método está en los permitidos (sin buscar el location)
+	// si recorre todos los métodos permitidos y no ha encontrado que sea válido
+	//establece la request como inválida y establece código de error 403
+//Proceso lógico:
+	//Llega request
+	//verificar bloque server
+	//Determinar bloquer locatio correspondiente
+	//Verificar métodos dentro del location
+	for (i = 0; i < _accept_metod.size(); i++)
+	{
+		if (_accept_metod[i] == _method)
+		{
+			break;
+		}
+	}
+	if (i == _accept_metod.size())
+	{
+		_valid = false;
+		_error_code = 405; //Method Not Allowed
+	}
+}
+
 void Request::check_any_valid_line()
 {
 	if (this->_lines.empty())
@@ -59,11 +103,11 @@ void Request::check_any_valid_line()
 	}
 }
 
-void Request::extract_first_line(std::vector<std::string> &lines)
+void Request::extract_first_line()
 {
 	if (this->_valid == false)
 		return;
-	std::string first_line = lines[0];
+	std::string first_line = _lines[0];
 	std::vector<std::string> result;
 	std::string aux;
 	std::string::iterator it = first_line.begin();
@@ -128,7 +172,10 @@ void Request::extract_request_lines(std::vector<char> &request)
 	}
 }
 
-
+bool Request::get_validity()
+{
+	return _valid;
+}
 
 void Request::parse_request(const char *buffer)
 {

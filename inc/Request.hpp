@@ -18,8 +18,10 @@ private:
 	int _index_aux;
 	bool _valid;
 	int _error_code;
+	std::vector<std::string> _accept_metod;
 
 public:
+	bool debug;
 	Request(void);
 	Request(char *buffer);
 	/* Request(std::string method, 
@@ -37,10 +39,12 @@ public:
 	void get_lines(std::vector<char> &request);
 
 	void extract_request_lines(std::vector<char> &request);
-	void extract_first_line(std::vector<std::string> &lines);
+	void extract_first_line();
 
 	void check_any_valid_line();
-
+	void check_request_line();
+	
+	bool get_validity();
 	// Para debug //
 	void check_lines(std::vector<std::string> lines);
 	void find_CRLF(const std::string &str);

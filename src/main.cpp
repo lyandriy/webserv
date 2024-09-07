@@ -142,7 +142,8 @@ int main()
 
 					
 					Request prueba(buffer);
-					requests.push_back(prueba);
+					if (prueba.get_validity() == true)
+						requests.push_back(prueba);
 					int diff = strncmp(buffer, "cerrar servidor", 15);
 					if (diff == 0)
 					{
