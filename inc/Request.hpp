@@ -38,12 +38,19 @@ public:
 	void get_lines(const std::string &request);
 	void get_lines(std::vector<char> &request);
 
-	void extract_request_lines(std::vector<char> &request);
-	void extract_first_line();
+	void read_request_lines(std::vector<char> &request);
+	void read_request_lines();
+	void extract_request_line();
 
-	void check_any_valid_line();
-	void check_request_line();
-	
+	bool check_number_elements_request_line(std::vector<std::string> result);
+	bool check_any_valid_line();
+	bool check_request_line();
+	bool check_method();
+	bool check_spaces_at_beginning();
+	bool check_uri();
+	bool check_protocol();
+
+	bool set_validity(int error_code);
 	bool get_validity();
 	// Para debug //
 	void check_lines(std::vector<std::string> lines);

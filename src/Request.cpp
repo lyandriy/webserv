@@ -18,18 +18,16 @@ Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""
 	if (debug == true)
 	{
 		_accept_metod.push_back("GET");
-		_accept_metod.push_back("POST");
+		// _accept_metod.push_back("POST");
 		_accept_metod.push_back("DELETE");
 	}
 	std::cout << "\nConstructor BUFFER" << std::endl;
 	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
 	std::string aux(_request.begin(), _request.end());
 	_request_str = aux;
-	extract_request_lines(_request);
+	read_request_lines();
 	check_any_valid_line();
-	// check_lines(_lines);
-	// check_vector(_body);
-	extract_first_line();
+	extract_request_line();
 	check_request_line();
 }
 
@@ -58,17 +56,62 @@ Request& Request::operator=(Request const & other)
 Request::~Request()
 {}
 
-void Request::check_request_line()
+
+bool Request::check_request_line()
 {
-	size_t i = 0;
 	if (this->_valid == false)
-		return;
+		return false;
+	check_spaces_at_beginning();
+	check_method();
+	check_uri();
+	check_protocol();
+	return true;
+}
+
+bool Request::check_protocol()
+{
+	if (_valid == false)
+		return false;
+	size_t bar_positition = _protocol.find("/");
+	if (_protocol.find("/") == _protocol.npos)
+		return set_validity(BAD_REQUEST);
+	std::string protocol = _protocol.substr(0, bar_positition);
+	std::string version = _protocol.substr(bar_positition + 1);
+	if (debug == true){std::cout << "Protocol: " << protocol << std::endl;
+	std::cout << "Version: " << version << std::endl;}
+	if (protocol != "HTTP")
+		return set_validity(BAD_REQUEST);
+	if (version == "1.0")
+		return set_validity(HTTP_VERSION_NOT_SUPPORTED);
+	if (version != "1.1")
+		return set_validity(BAD_REQUEST);
+	return true;
+}
+
+bool Request::check_uri()  //falta implementar
+{
+	if (_valid == false)
+		return false;
+	// buscar uri en location
+		// buscar coincidencia exacta
+		// buscar coincidencia parcial
+		// si no hay, retroceder un / y volver a comparar
+	return true;
+}
+
+bool Request::check_spaces_at_beginning()
+{
+	if (_valid == false)
+		return false;
 	if (this->_lines[0][0] == SP)
-	{
-		//verifica que la request no empiece con un espacio, no está permitido
-		this->_valid = false;
-		this->_error_code = 400;
-	}
+		return set_validity(BAD_REQUEST);
+	return true;
+}
+
+bool Request::check_method()
+{
+	if (_valid == false)
+		return false;
 	// chequear que el método está en los válidos del servidor
 	// para eso hay que saber a qué servidor va dirigido ¿y el puerto?
 	// revisar el campo location los métodos permitidos
@@ -80,30 +123,27 @@ void Request::check_request_line()
 	//verificar bloque server
 	//Determinar bloquer locatio correspondiente
 	//Verificar métodos dentro del location
+	size_t i;
 	for (i = 0; i < _accept_metod.size(); i++)
 	{
 		if (_accept_metod[i] == _method)
-		{
 			break;
-		}
 	}
+		// if (debug == true){std::cout << "i: " << i << std::endl;}
 	if (i == _accept_metod.size())
-	{
-		_valid = false;
-		_error_code = 405; //Method Not Allowed
-	}
+		return set_validity(METHOD_NOT_ALLOWED);
+	return true;
 }
 
-void Request::check_any_valid_line()
+bool Request::check_any_valid_line()
 {
 	if (this->_lines.empty())
-	{
-		this->_valid = false;
-		this->_error_code = 400;
-	}
+		return set_validity(BAD_REQUEST);
+	return true;
 }
 
-void Request::extract_first_line()
+
+void Request::extract_request_line()
 {
 	if (this->_valid == false)
 		return;
@@ -133,17 +173,32 @@ void Request::extract_first_line()
 		result.push_back(aux);
 	}
 
-	//para debug
-	std::cout << "Estos son los componentes de la primera línea:\n";
-	for (size_t i = 0; i < result.size(); i++)
+	if (debug == true)
 	{
-		std::cout << result[i] << "\n";
+		std::cout << "Estos son los componentes de la primera línea:\n";
+		for (size_t i = 0; i < result.size(); i++)
+		{
+			std::cout << result[i] << std::endl;
+		}
 	}
-	std::cout << std::endl;
-	
+	if (check_number_elements_request_line(result))
+	{
+		_method = result[0];
+		_uri = result[1];
+		_protocol = result[2];
+	}
 }
 
-void Request::extract_request_lines(std::vector<char> &request)
+bool Request::check_number_elements_request_line(std::vector<std::string> result)
+{
+	if (result.size() != 3)
+		return set_validity(BAD_REQUEST);
+	// if(debug == true){std::cout << "La línea tiene la cantidad  de elementos adecuada" << std::endl;}
+	return true; 
+}
+
+
+/* void Request::read_request_lines(std::vector<char> &request)
 {
 	std::vector<char>::iterator it = request.begin();
 	std::vector<char>::iterator line_start = it;
@@ -170,6 +225,42 @@ void Request::extract_request_lines(std::vector<char> &request)
 			it++;
 		}
 	}
+} */
+
+void Request::read_request_lines()
+{
+	std::vector<char>::iterator it = _request.begin();
+	std::vector<char>::iterator line_start = it;
+	while (it != _request.end())
+	{
+		if (*it == '\r' && (it + 1) != _request.end() && *(it + 1) == '\n')
+		{
+			std::string line(line_start, it);
+
+			_lines.push_back(line);
+			it += 2;
+			line_start = it;
+			if (it != _request.end() && *it == '\r' && (it + 1) != _request.end() && *(it + 1) == '\n')
+			{
+				it += 2;
+				if (it != _request.end())
+				{
+					_body = std::vector<char> (it, _request.end());
+				}
+			}
+		}
+		else
+		{
+			it++;
+		}
+	}
+}
+
+bool Request::set_validity(int error_code)
+{
+	_valid = false;
+	_error_code = error_code;
+	return _valid;
 }
 
 bool Request::get_validity()
@@ -245,4 +336,5 @@ void Request::check_vector(const std::vector<char> &request)
 	std::cout << std::endl;
 }
 
+		// if (debug == true){std::cout << "" << std::endl;}
 

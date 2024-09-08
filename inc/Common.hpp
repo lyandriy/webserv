@@ -16,4 +16,4 @@
 # include <cstring>
 
 # include "Request.hpp"
-
+# include "Error.hpp"

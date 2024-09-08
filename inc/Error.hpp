@@ -1,0 +1,8 @@
+# pragma once
+
+# define BAD_REQUEST 400
+# define METHOD_NOT_ALLOWED 405
+
+// 500
+# define HTTP_VERSION_NOT_SUPPORTED 505
+
