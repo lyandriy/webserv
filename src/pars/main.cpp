@@ -2,12 +2,13 @@
 
 int main(int argc, char **argv)
 {
+    std::vector<Server*> server;
     try
     {
         if (argc == 2)
         {
             Parser  parser(argv[1]);
-            parser.conf_file();
+            server = parser.conf_file();
         }
     }
     catch(const std::exception& e)

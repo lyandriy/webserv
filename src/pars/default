@@ -5,19 +5,24 @@ server {
     accept_method GET;
 
     error_page 403 /403.html;
-    client_max_body_size 5k;
+    client_max_body_size ;
     redirection /start.html;
     root /srv/www;
     autoindex on;
     index index.htm;
     cgi off;
 
-    location /api {
+     location  / {
+        root /srv/www/api;
+        
+    }
+    location / {
         root /srv/www/api;
         index api_index.html;
         client_max_body_size 6k;
         autoindex on;
-        cgi off;}location /static {
+        cgi off;
+        location /static {
         root /srv/www/static;
         index static_index.html;
         client_max_body_size 7M;

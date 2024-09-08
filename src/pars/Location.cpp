@@ -6,9 +6,63 @@ Location::Location(){}
 
 Location::~Location(){}
 
-Location::Location(const Location &other){}
+Location::Location(const Location &other)
+{
+    *this = other;
+}
 
-Location &Location::operator=(const Location &other){return *this;}
+Location &Location::operator=(const Location &other)
+{
+    this->listen = other.listen;
+    this->server_name = other.server_name;
+    this->root = other.root;
+    this->index = other.index;
+    this->accept_method = other.accept_method;
+    this->redirection = other.redirection;
+    this->error_page = other.error_page;
+    this->client_max_body_size = other.client_max_body_size;
+    this->autoindex = other.autoindex;
+    this->cgi = other.cgi;
+    this->locationUri = other.locationUri;
+    return *this;
+}
+
+void    Location::setListen(std::string word)
+{
+    int port;
+    struct sockaddr_in socket_addr;
+
+    port = atoi(word.c_str());
+    socket_addr.sin_family = AF_INET;
+    socket_addr.sin_port = htons(port);
+    socket_addr.sin_addr.s_addr = INADDR_ANY;
+    listen.push_back(socket_addr);
+}
+
+void    Location::setServerName(std::string server_name)
+{
+    this->server_name = server_name; 
+}
+
+void    Location::setRoot(std::string root)
+{
+    this->root = root;
+}
+
+void    Location::setIndex(std::string index)
+{
+    this->index = index;
+}
+
+void    Location::setAcceptMethod(std::string accept_method)
+{
+    this->accept_method = accept_method;
+}
+
+void    Location::setRedirection(std::string redirection)
+{
+    this->redirection = redirection;
+}
 
 void    Location::setErrorPage(std::vector<std::string> &words)
 {
@@ -50,22 +104,12 @@ void    Location::setBodySize(std::vector<std::string> &words)
     }
 }
 
-void    Location::setRoot(std::string root)
-{
-    this->root = root;
-}
-
 void    Location::setAutoindex(std::string autoindex)
 {
     if (autoindex == "on")
         this->autoindex = true;
     else if (autoindex == "off")
         this->autoindex = false;
-}
-
-void    Location::setIndex(std::string index)
-{
-    this->index = index;
 }
 
 void    Location::setCGI(std::string cgi)
@@ -81,19 +125,34 @@ void    Location::setUri(std::string Uri)
     this->locationUri = Uri;
 }
 
-std::string    Location::getServerName() const
-{
-    return(this->server_name);
-}
-
 std::vector<struct sockaddr_in>    Location::getListen() const
 {
     return(this->listen);
 }
 
+std::string    Location::getServerName() const
+{
+    return(this->server_name);
+}
+
+std::string    Location::getRoot() const
+{
+    return(this->root);
+}
+
+std::string    Location::getIndex() const
+{
+    return(this->index);
+}
+
 std::string    Location::getAcceptMethod() const
 {
     return(this->accept_method);
+}
+
+std::string    Location::getRedirection() const
+{
+    return(this->redirection);
 }
 
 std::map<int, std::string>    Location::getErrorPage() const
@@ -106,24 +165,9 @@ unsigned long long int    Location::getBodySize() const
     return(this->client_max_body_size);
 }
 
-std::string    Location::getRedirection() const
-{
-    return(this->redirection);
-}
-
-std::string    Location::getRoot() const
-{
-    return(this->root);
-}
-
 bool    Location::getAutoindex() const
 {
     return(this->autoindex);
-}
-
-std::string    Location::getIndex() const
-{
-    return(this->index);
 }
 
 bool    Location::getCGI() const
@@ -133,6 +177,12 @@ bool    Location::getCGI() const
 
 std::string Location::getUri() const{
     return (this->locationUri);
+}
+
+Location    *Location::clone() const
+{
+    Location	*clon = new Location(*this);
+	return (clon);
 }
 
 void Location::printValues() const {
