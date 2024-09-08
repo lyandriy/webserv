@@ -17,18 +17,20 @@ Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""
 	debug = true;
 	if (debug == true)
 	{
+		std::cout << "\nConstructor BUFFER" << std::endl;
 		_accept_metod.push_back("GET");
 		// _accept_metod.push_back("POST");
 		_accept_metod.push_back("DELETE");
 	}
-	std::cout << "\nConstructor BUFFER" << std::endl;
 	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
 	std::string aux(_request.begin(), _request.end());
 	_request_str = aux;
 	read_request_lines();
+	// check_lines(_lines);
 	check_any_valid_line();
 	extract_request_line();
 	check_request_line();
+	read_headers_lines();
 }
 
 Request::Request(Request const &copy)
@@ -56,6 +58,60 @@ Request& Request::operator=(Request const & other)
 Request::~Request()
 {}
 
+bool Request::read_headers_lines()
+{
+	std::string key;
+	std::string value;
+	size_t colon_position;
+
+	if (_valid == false)
+		return _valid;
+	if (_lines.size() <= 1)
+		return _valid;
+
+	for (size_t i = 1; i < _lines.size(); i++)
+	{
+		colon_position = _lines[i].find(":");
+		if (colon_position == _lines[i].npos || 
+			_lines[i].find(" :") != _lines[i].npos)
+			return set_validity(BAD_REQUEST);
+		key = _lines[i].substr(0, colon_position);
+		value = _lines[i].substr(colon_position + 1);
+		_headers[key] = value;
+		if (key == "Host")
+			set_host_and_port(value);
+	}
+	/* if (debug == true)
+	{
+		std::cout << "Clave   :    Valor"  << std::endl;
+		for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); ++it)
+			std::cout << it->first << " : " << it->second << std::endl;
+	} */
+	return _valid;
+}
+
+void Request::set_host_and_port(std::string &host_line_value)
+{
+	size_t colon_position;
+
+	colon_position = host_line_value.find(":");
+	if (colon_position == host_line_value.npos)
+	{
+		_host = host_line_value;
+		_port = DEFAULT_HTTP_PORT;
+	}
+	else
+	{
+		_host = host_line_value.substr(0, colon_position);
+		_port = atoi(host_line_value.substr(colon_position + 1).c_str());
+	}
+	/* if (debug == true)
+	{
+		std::cout << "Host: " << _host << std::endl;
+		std::cout << "Port: " << _port << std::endl;
+	} */
+}
+
 
 bool Request::check_request_line()
 {
@@ -77,8 +133,8 @@ bool Request::check_protocol()
 		return set_validity(BAD_REQUEST);
 	std::string protocol = _protocol.substr(0, bar_positition);
 	std::string version = _protocol.substr(bar_positition + 1);
-	if (debug == true){std::cout << "Protocol: " << protocol << std::endl;
-	std::cout << "Version: " << version << std::endl;}
+	// if (debug == true){std::cout << "Protocol: " << protocol << std::endl;
+	// std::cout << "Version: " << version << std::endl;}
 	if (protocol != "HTTP")
 		return set_validity(BAD_REQUEST);
 	if (version == "1.0")
@@ -173,14 +229,14 @@ void Request::extract_request_line()
 		result.push_back(aux);
 	}
 
-	if (debug == true)
+	/* if (debug == true)
 	{
 		std::cout << "Estos son los componentes de la primera línea:\n";
 		for (size_t i = 0; i < result.size(); i++)
 		{
 			std::cout << result[i] << std::endl;
 		}
-	}
+	} */
 	if (check_number_elements_request_line(result))
 	{
 		_method = result[0];
@@ -238,7 +294,7 @@ void Request::read_request_lines()
 			std::string line(line_start, it);
 
 			_lines.push_back(line);
-			it += 2;
+			it += 2; 
 			line_start = it;
 			if (it != _request.end() && *it == '\r' && (it + 1) != _request.end() && *(it + 1) == '\n')
 			{
@@ -260,6 +316,14 @@ bool Request::set_validity(int error_code)
 {
 	_valid = false;
 	_error_code = error_code;
+	return _valid;
+}
+
+bool Request::set_validity(int error_code, std::string help_message)
+{
+	_valid = false;
+	_error_code = error_code;
+	_help_message = help_message;
 	return _valid;
 }
 

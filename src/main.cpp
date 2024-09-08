@@ -129,7 +129,6 @@ int main()
 						"Content-Length: 24\r\n"
 						"\r\n"
 						"<h1>Hola WOLOLO!!!</h1>\n";
-					// std::cout << "--->>>   buffer   <<<---" << std::endl;
 					for (size_t i = 0; i < strlen(buffer); i++)
 					{
 						if (buffer[i] == '\r')

@@ -2,6 +2,8 @@
 
 # include "Common.hpp"
 # define SP ' '
+# define DEFAULT_HTTP_PORT 80
+# define DEFAULT_HTTPS_PORT 443
 class Request
 {
 private:
@@ -18,7 +20,10 @@ private:
 	int _index_aux;
 	bool _valid;
 	int _error_code;
+	std::string _help_message;
 	std::vector<std::string> _accept_metod;
+	int	_port;					// unsigned int?
+	std::string _host;			// server_name???
 
 public:
 	bool debug;
@@ -49,8 +54,11 @@ public:
 	bool check_spaces_at_beginning();
 	bool check_uri();
 	bool check_protocol();
+	void set_host_and_port(std::string &host_line_value);
 
+	bool read_headers_lines();
 	bool set_validity(int error_code);
+	bool set_validity(int error_code, std::string help_message);
 	bool get_validity();
 	// Para debug //
 	void check_lines(std::vector<std::string> lines);
