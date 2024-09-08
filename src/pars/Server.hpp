@@ -11,9 +11,9 @@ class Location;
 class Server
 {
     private:
-        std::vector<struct sockaddr_in>    listen;//tiene que haber si no, es un 80
+        std::vector<struct sockaddr_in>    listen;//es un 80
         std::string    server_name;//tiene que haber
-        std::string    accept_method;//tiene que haber
+        std::string    accept_method;//get
         std::map<int, std::string>    error_page;//tiene que haber
         unsigned long long int    client_max_body_size;//0
         std::string    redirection;
@@ -22,7 +22,6 @@ class Server
         std::string    index;//404
         bool    cgi;//bool off
         std::vector<Location*>   location;
-        int location_size;
     public:
         Server();
         ~Server();
@@ -40,7 +39,7 @@ class Server
         void    setIndex(std::string);
         void    setCGI(std::string);
         void    setUri(std::string);
-        void    setLocation(std::vector<std::string> &, int);
+        void    setLocation(std::vector<std::string> &);
         void    fillLocation();
         void    make_location();
 

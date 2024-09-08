@@ -1,7 +1,11 @@
 #include "Server.hpp"
 
 Server::Server(){
-    location_size = 0;
+    accept_method = "GET";
+    client_max_body_size = 0;
+    cgi = false;
+    autoindex = false;
+    index = "/error/404.html";
 }
 
 Server::~Server(){}
@@ -107,7 +111,7 @@ void    Server::setCGI(std::string cgi)
 
 void    Server::setUri(std::string Uri)
 {
-    this->location[location_size]->locationUri = Uri;
+    this->location.back()->setUri(Uri);
 }
 
 std::string    Server::getServerName() const
@@ -162,14 +166,33 @@ bool   Server::getCGI() const
 
 std::string    Server::getUri() const
 {
-    return (this->location[location_size]->getUri());
+    return (this->location.back()->getUri());
 }
 
 void    Server::fillLocation()
 {
-    std::map<int, std::string>::iterator it;
-
-    for (int i = 0; i <= location_size; i++)
+    for (std::vector<Location*>::iterator itl = location.begin(); itl != location.end(); ++itl)
+    {
+        (*itl)->listen = this->listen;
+        (*itl)->server_name = this->server_name;
+        (*itl)->accept_method = this->accept_method;
+        (*itl)->redirection = this->redirection;
+        (*itl)->cgi = this->cgi;
+        if ((*itl)->root.empty())
+            (*itl)->root = this->root;
+        for (std::map<int, std::string>::iterator it = this->error_page.begin(); it != this->error_page.end(); ++it)
+        {
+            if ((*itl)->error_page.find(it->first) == (*itl)->error_page.end())
+                (*itl)->error_page[it->first] = it->second;
+        }
+        if (!(*itl)->client_max_body_size)
+            (*itl)->client_max_body_size = this->client_max_body_size;
+        if (!(*itl)->autoindex)
+            (*itl)->autoindex = this->autoindex;
+        if ((*itl)->index.empty())
+            (*itl)->index = this->index;
+    }
+    /*for (int i = 0; i <= location_size; i++)
     {
         this->location[i]->listen = this->listen;
         this->location[i]->server_name = this->server_name;
@@ -178,7 +201,7 @@ void    Server::fillLocation()
         this->location[i]->cgi = this->cgi;
         if (this->location[i]->root.empty())
             this->location[i]->root = this->root;
-        for (it = this->error_page.begin(); it != this->error_page.end(); ++it)
+        for (std::map<int, std::string>::iterator it = this->error_page.begin(); it != this->error_page.end(); ++it)
         {
             if (this->location[i]->error_page.find(it->first) == this->location[i]->error_page.end())
                 this->location[i]->error_page[it->first] = it->second;
@@ -189,13 +212,26 @@ void    Server::fillLocation()
             this->location[i]->autoindex = this->autoindex;
         if (this->location[i]->index.empty())
             this->location[i]->index = this->index;
-    }
-
+    }*/
 }
 
-void    Server::setLocation(std::vector<std::string> &words, int pos)
+void    Server::setLocation(std::vector<std::string> &words)
 {
-    location_size = pos;
+    if (words[0] == "error_page")
+        this->location.back()->setErrorPage(words);
+    else if (words[0] == "index")
+        this->location.back()->setIndex(words[1]);
+    else if (words[0] == "client_max_body_size")
+        this->location.back()->setBodySize(words);
+    else if (words[0] == "root")
+        this->location.back()->setRoot(words[1]);
+    else if (words[0] == "autoindex")
+        this->location.back()->setAutoindex(words[1]);
+    else if (words[0] == "cgi")
+        this->location.back()->setCGI(words[1]);
+    else
+        throw std::runtime_error("error_setLocation");
+    /*location_size = pos;
     if (words[0] == "error_page")
         this->location[location_size]->setErrorPage(words);
     else if (words[0] == "index")
@@ -209,7 +245,7 @@ void    Server::setLocation(std::vector<std::string> &words, int pos)
     else if (words[0] == "cgi")
         this->location[location_size]->setCGI(words[1]);
     else
-        throw std::runtime_error("error_setLocation");
+        throw std::runtime_error("error_setLocation");*/
 }
 
 void    Server::make_location()
@@ -218,7 +254,9 @@ void    Server::make_location()
 }
 
 void Server::printValuesServer() const {
+            std::cout << "\033[31m";
             std::cout << "Server Name: " << server_name << std::endl;
+            std::cout << "\033[0m"; 
             std::cout << "Accept Method: " << accept_method << std::endl;
             std::cout << "Client Max Body Size: " << client_max_body_size << std::endl;
             std::cout << "Redirection: " << redirection << std::endl;
@@ -244,7 +282,9 @@ void Server::printValuesServer() const {
             // Imprimir cada Location en el vector location
             std::cout << "Locations (" << location.size() << "): " << std::endl;
             for (size_t i = 0; i < location.size(); ++i) {
+                std::cout << "\033[33m"; 
                 std::cout << "Location " << i + 1 << ":" << std::endl;
+                std::cout << "\033[0m"; 
                 location[i]->printValues();
             }
         }

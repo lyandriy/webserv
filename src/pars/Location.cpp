@@ -136,6 +136,7 @@ std::string Location::getUri() const{
 }
 
 void Location::printValues() const {
+    std::cout << "URI: " << locationUri << std::endl;
     std::cout << "Server Name: " << server_name << std::endl;
     std::cout << "Accept Method: " << accept_method << std::endl;
     std::cout << "Client Max Body Size: " << client_max_body_size << std::endl;

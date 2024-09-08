@@ -1,30 +1,27 @@
-server {
-        listen 8080;
-        server_name example.com;
-        index index.hpp;
-        root /etc;
 
-        location /404.html
-        {
-                error_page 403 403 405 /holalllllll;
-                autoindex off;
-        }
-        location /404.html
-        {
-                error_page 403 403 405 /hola;
-                autoindex on;
-                error_page 403 403 405 /hola;
-                autoindex on;
-                error_page 403 403 405 /hola;
-                autoindex on;
-        }
-        error_page 403 403 405 /hola;
-        accept_method GET;
-        root /etc/www;
-        error_page 403 /si;
-        error_page 404 /aqui;
-        client_max_body_size 50G;
-}
 server {
-      client_max_body_size 50G;  
-}web/
+    listen 8081;
+    server_name myserver.net;
+    accept_method GET;
+
+    error_page 403 /403.html;
+    client_max_body_size 5k;
+    redirection /start.html;
+    root /srv/www;
+    autoindex on;
+    index index.htm;
+    cgi off;
+
+    location /api {
+        root /srv/www/api;
+        index api_index.html;
+        client_max_body_size 6k;
+        autoindex on;
+        cgi off;}location /static {
+        root /srv/www/static;
+        index static_index.html;
+        client_max_body_size 7M;
+        autoindex off;
+        cgi on;
+    }
+}
