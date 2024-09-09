@@ -21,22 +21,10 @@ private:
 	bool _valid;
 	int _error_code;
 	std::string _help_message;
-	std::vector<std::string> _accept_metod;
+	std::vector<std::string> _accept_method;
 	int	_port;					// unsigned int?
 	std::string _host;			// server_name???
 
-public:
-	bool debug;
-	Request(void);
-	Request(char *buffer);
-	/* Request(std::string method, 
-			std::string uri,
-			std::string protocol,
-			std::map<std::string, std::string> headers,
-			std::string body); */
-	Request(Request const &copy);
-	Request & operator=(Request const & rhs);
-	~Request();
 
 	void manage_request(int socket_fd);
 	void parse_request(const char *buffer);
@@ -57,9 +45,44 @@ public:
 	void set_host_and_port(std::string &host_line_value);
 
 	bool read_headers_lines();
+	
+public:
+	bool debug;
+	Request(void);
+	Request(char *buffer);
+	/* Request(std::string method, 
+			std::string uri,
+			std::string protocol,
+			std::map<std::string, std::string> headers,
+			std::string body); */
+	Request(Request const &copy);
+	Request & operator=(Request const & rhs);
+	~Request();
+
+	//  -----   SETTERS   -----  //
 	bool set_validity(int error_code);
 	bool set_validity(int error_code, std::string help_message);
+
+	//  -----   GETTERS   -----  //
+	std::vector<char> get_full_request();
+	std::vector<char> get_body();
+	std::string get_request_str();
+	std::string get_method();
+	std::string get_uri();
+	std::string get_protocol();
+	std::string get_request_line();
+	std::string get_help_message();
+	std::string get_host();
+	std::vector<std::string> get_accept_method();
+	int get_error_code();
+	int get_port();
 	bool get_validity();
+
+
+
+
+
+
 	// Para debug //
 	void check_lines(std::vector<std::string> lines);
 	void find_CRLF(const std::string &str);

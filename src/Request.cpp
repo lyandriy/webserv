@@ -18,9 +18,9 @@ Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""
 	if (debug == true)
 	{
 		std::cout << "\nConstructor BUFFER" << std::endl;
-		_accept_metod.push_back("GET");
+		_accept_method.push_back("GET");
 		// _accept_metod.push_back("POST");
-		_accept_metod.push_back("DELETE");
+		_accept_method.push_back("DELETE");
 	}
 	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
 	std::string aux(_request.begin(), _request.end());
@@ -180,13 +180,13 @@ bool Request::check_method()
 	//Determinar bloquer locatio correspondiente
 	//Verificar métodos dentro del location
 	size_t i;
-	for (i = 0; i < _accept_metod.size(); i++)
+	for (i = 0; i < _accept_method.size(); i++)
 	{
-		if (_accept_metod[i] == _method)
+		if (_accept_method[i] == _method)
 			break;
 	}
 		// if (debug == true){std::cout << "i: " << i << std::endl;}
-	if (i == _accept_metod.size())
+	if (i == _accept_method.size())
 		return set_validity(METHOD_NOT_ALLOWED);
 	return true;
 }
@@ -312,26 +312,6 @@ void Request::read_request_lines()
 	}
 }
 
-bool Request::set_validity(int error_code)
-{
-	_valid = false;
-	_error_code = error_code;
-	return _valid;
-}
-
-bool Request::set_validity(int error_code, std::string help_message)
-{
-	_valid = false;
-	_error_code = error_code;
-	_help_message = help_message;
-	return _valid;
-}
-
-bool Request::get_validity()
-{
-	return _valid;
-}
-
 void Request::parse_request(const char *buffer)
 {
 	(void)buffer;
@@ -368,6 +348,79 @@ void get_lines(std::vector<char> &request)
 	std::vector<char>::iterator begin = request.begin();
 	(void)begin;
 }
+
+
+// --------------------  GETTERS  -------------------- //
+std::vector<char> Request::get_full_request()
+{
+	return (this->_request);
+}
+std::vector<char> Request::get_body()
+{
+	return (this->_body);
+}
+std::string Request::get_request_str()
+{
+	return (this->_request_str);
+}
+std::string Request::get_method()
+{
+	return (this->_method);
+}
+std::string Request::get_uri()
+{
+	return (this->_uri);
+}
+std::string Request::get_protocol()
+{
+	return (this->_protocol);
+}
+std::string Request::get_request_line()
+{
+	return (this->_request_line);
+}
+std::string Request::get_help_message()
+{
+	return (this->_help_message);
+}
+std::string Request::get_host()
+{
+	return (this->_host);
+}
+std::vector<std::string> Request::get_accept_method()
+{
+	return (this->_accept_method);
+}
+int Request::get_error_code()
+{
+	return (this->_error_code);
+}
+int Request::get_port()
+{
+	return (this->_port);
+}
+bool Request::get_validity()
+{
+	return (this->_valid);
+}
+
+
+
+// --------------------  SETTERS  -------------------- //
+bool Request::set_validity(int error_code)
+{
+	_valid = false;
+	_error_code = error_code;
+	return _valid;
+}
+bool Request::set_validity(int error_code, std::string help_message)
+{
+	_valid = false;
+	_error_code = error_code;
+	_help_message = help_message;
+	return _valid;
+}
+
 
 
 // --------------------  DEBUG  -------------------- //
