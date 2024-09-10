@@ -2,7 +2,7 @@
 
 std::ostream &operator<<( std::ostream& os , Location const&  other )
 {
-    return os << "---------\nLocation\n" << (Server &) other \
+    return os << "---------\nLocation * " << &other << "\n" << (Server &) other \
     << "_location: " << other.getLocation() << std::endl;
 }
 

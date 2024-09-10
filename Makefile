@@ -20,6 +20,7 @@ SRCS =	main.cpp \
 				WebServer.cpp \
 				Server.cpp \
 				Location.cpp \
+				SLocaSearch.cpp \
 
 OBJS = $(SRCS:%.cpp=bin/%.o)
 

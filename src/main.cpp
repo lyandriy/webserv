@@ -1,84 +1,60 @@
 #include <exception>
 #include <iostream>
+#include <iterator>
+#include <list>
+#include <map>
+#include <ostream>
+#include <string>
 
 #include "../inc/Location.hpp"
+#include "../inc/SLocaSearch.hpp"
 #include "../inc/Server.hpp"
 #include "../inc/WebServer.hpp"
 
-int main(int argc, char **args, char **envs) {
-  (void)argc;
-  (void)args;
-  (void)envs;
-  std::cout << "Test1" << std::endl;
+int main(void) {
+  std::cout << "Test 1 SLocaSearch" << std::endl;
   {
+    std::list<std::string> test;
     WebServer webServer;
     Server server(webServer);
-    Location loca(server);
+    Location loca1(server);
+    test.push_back("192.168.1.1:80");
+    loca1.setListens(test);
+    Location loca2(server);
+    test.push_back("192.168.10.1:80");
+    loca2.setListens(test);
+    Location loca3(server);
+    Location loca4(server);
+    Location loca5(server);
 
-    std::cout << webServer << std::endl;
-    std::cout << server << std::endl;
-    std::cout << loca << std::endl;
-    /*std::cout << "webServer index" << webServer.getIndex() << std::endl;*/
-    /*std::cout << "webServer root" << webServer.getRoot() << std::endl;*/
-    /*std::cout << "webServer redirection" << webServer.getRedirection() <<
-     * std::endl;*/
-    std::cout << "webServer errors" << webServer.getErrorPath() << std::endl;
+    try {
+      SLocaSearch::addLocation(loca1);
+      SLocaSearch::addLocation(loca2);
 
-    std::cout << "server index" << server.getIndex() << std::endl;
-    std::cout << "server root" << server.getRoot() << std::endl;
-    std::cout << "server redirection" << server.getRedirection() << std::endl;
-    std::cout << "server errors" << server.getErrorPath() << std::endl;
+    } catch (const std::exception &e) {
+      std::cout << e.what() << std::endl;
+    }
 
-    std::cout << "loca index" << loca.getIndex() << std::endl;
-    std::cout << "loca root" << loca.getRoot() << std::endl;
-    std::cout << "loca redirection" << loca.getRedirection() << std::endl;
-    std::cout << "loca errors" << loca.getErrorPath() << std::endl;
-  }
-  std::cout << "Test2" << std::endl;
-  {
-    WebServer webServer;
-    webServer.setErrorPath("/test1/error/path/webServer");
-    Server server(webServer);
-    server.setErrorPath("/test1/error/path/server");
-    Location loca(server);
+    for (std::list<Location>::iterator it = SLocaSearch::_llocations.begin();
+         it != SLocaSearch::_llocations.end(); it++)
+      std::cout << *it << std::endl;
+    for (std::map<t_key_loca, Location *>::iterator it =
+             SLocaSearch::_mlocations.begin();
+         it != SLocaSearch::_mlocations.end(); it++) {
+      std::cout << "IP" << it->first.ip << std::endl;
+      std::cout << "port " << it->first.port << std::endl;
+      std::cout << "server " << it->first.servername << std::endl;
+      std::cout << "location" << it->first.location << std::endl;
+      std::cout << "Location * " << it->second << std::endl;
+    }
 
-    /*std::cout << "webServer index" << webServer.getIndex() << std::endl;*/
-    /*std::cout << "webServer root" << webServer.getRoot() << std::endl;*/
-    /*std::cout << "webServer redirection" << webServer.getRedirection() <<
-     * std::endl;*/
-    std::cout << "webServer errors" << webServer.getErrorPath() << std::endl;
-
-    std::cout << "server index" << server.getIndex() << std::endl;
-    std::cout << "server root" << server.getRoot() << std::endl;
-    std::cout << "server redirection" << server.getRedirection() << std::endl;
-    std::cout << "server errors" << server.getErrorPath() << std::endl;
-
-    std::cout << "loca index" << loca.getIndex() << std::endl;
-    std::cout << "loca root" << loca.getRoot() << std::endl;
-    std::cout << "loca redirection" << loca.getRedirection() << std::endl;
-    std::cout << "loca errors" << loca.getErrorPath() << std::endl;
-  }
-  std::cout << "Test3" << std::endl;
-  {
-    WebServer webServer;
-    Server server(webServer);
-    Location loca(server);
-
-    /*std::cout << "webServer index" << webServer.getIndex() << std::endl;*/
-    /*std::cout << "webServer root" << webServer.getRoot() << std::endl;*/
-    /*std::cout << "webServer redirection" << webServer.getRedirection() <<
-     * std::endl;*/
-    std::cout << "webServer errors" << webServer.getErrorPath() << std::endl;
-
-    std::cout << "server index" << server.getIndex() << std::endl;
-    std::cout << "server root" << server.getRoot() << std::endl;
-    std::cout << "server redirection" << server.getRedirection() << std::endl;
-    std::cout << "server errors" << server.getErrorPath() << std::endl;
-
-    std::cout << "loca index" << loca.getIndex() << std::endl;
-    std::cout << "loca root" << loca.getRoot() << std::endl;
-    std::cout << "loca redirection" << loca.getRedirection() << std::endl;
-    std::cout << "loca errors" << loca.getErrorPath() << std::endl;
+    Location *t = SLocaSearch::search((t_key_loca) {
+      .servername = "",
+      .location = "/",
+      .ip = 16885952,
+      .port = 80,
+    });
+    std::cout << "res" << t << std::endl; 
   }
   return 0;
 }
