@@ -21,8 +21,6 @@ public:
   void setServernames(std::list<std::string> servernames);
   std::list<std::string> getListens() const;
   void setListens(std::list<std::string> listens);
-  std::string getLocation() const;
-  void setLocation(std::string location);
 
 protected:
 private:

@@ -8,7 +8,6 @@ std::ostream &operator<<( std::ostream& os , Server const&  other )
   "_redirection: " << other.getRedirection() << "\n" << \
   "_servernames: " << other.getServernames() << "\n" << \
   "_listens: " << other.getListens() << "\n" << \
-  "_location: " << other.getLocation() << "\n" << \
   "_index: " << other.getIndex() << std::endl;
 }
 
@@ -41,7 +40,3 @@ std::list<std::string> Server::getListens() const { return _listens; }
 void Server::setListens(std::list<std::string> listens) {
   this->_listens = listens;
 }
-
-std::string Server::getLocation() const { return _location; }
-
-void Server::setLocation(std::string location) { this->_location = location; }

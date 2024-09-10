@@ -11,6 +11,8 @@ class Location : public Server {
 public:
   Location(const Server &other);
   ~Location();
+  std::string getLocation() const;
+  void setLocation(std::string location);
 
 protected:
 private:
