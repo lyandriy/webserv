@@ -1,3 +1,4 @@
+# pragma once
 #ifndef SERVER_HPP
 #define SERVER_HPP
 #include <iostream>
@@ -22,11 +23,6 @@ class Server
         bool    autoindex;                           //bool off
         bool    cgi;                                 //bool off
         std::vector<Location*>  location;            //no es obligatorio
-    public:
-        Server();
-        ~Server();
-        Server(const Server &);
-        Server &operator=(const Server &);
 
         void    setListen(std::string);
         void    setServerName(std::string);
@@ -43,6 +39,13 @@ class Server
         void    setLocation(std::vector<std::string> &);
         void    fillLocation();
         void    make_location();
+
+        friend class Parser;
+    public:
+        Server();
+        ~Server();
+        Server(const Server &);
+        Server &operator=(const Server &);
 
         std::vector<struct sockaddr_in>    getListen() const;
         std::string    getServerName() const;

@@ -3,6 +3,7 @@
 int main(int argc, char **argv)
 {
     std::vector<Server*> server;
+
     try
     {
         if (argc == 2)

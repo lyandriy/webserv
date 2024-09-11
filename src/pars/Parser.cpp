@@ -202,7 +202,7 @@ void    Parser::key_words_location()
     else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
         this->server[server_size]->setLocation(words);
     else
-        throw std::runtime_error("Error: Invalid keyword " + words[0] + ".");
+        throw std::runtime_error("Error: Invalid keyword " + words[0] + "!");
 }
 
 void    Parser::location_pars()
@@ -343,7 +343,7 @@ std::vector<Server*> Parser::conf_file()
         else
             throw std::runtime_error("Error file.");
     }
-    for (int i = 0; i < server_size; i++)
-        this->server[i]->printValuesServer();
+    /*for (int i = 0; i < server_size; i++)
+        this->server[i]->printValuesServer();*/
     return (server);
 }
