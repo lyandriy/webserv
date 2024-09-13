@@ -62,23 +62,27 @@ int    Parser::server_name(){
 
 int    Parser::root(){
 
-    if (valid_path())
+    if (valid_path(words[1]))
         return (1);
     throw std::runtime_error("root is invalid.");
 }
 
 int    Parser::redirection(){
-    if (valid_path())
-        return (1);
+
+    if (words[1] == "301" || words[1] == "302")
+    {
+            if (valid_path(words[2]))
+                return (1);
+    }
     throw std::runtime_error("redirection is invalid.");
 }
 
-bool    Parser::valid_path()
+bool    Parser::valid_path(std::string word)
 {
-    for (int i = 0; i < words[1].size(); i++)
+    for (int i = 0; i < word.size(); i++)
     {
-        if (!(std::isalnum(words[1][i]) || words[1][i] == '/' 
-            || words[1][i] == '-' || words[1][i] == '_' || words[1][i] == '.'))
+        if (!(std::isalnum(word[i]) || word[i] == '/' 
+            || word[i] == '-' || word[i] == '_' || word[i] == '.'))
             return (false);
     }
     return (true);
@@ -94,9 +98,12 @@ int    Parser::index(){
 }
 
 int    Parser::accept_method(){
-    if (words[1] == "GET" || words[1] == "POST")
-        return (1);
-    throw std::runtime_error("accept method is invalid.");
+    for (int i = 1; i < words.size(); i++)
+    {
+        if (words[i] != "GET" && words[i] != "POST" && words[i] != "DELETE")
+            throw std::runtime_error("accept method is invalid.");
+    }
+    return (1);
 }
 
 int Parser::error_code(std::string str_number)
@@ -201,6 +208,10 @@ void    Parser::key_words_location()
         this->server[server_size]->setLocation(words);
     else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
         this->server[server_size]->setLocation(words);
+    else if (words[0] == "redirection" && words.size() == 3 && redirection() == 1)
+        this->server[server_size]->setLocation(words);
+    else if (words[0] == "accept_method" && accept_method() == 1)
+        this->server[server_size]->setLocation(words);
     else
         throw std::runtime_error("Error: Invalid keyword " + words[0] + "!");
 }
@@ -238,10 +249,6 @@ void    Parser::check_content()
 {
     if (this->server[server_size]->getServerName().empty())
         throw std::runtime_error("error. not server name");
-    if (this->server[server_size]->getErrorPage().empty())
-        throw std::runtime_error("error. not error page");
-    if (this->server[server_size]->getRoot().empty())
-        throw std::runtime_error("error. not root");
     if (this->server[server_size]->getListen().empty())
         this->server[server_size]->setListen("80");  
 }
@@ -252,8 +259,8 @@ void    Parser::key_words_server()
         this->server[server_size]->setListen(words[1]);
     else if (words[0] == "server_name" && words.size() == 2 && server_name() == 1)
         this->server[server_size]->setServerName(words[1]);
-    else if (words[0] == "accept_method" && words.size() == 2 && accept_method() == 1)
-        this->server[server_size]->setAcceptMethod(words[1]);
+    else if (words[0] == "accept_method" && accept_method() == 1)
+        this->server[server_size]->setAcceptMethod(words);
     else if (words[0] == "error_page" && error_page() == 1)
         this->server[server_size]->setErrorPage(words);
     else if (words[0] == "index" && words.size() == 2 && index() == 1)
@@ -266,8 +273,8 @@ void    Parser::key_words_server()
         this->server[server_size]->setAutoindex(words[1]);
     else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
         this->server[server_size]->setCGI(words[1]);
-    else if (words[0] == "redirection" && words.size() == 2 && redirection() == 1)
-        this->server[server_size]->setRedirection(words[1]);
+    else if (words[0] == "redirection" && words.size() == 3 && redirection() == 1)
+        this->server[server_size]->setRedirection(words);
     else if (words.size() > 4 && words[0] == "location" && words[1][0] == '/' && words[2] == "{")
         location_pars();
     else
@@ -343,7 +350,7 @@ std::vector<Server*> Parser::conf_file()
         else
             throw std::runtime_error("Error file.");
     }
-    /*for (int i = 0; i < server_size; i++)
-        this->server[i]->printValuesServer();*/
+    for (int i = 0; i < server_size; i++)
+        this->server[i]->printValuesServer();
     return (server);
 }

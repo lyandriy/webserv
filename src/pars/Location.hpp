@@ -5,6 +5,7 @@
 #include <map>
 #include "Server.hpp"
 #include <arpa/inet.h>
+#include "httpMethods.hpp"
 
 class Server;
 
@@ -15,12 +16,12 @@ class Location
         std::string server_name;
         std::string root;
         std::string index;
-        std::string accept_method;
-        std::string redirection;
+        httpMethods accept_method;
+        std::pair<int, std::string> redirection;
         std::map<int, std::string>  error_page;
         unsigned long long int  client_max_body_size;
-        bool    autoindex;
-        bool    cgi;
+        int    autoindex;
+        int    cgi;
         std::string locationUri;   
     public:
         Location();
@@ -32,8 +33,8 @@ class Location
         void    setServerName(std::string);
         void    setRoot(std::string);
         void    setIndex(std::string);
-        void    setAcceptMethod(std::string);
-        void    setRedirection(std::string);
+        void    setAcceptMethod(std::vector<std::string> &);
+        void    setRedirection(std::vector<std::string> &);
         void    setErrorPage(std::vector<std::string> &);
         void    setBodySize(std::vector<std::string> &);
         void    setAutoindex(std::string);
@@ -44,12 +45,12 @@ class Location
         std::string getServerName() const;
         std::string getRoot() const;
         std::string getIndex() const;
-        std::string getAcceptMethod() const;
-        std::string getRedirection() const;
+        httpMethods getAcceptMethod() const;
+        std::pair<int, std::string> getRedirection() const;
         std::map<int, std::string>  getErrorPage() const;
         unsigned long long int  getBodySize() const;
-        bool    getAutoindex() const;
-        bool    getCGI() const;
+        int    getAutoindex() const;
+        int    getCGI() const;
         std::string getUri() const;
 
         Location    *clone() const;

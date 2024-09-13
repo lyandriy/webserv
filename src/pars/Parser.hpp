@@ -24,7 +24,7 @@ class Parser
         Parser();
 
         void    split(std::string &);
-        bool    valid_path();
+        bool    valid_path(std::string);
         int     is_number(std::string);
         int     error_code(std::string);
         void    check_content();
