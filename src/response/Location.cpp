@@ -1,8 +1,13 @@
-#include "Location.hpp"
+# include "../inc/Webserver.hpp"
 
-#include <cstdlib>
-
-Location::Location(){}
+Location::Location(){
+    error_page[404] = "/error/404.html";
+    accept_method.get = -1;
+    accept_method.post = -1;
+    accept_method.del = -1;
+    cgi = -1;
+    autoindex = -1;
+}
 
 Location::~Location(){}
 
@@ -54,14 +59,22 @@ void    Location::setIndex(std::string index)
     this->index = index;
 }
 
-void    Location::setAcceptMethod(std::string accept_method)
+void    Location::setAcceptMethod(std::vector<std::string> &words)
 {
-    this->accept_method = accept_method;
+    accept_method.get = 1;
+    accept_method.post = 1;
+    accept_method.del = 1;
+    if (std::find(words.begin(), words.end(), "GET") == words.end())
+        accept_method.get = 0;
+    if (std::find(words.begin(), words.end(), "POST") == words.end())
+        accept_method.post = 0;
+    if (std::find(words.begin(), words.end(), "DELETE") == words.end())
+        accept_method.del = 0;
 }
 
-void    Location::setRedirection(std::string redirection)
+void    Location::setRedirection(std::vector<std::string> &words)
 {
-    this->redirection = redirection;
+    redirection = std::make_pair(atoi(words[1].c_str()), words[2]);
 }
 
 void    Location::setErrorPage(std::vector<std::string> &words)
@@ -107,17 +120,17 @@ void    Location::setBodySize(std::vector<std::string> &words)
 void    Location::setAutoindex(std::string autoindex)
 {
     if (autoindex == "on")
-        this->autoindex = true;
+        this->autoindex = 1;
     else if (autoindex == "off")
-        this->autoindex = false;
+        this->autoindex = 0;
 }
 
 void    Location::setCGI(std::string cgi)
 {
     if (cgi == "on")
-        this->cgi = true;
+        this->cgi = 1;
     else if (cgi == "off")
-        this->cgi = false;
+        this->cgi = 0;
 }
 
 void    Location::setUri(std::string Uri)
@@ -145,12 +158,12 @@ std::string    Location::getIndex() const
     return(this->index);
 }
 
-std::string    Location::getAcceptMethod() const
+httpMethods    Location::getAcceptMethod() const
 {
     return(this->accept_method);
 }
 
-std::string    Location::getRedirection() const
+std::pair<int, std::string>     Location::getRedirection() const
 {
     return(this->redirection);
 }
@@ -165,12 +178,12 @@ unsigned long long int    Location::getBodySize() const
     return(this->client_max_body_size);
 }
 
-bool    Location::getAutoindex() const
+int    Location::getAutoindex() const
 {
     return(this->autoindex);
 }
 
-bool    Location::getCGI() const
+int    Location::getCGI() const
 {
     return(this->cgi);
 }
@@ -179,22 +192,22 @@ std::string Location::getUri() const{
     return (this->locationUri);
 }
 
-Location    *Location::clone() const
+Location    Location::clone() const
 {
-    Location	*clon = new Location(*this);
+    Location	clon = Location(*this);
 	return (clon);
 }
 
 void Location::printValues() const {
     std::cout << "URI: " << locationUri << std::endl;
     std::cout << "Server Name: " << server_name << std::endl;
-    std::cout << "Accept Method: " << accept_method << std::endl;
+    std::cout << "Accept Method: GET " << accept_method.get << " POST " << accept_method.post << " DELETE " << accept_method.del << std::endl;
     std::cout << "Client Max Body Size: " << client_max_body_size << std::endl;
-    std::cout << "Redirection: " << redirection << std::endl;
     std::cout << "Root: " << root << std::endl;
     std::cout << "Autoindex: " << autoindex << std::endl;
     std::cout << "Index: " << index << std::endl;
     std::cout << "CGI: " << cgi << std::endl;
+    std::cout << "Redirection: " << redirection.first << " " << redirection.second << std::endl;
     // Imprimir listen (direcciones)
     std::cout << "Listen Addresses: " << std::endl;
     for (size_t i = 0; i < listen.size(); i++) {

@@ -1,12 +1,7 @@
 # pragma once
 #ifndef PARSER_HPP
 #define PARSER_HPP
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include "Server.hpp"
-#include <algorithm>
+#include "Webserver.hpp"
 
 class Server;
 
@@ -15,7 +10,7 @@ class Parser
     private:
         bool inServerBlock;
         std::ifstream           in_file;
-        std::vector<Server*>     server;
+        std::vector<Server>     server;
         std::vector<std::string>    words;
         int                     server_size;
         int                     location_size;
@@ -24,7 +19,7 @@ class Parser
         Parser();
 
         void    split(std::string &);
-        bool    valid_path();
+        bool    valid_path(std::string);
         int     is_number(std::string);
         int     error_code(std::string);
         void    check_content();
@@ -53,7 +48,7 @@ class Parser
         Parser(const std::string);
         ~Parser();
 
-        std::vector<Server*>    conf_file();
+        std::vector<Server>    conf_file();
         
 };
 
