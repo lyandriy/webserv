@@ -197,21 +197,21 @@ int    Parser::cgi(){
 void    Parser::key_words_location()
 {
     if (words[0] == "error_page" && error_page() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size].setLocation(words);
     else if (words[0] == "index" && words.size() == 2 && index() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size].setLocation(words);
     else if (words[0] == "client_max_body_size" && words.size() == 2 && client_max_body_size() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size].setLocation(words);
     else if (words[0] == "root" && words.size() == 2 && root() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size].setLocation(words);
     else if (words[0] == "autoindex" && words.size() == 2 && autoindex() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size].setLocation(words);
     else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size].setLocation(words);
     else if (words[0] == "redirection" && words.size() == 3 && redirection() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size].setLocation(words);
     else if (words[0] == "accept_method" && accept_method() == 1)
-        this->server[server_size]->setLocation(words);
+        this->server[server_size].setLocation(words);
     else
         throw std::runtime_error("Error: Invalid keyword " + words[0] + "!");
 }
@@ -222,8 +222,8 @@ void    Parser::location_pars()
 
     if (location_size == -1)
         location_size = 0;
-    this->server[server_size]->make_location();
-    this->server[server_size]->setUri(words[1], location_size);
+    this->server[server_size].make_location();
+    this->server[server_size].setUri(words[1], location_size);
     words.erase(words.begin(), words.begin()+3);
     (words.end() - 1)->push_back(';');
     std::getline(in_file, line, '}');
@@ -247,34 +247,34 @@ void    Parser::location_pars()
 
 void    Parser::check_content()
 {
-    if (this->server[server_size]->getServerName().empty())
+    if (this->server[server_size].getServerName().empty())
         throw std::runtime_error("error. not server name");
-    if (this->server[server_size]->getListen().empty())
-        this->server[server_size]->setListen("80");  
+    if (this->server[server_size].getListen().empty())
+        this->server[server_size].setListen("80");  
 }
 
 void    Parser::key_words_server()
 {
     if (words[0] == "listen" && words.size() == 2 && listen() == 1)
-        this->server[server_size]->setListen(words[1]);
+        this->server[server_size].setListen(words[1]);
     else if (words[0] == "server_name" && words.size() == 2 && server_name() == 1)
-        this->server[server_size]->setServerName(words[1]);
+        this->server[server_size].setServerName(words[1]);
     else if (words[0] == "accept_method" && accept_method() == 1)
-        this->server[server_size]->setAcceptMethod(words);
+        this->server[server_size].setAcceptMethod(words);
     else if (words[0] == "error_page" && error_page() == 1)
-        this->server[server_size]->setErrorPage(words);
+        this->server[server_size].setErrorPage(words);
     else if (words[0] == "index" && words.size() == 2 && index() == 1)
-        this->server[server_size]->setIndex(words[1]);
+        this->server[server_size].setIndex(words[1]);
     else if (words[0] == "client_max_body_size" && words.size() == 2 && client_max_body_size() == 1)
-        this->server[server_size]->setBodySize(words);
+        this->server[server_size].setBodySize(words);
     else if (words[0] == "root" && words.size() == 2 && root() == 1)
-        this->server[server_size]->setRoot(words[1]);
+        this->server[server_size].setRoot(words[1]);
     else if (words[0] == "autoindex" && words.size() == 2 && autoindex() == 1)
-        this->server[server_size]->setAutoindex(words[1]);
+        this->server[server_size].setAutoindex(words[1]);
     else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
-        this->server[server_size]->setCGI(words[1]);
+        this->server[server_size].setCGI(words[1]);
     else if (words[0] == "redirection" && words.size() == 3 && redirection() == 1)
-        this->server[server_size]->setRedirection(words);
+        this->server[server_size].setRedirection(words);
     else if (words.size() > 4 && words[0] == "location" && words[1][0] == '/' && words[2] == "{")
         location_pars();
     else
@@ -298,7 +298,7 @@ void    Parser::server_pars()
                 check_content();
                 inServerBlock = false;
                 if (location_size != -1)
-                    this->server[server_size]->fillLocation();
+                    this->server[server_size].fillLocation();
                 server_size++;
                 if (words[0] == "}")
                     words.erase(words.begin());
@@ -317,7 +317,7 @@ void    Parser::server_pars()
 
 void    Parser::IaMServer()
 {
-    this->server.push_back(new Server());
+    this->server.push_back(Server());
     inServerBlock = true;
     if (words.size() == 1 && words[0] == "server")
         words.clear();
@@ -332,7 +332,7 @@ void    Parser::IaMServer()
         throw std::runtime_error("Error: Unrecognized keyword " + words[0] + ".");
 }
 
-std::vector<Server*> Parser::conf_file()
+std::vector<Server> Parser::conf_file()
 {
     while (std::getline(in_file, line, '{'))
     {
@@ -351,6 +351,6 @@ std::vector<Server*> Parser::conf_file()
             throw std::runtime_error("Error file.");
     }
     for (int i = 0; i < server_size; i++)
-        this->server[i]->printValuesServer();
+        this->server[i].printValuesServer();
     return (server);
 }

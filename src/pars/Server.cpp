@@ -11,11 +11,7 @@ Server::Server(){
     index = "/error/404.html";
 }
 
-Server::~Server()
-{
-   for (std::vector<Location*>::iterator it = location.begin(); it != location.end(); ++it)
-        delete *it;
-}
+Server::~Server(){}
 
 Server::Server(const Server &other)
 {
@@ -34,9 +30,9 @@ Server &Server::operator=(const Server &other)
     this->client_max_body_size = other.client_max_body_size;
     this->autoindex = other.autoindex;
     this->cgi = other.cgi;
-    for (std::vector<Location*>::iterator it = other.getLocation().begin();
+    for (std::vector<Location>::iterator it = other.getLocation().begin();
         it != other.getLocation().end(); ++it)
-        this->location.push_back((*it)->clone());
+        this->location.push_back((*it).clone());
     return *this;
 }
 
@@ -143,63 +139,63 @@ void    Server::setCGI(std::string cgi)
 
 void    Server::setUri(std::string Uri, int pos)
 {
-    this->location[pos]->setUri(Uri);
+    this->location[pos].setUri(Uri);
 }
 
 void    Server::setLocation(std::vector<std::string> &words)
 {
     if (words[0] == "error_page")
-        this->location.back()->setErrorPage(words);
+        this->location.back().setErrorPage(words);
     else if (words[0] == "index")
-        this->location.back()->setIndex(words[1]);
+        this->location.back().setIndex(words[1]);
     else if (words[0] == "client_max_body_size")
-        this->location.back()->setBodySize(words);
+        this->location.back().setBodySize(words);
     else if (words[0] == "root")
-        this->location.back()->setRoot(words[1]);
+        this->location.back().setRoot(words[1]);
     else if (words[0] == "autoindex")
-        this->location.back()->setAutoindex(words[1]);
+        this->location.back().setAutoindex(words[1]);
     else if (words[0] == "cgi")
-        this->location.back()->setCGI(words[1]);
+        this->location.back().setCGI(words[1]);
     else if (words[0] == "redirection")
-        this->location.back()->setRedirection(words);
+        this->location.back().setRedirection(words);
     else if (words[0] == "accept_method")
-        this->location.back()->setAcceptMethod(words);
+        this->location.back().setAcceptMethod(words);
     else
         throw std::runtime_error("Error: Unrecognized keyword " + words[0]);
 }
 
 void    Server::fillLocation()
 {
-    for (std::vector<Location*>::iterator itl = location.begin(); itl != location.end(); ++itl)
+    for (std::vector<Location>::iterator itl = location.begin(); itl != location.end(); ++itl)
     {
-        (*itl)->listen = this->listen;
-        (*itl)->server_name = this->server_name;
-        if ((*itl)->accept_method.get == -1 && (*itl)->accept_method.post == -1 && (*itl)->accept_method.del == -1)
-            (*itl)->accept_method = this->accept_method;
-        if ((*itl)->redirection.first == 0 && (*itl)->redirection.second.empty())
-            (*itl)->redirection = this->redirection;
-        if ((*itl)->cgi == -1)
-            (*itl)->cgi = this->cgi;
-        if ((*itl)->root.empty())
-            (*itl)->root = this->root;
+        (*itl).listen = this->listen;
+        (*itl).server_name = this->server_name;
+        if ((*itl).accept_method.get == -1 && (*itl).accept_method.post == -1 && (*itl).accept_method.del == -1)
+            (*itl).accept_method = this->accept_method;
+        if ((*itl).redirection.first == 0 && (*itl).redirection.second.empty())
+            (*itl).redirection = this->redirection;
+        if ((*itl).cgi == -1)
+            (*itl).cgi = this->cgi;
+        if ((*itl).root.empty())
+            (*itl).root = this->root;
         for (std::map<int, std::string>::iterator it = this->error_page.begin();
             it != this->error_page.end(); ++it)
         {
-            if ((*itl)->error_page.find(it->first) == (*itl)->error_page.end())
-                (*itl)->error_page[it->first] = it->second;
+            if ((*itl).error_page.find(it->first) == (*itl).error_page.end())
+                (*itl).error_page[it->first] = it->second;
         }
-        if (!(*itl)->client_max_body_size)
-            (*itl)->client_max_body_size = this->client_max_body_size;
-        if ((*itl)->autoindex == -1)
-            (*itl)->autoindex = this->autoindex;
-        if ((*itl)->index.empty())
-            (*itl)->index = this->index;
+        if (!(*itl).client_max_body_size)
+            (*itl).client_max_body_size = this->client_max_body_size;
+        if ((*itl).autoindex == -1)
+            (*itl).autoindex = this->autoindex;
+        if ((*itl).index.empty())
+            (*itl).index = this->index;
     }
 }
 
 void    Server::make_location()
 {
-    this->location.push_back(new Location());
+    this->location.push_back(Location());
 }
 
 std::vector<struct sockaddr_in>    Server::getListen() const
@@ -254,10 +250,10 @@ int   Server::getCGI() const
 
 std::string    Server::getUri(int pos) const
 {
-    return (this->location[pos]->getUri());
+    return (this->location[pos].getUri());
 }
 
-std::vector<Location*>  Server::getLocation() const
+std::vector<Location>  Server::getLocation() const
 {
     return (this->location);
 }
@@ -294,6 +290,6 @@ void Server::printValuesServer() const {
                 std::cout << "\033[33m"; 
                 std::cout << "Location " << i + 1 << ":" << std::endl;
                 std::cout << "\033[0m"; 
-                location[i]->printValues();
+                location[i].printValues();
             }
         }

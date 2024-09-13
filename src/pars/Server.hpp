@@ -24,7 +24,7 @@ class Server
         unsigned long long int  client_max_body_size;//0
         int    autoindex;                           //bool off
         int    cgi;                                 //bool off
-        std::vector<Location*>  location;            //no es obligatorio
+        std::vector<Location>  location;            //no es obligatorio
 
         void    setListen(std::string);
         void    setServerName(std::string);
@@ -60,7 +60,7 @@ class Server
         int    getAutoindex() const;
         int    getCGI() const;
         std::string     getUri(int) const;
-        std::vector<Location*>  getLocation() const;
+        std::vector<Location>  getLocation() const;
         
         void    printValuesServer() const;
 };

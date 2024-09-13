@@ -194,9 +194,9 @@ std::string Location::getUri() const{
     return (this->locationUri);
 }
 
-Location    *Location::clone() const
+Location    Location::clone() const
 {
-    Location	*clon = new Location(*this);
+    Location	clon = Location(*this);
 	return (clon);
 }
 

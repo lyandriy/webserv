@@ -2,7 +2,7 @@
 
 int main(int argc, char **argv)
 {
-    std::vector<Server*> server;
+    std::vector<Server> server;
 
     try
     {

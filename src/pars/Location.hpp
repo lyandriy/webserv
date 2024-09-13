@@ -53,7 +53,7 @@ class Location
         int    getCGI() const;
         std::string getUri() const;
 
-        Location    *clone() const;
+        Location    clone() const;
 
         void    printValues() const;
 };

@@ -1,0 +1,25 @@
+server {
+    listen 80;
+    server_name ejemplo.com;
+    cgi on;
+    autoindex on;
+    redirection 302 /hola;
+    root /var/www/html/imagenes1;
+    root /va_r/www/html/imagenes2;
+
+    location / {
+        root /var/www/html;
+        index index.html;
+        cgi off;
+    }
+    client_max_body_size 1k;
+    location /imagenes/user/root/ {
+
+        redirection 302 /hola;
+        redirection 301 /pppa;
+
+        autoindex on;
+        autoindex on;
+    }
+
+}
