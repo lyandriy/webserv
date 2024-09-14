@@ -220,14 +220,6 @@ void Response::setHeaders(std::map<std::string, std::string> headers)
     this->headers = headers;
 }
 
-void    try_error_code()
-{
-    if (error_code)
-    {
-        
-    }
-}
-
 char *Response::make_response()
 {
     try_error_code();

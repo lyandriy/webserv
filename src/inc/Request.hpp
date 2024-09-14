@@ -1,6 +1,4 @@
 # pragma once
-
-# include "Common.hpp"
 # define SP ' '
 # define DEFAULT_HTTP_PORT 80
 # define DEFAULT_HTTPS_PORT 443
@@ -93,7 +91,7 @@ public:
 	Location    compareUri(const std::vector<Location> &, const std::string &);
 	bool		compareListen(std::vector<struct sockaddr_in> , int);
 	bool		compareRequest(Server &);
-	Response	&request_resolution(std::vector<Server> &);
+	Response	request_resolution(std::vector<Server> &);
 };	
 
 

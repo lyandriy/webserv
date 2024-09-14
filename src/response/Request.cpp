@@ -497,13 +497,13 @@ bool     Request::compareRequest(Server &server)
     return (true);
 }
 
-Response    &Request::request_resolution(std::vector<Server> &server)
+Response    Request::request_resolution(std::vector<Server> &server)
 {
     std::vector<Server>::iterator it_serv;
     Location    location;
-    Response    response;
 
-	//if ()
+	if (this->_error_code)
+		return (Response(*this));
     for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)
     {
         if (this->_host == it_serv->getServerName())
@@ -515,11 +515,10 @@ Response    &Request::request_resolution(std::vector<Server> &server)
         {
             location = compareUri(it_serv->getLocation(), this->_uri);
             if (location.getAcceptMethod().get == -1)
-                response = Response(location, *this);
+                return (Response(location, *this));
             else
-                response = Response(*it_serv, *this);
-            return (response);
+                return (Response(*it_serv, *this));
         }
     }
-    return (response);
+    return (Response(*this));
 }
