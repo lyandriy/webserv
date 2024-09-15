@@ -13,7 +13,7 @@ private:
 	std::string _request_str;
 	std::string _uri;
 	std::string _protocol;
-	std::map<std::string, std::string>_headers;
+	std::map<std::string, std::string> _headers;
 	// std::string _body;
 	std::vector<std::string>_lines;
 	std::string _request_line;
@@ -24,6 +24,7 @@ private:
 	std::vector<std::string> _accept_method;
 	int	_port;					// unsigned int?
 	std::string _host;			// server_name???
+	std::map<std::string, std::string> _params;
 
 
 	void manage_request(int socket_fd);
@@ -43,6 +44,10 @@ private:
 	bool check_uri();
 	bool check_protocol();
 	void set_host_and_port(std::string &host_line_value);
+	void get_params_from_uri();
+	void split_params(std::string &params_raw);
+	bool check_params(std::vector<std::string> params_unchecked);
+	void set_params(std::vector<std::string> params_unchecked);
 
 	bool read_headers_lines();
 	

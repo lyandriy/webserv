@@ -243,6 +243,78 @@ void Request::extract_request_line()
 		_uri = result[1];
 		_protocol = result[2];
 	}
+	get_params_from_uri();
+}
+
+void Request::get_params_from_uri()
+{
+	size_t question_mark_pos;
+	question_mark_pos = _uri.find("?");
+
+	if (question_mark_pos != _uri.npos)
+	{
+		std::string params_raw = _uri.substr(question_mark_pos + 1);
+		_uri = _uri.substr(0, question_mark_pos);
+		split_params(params_raw);
+	}
+}
+
+void Request::split_params(std::string &params_raw)
+{
+	std::string::size_type start = 0;
+	std::string::size_type end;
+	std::string aux;
+	std::vector<std::string> params_unchecked;
+
+	end = params_raw.find("&");
+	while (end != std::string::npos)
+	{
+		aux = params_raw.substr(start, end - start);
+		params_unchecked.push_back(aux);
+		start = end + 1;
+		end = params_raw.find("&", start);
+	}
+	if (start < params_raw.length())
+	{
+		params_unchecked.push_back(params_raw.substr(start));
+	}
+	if (debug == true)
+	{
+		std::cout << "PARAMETROS EN VECTOR: " << std::endl;
+		for (size_t i = 0; i < params_unchecked.size(); i++)
+		{
+			std::cout << params_unchecked[i] << std::endl;
+		}
+		
+	}
+	if(check_params(params_unchecked) == true)
+	{
+		set_params(params_unchecked);
+	}
+
+
+}
+
+bool Request::check_params(std::vector<std::string> params_unchecked)
+{
+	for (size_t i = 0; i < params_unchecked.size(); i++)
+	{
+		if (params_unchecked[i].find("=") == std::string::npos ||
+			params_unchecked[i].find(" =") != std::string::npos ||
+			params_unchecked[i].find("= ") != std::string::npos)
+		{
+			_valid = false;
+			_error_code = BAD_REQUEST;
+			_help_message = "The query parameters are malformed or invalid.";
+		}
+		//SEGUIR AQUIIIIIIIIIIIIIIIIIIIIIIIIIII
+	}
+	
+}
+
+void Request::set_params(std::vector<std::string> params_unchecked)
+{
+
 }
 
 bool Request::check_number_elements_request_line(std::vector<std::string> result)
