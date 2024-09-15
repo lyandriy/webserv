@@ -26,11 +26,11 @@ Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""
 	std::string aux(_request.begin(), _request.end());
 	_request_str = aux;
 	read_request_lines();
-	// check_lines(_lines);
 	check_any_valid_line();
 	extract_request_line();
 	check_request_line();
 	read_headers_lines();
+	if (debug == true){print_request_complete_info();}
 }
 
 Request::Request(Request const &copy)
@@ -81,12 +81,6 @@ bool Request::read_headers_lines()
 		if (key == "Host")
 			set_host_and_port(value);
 	}
-	/* if (debug == true)
-	{
-		std::cout << "Clave   :    Valor"  << std::endl;
-		for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); ++it)
-			std::cout << it->first << " : " << it->second << std::endl;
-	} */
 	return _valid;
 }
 
@@ -105,11 +99,6 @@ void Request::set_host_and_port(std::string &host_line_value)
 		_host = host_line_value.substr(0, colon_position);
 		_port = atoi(host_line_value.substr(colon_position + 1).c_str());
 	}
-	/* if (debug == true)
-	{
-		std::cout << "Host: " << _host << std::endl;
-		std::cout << "Port: " << _port << std::endl;
-	} */
 }
 
 
@@ -278,25 +267,22 @@ void Request::split_params(std::string &params_raw)
 	{
 		params_unchecked.push_back(params_raw.substr(start));
 	}
-	if (debug == true)
+	/* if (debug == true)
 	{
 		std::cout << "PARAMETROS EN VECTOR: " << std::endl;
 		for (size_t i = 0; i < params_unchecked.size(); i++)
-		{
 			std::cout << params_unchecked[i] << std::endl;
-		}
-		
-	}
-	if(check_params(params_unchecked) == true)
-	{
-		set_params(params_unchecked);
-	}
-
+	} */
+	check_and_set_params(params_unchecked);
 
 }
 
-bool Request::check_params(std::vector<std::string> params_unchecked)
+bool Request::check_and_set_params(std::vector<std::string> params_unchecked)
 {
+	std::string key;
+	std::string value;
+	size_t equal_pos;
+
 	for (size_t i = 0; i < params_unchecked.size(); i++)
 	{
 		if (params_unchecked[i].find("=") == std::string::npos ||
@@ -306,16 +292,25 @@ bool Request::check_params(std::vector<std::string> params_unchecked)
 			_valid = false;
 			_error_code = BAD_REQUEST;
 			_help_message = "The query parameters are malformed or invalid.";
+			return false;
 		}
-		//SEGUIR AQUIIIIIIIIIIIIIIIIIIIIIIIIIII
+		else
+		{
+			equal_pos = params_unchecked[i].find("=");
+			key = params_unchecked[i].substr(0, equal_pos);
+			value = params_unchecked[i].substr(equal_pos + 1);
+			_params[key] = value;
+		}
 	}
-	
+/* 	 if (debug == true)
+	{
+		std::cout << "Parametro  =  Valor"  << std::endl;
+		for (std::map<std::string, std::string>::iterator it = _params.begin(); it != _params.end(); ++it)
+			std::cout << it->first << " = " << it->second << std::endl;
+	} */
+	return true;
 }
 
-void Request::set_params(std::vector<std::string> params_unchecked)
-{
-
-}
 
 bool Request::check_number_elements_request_line(std::vector<std::string> result)
 {
@@ -527,3 +522,40 @@ void Request::check_vector(const std::vector<char> &request)
 
 		// if (debug == true){std::cout << "" << std::endl;}
 
+void Request::print_request_complete_info()
+{
+	if (_valid == true)
+	{
+	// Request line:
+	std::cout << "\n------   REQUEST COMPLETE INFO:   -----\n\n--  Request Line:  --\n";
+		// Method
+		std::cout << "- Method: " << _method << "\n";
+		// URI
+		std::cout << "- URI: " << _uri << "\n";
+		// Protocol
+		std::cout << "- Protocol: " << _protocol << "\n";
+		// Params
+		std::cout << "- Parámetros: -\n - Parametro  =  Valor -\n";
+		for (std::map<std::string, std::string>::iterator it = _params.begin(); it != _params.end(); ++it)
+			std::cout << it->first << " = " << it->second << "\n";
+	//Headers:
+	std::cout << "\n--  Headers:  --\n";
+	for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); ++it)
+		std::cout << it->first << " = " << it->second << "\n";
+	//Body:
+	std::cout << "\n--  Body  --\n";
+	for (size_t i = 0; i < _body.size(); i++)
+	{
+		std::cout << _body[i];
+	}
+	std::cout << std::endl;
+	}
+	else
+	{
+	std::cout << "Request no válida\n" 
+		<< "validez: " << _valid 
+		<< "\nCódigo error: " << _error_code 
+		<< "Mensaje ayuda: " << _help_message << std::endl;
+	}
+
+}

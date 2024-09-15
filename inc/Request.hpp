@@ -46,8 +46,7 @@ private:
 	void set_host_and_port(std::string &host_line_value);
 	void get_params_from_uri();
 	void split_params(std::string &params_raw);
-	bool check_params(std::vector<std::string> params_unchecked);
-	void set_params(std::vector<std::string> params_unchecked);
+	bool check_and_set_params(std::vector<std::string> params_unchecked);
 
 	bool read_headers_lines();
 	
@@ -93,6 +92,7 @@ public:
 	void find_CRLF(const std::string &str);
 	void find_CRLF(const std::vector<char> &request);
 	void check_vector(const std::vector<char> &request);
+	void print_request_complete_info();
 };
 
 
