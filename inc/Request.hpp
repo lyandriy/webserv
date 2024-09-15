@@ -7,58 +7,51 @@
 class Request
 {
 private:
-	std::vector<char> _request;
-	std::vector<char> _body;
-	std::string _method;
-	std::string _request_str;
-	std::string _uri;
-	std::string _protocol;
+	// Importantes //
+	std::string 		_method;
+	std::string 		_uri;
+	std::string 		_protocol;
+	std::string 		_host;			// server_name???
+	int					_port;			// unsigned int?
+	std::vector<char>	_body;
+	std::string			_help_message;
+	bool 				_valid;
+	int 				_error_code;
 	std::map<std::string, std::string> _headers;
-	// std::string _body;
-	std::vector<std::string>_lines;
-	std::string _request_line;
-	int _index_aux;
-	bool _valid;
-	int _error_code;
-	std::string _help_message;
-	std::vector<std::string> _accept_method;
-	int	_port;					// unsigned int?
-	std::string _host;			// server_name???
 	std::map<std::string, std::string> _params;
 
+	// Auxiliares //
+	std::vector<char> _request;
+	std::vector<std::string> _accept_method;
+	std::string _request_line;
+	std::vector<std::string>_lines;
+	// std::string _request_str;  //solo lo conservo por si acaso, funciones que lo usan tb comentadas
 
-	void manage_request(int socket_fd);
-	void parse_request(const char *buffer);
-	void get_lines(const std::string &request);
-	void get_lines(std::vector<char> &request);
 
-	void read_request_lines(std::vector<char> &request);
 	void read_request_lines();
+	bool check_any_valid_line();
 	void extract_request_line();
+	bool check_request_line();
+	bool read_headers_lines();
 
 	bool check_number_elements_request_line(std::vector<std::string> result);
-	bool check_any_valid_line();
-	bool check_request_line();
-	bool check_method();
+	void get_params_from_uri();
+
 	bool check_spaces_at_beginning();
+	bool check_method();
 	bool check_uri();
 	bool check_protocol();
+
 	void set_host_and_port(std::string &host_line_value);
-	void get_params_from_uri();
+	
 	void split_params(std::string &params_raw);
 	bool check_and_set_params(std::vector<std::string> params_unchecked);
 
-	bool read_headers_lines();
-	
+	Request(void);
+
 public:
 	bool debug;
-	Request(void);
 	Request(char *buffer);
-	/* Request(std::string method, 
-			std::string uri,
-			std::string protocol,
-			std::map<std::string, std::string> headers,
-			std::string body); */
 	Request(Request const &copy);
 	Request & operator=(Request const & rhs);
 	~Request();
@@ -81,6 +74,8 @@ public:
 	int get_error_code();
 	int get_port();
 	bool get_validity();
+	std::map<std::string, std::string> get_headers();
+	std::map<std::string, std::string> get_params();
 
 
 

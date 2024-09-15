@@ -1,7 +1,9 @@
 # include "../inc/Request.hpp"
 
-Request::Request() : _request(), _body(), _method(""), _request_str(""), _uri(""), _protocol(""),
-					_headers(), _lines(), _request_line(), _index_aux(0), _valid(true), _error_code(0)
+Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
+					_body(), _help_message(), _valid(true), _error_code(0),
+					_headers(), _params(),
+					_request(), _accept_method(), _request_line(""), _lines()
 {}
 
 /* Request::Request (std::string method, std::string uri, std::string protocol, 
@@ -11,8 +13,10 @@ Request::Request() : _request(), _body(), _method(""), _request_str(""), _uri(""
 	// comprobar si tb vale cuando hay memoria reservada para headers, creo que sí.
 } */
 
-Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""), _protocol(""), 
-								_headers(), _lines(), _request_line(""), _index_aux(0), _valid(true), _error_code(0) 
+Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
+								_body(), _help_message(), _valid(true), _error_code(0),
+								_headers(), _params(),
+								_request(), _accept_method(), _request_line(""), _lines() 
 {
 	debug = true;
 	if (debug == true)
@@ -23,8 +27,8 @@ Request::Request(char *buffer) : _body(), _method(""), _request_str(""), _uri(""
 		_accept_method.push_back("DELETE");
 	}
 	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
-	std::string aux(_request.begin(), _request.end());
-	_request_str = aux;
+	// std::string aux(_request.begin(), _request.end());
+	// _request_str = aux;
 	read_request_lines();
 	check_any_valid_line();
 	extract_request_line();
@@ -58,6 +62,94 @@ Request& Request::operator=(Request const & other)
 Request::~Request()
 {}
 
+
+void Request::read_request_lines()
+{
+	std::vector<char>::iterator it = _request.begin();
+	std::vector<char>::iterator line_start = it;
+	while (it != _request.end())
+	{
+		if (*it == '\r' && (it + 1) != _request.end() && *(it + 1) == '\n')
+		{
+			std::string line(line_start, it);
+
+			_lines.push_back(line);
+			it += 2; 
+			line_start = it;
+			if (it != _request.end() 
+				&& *it == '\r' && (it + 1) != _request.end() 
+				&& *(it + 1) == '\n')
+			{
+				it += 2;
+				if (it != _request.end())
+				{
+					_body = std::vector<char> (it, _request.end());
+				}
+			}
+		}
+		else
+		{
+			it++;
+		}
+	}
+}
+
+bool Request::check_any_valid_line()
+{
+	if (this->_lines.empty())
+		return set_validity(BAD_REQUEST);
+	return true;
+}
+
+void Request::extract_request_line()
+{
+	if (this->_valid == false)
+		return;
+	std::string first_line = _lines[0];
+	std::vector<std::string> result;
+	std::string aux;
+	std::string::iterator it = first_line.begin();
+
+	while (it != first_line.end())
+	{
+		if (*it == SP)
+		{
+			if (!aux.empty())
+			{
+				result.push_back(aux);
+				aux.clear();
+			}
+		}
+		else
+		{
+			aux += *it;
+		}
+		it++;
+	}
+	if (!aux.empty())
+	{
+		result.push_back(aux);
+	}
+	if (check_number_elements_request_line(result))
+	{
+		_method = result[0];
+		_uri = result[1];
+		_protocol = result[2];
+	}
+	get_params_from_uri();
+}
+
+bool Request::check_request_line()
+{
+	if (this->_valid == false)
+		return false;
+	check_spaces_at_beginning();
+	check_method();
+	check_uri();
+	check_protocol();
+	return true;
+}
+
 bool Request::read_headers_lines()
 {
 	std::string key;
@@ -84,65 +176,28 @@ bool Request::read_headers_lines()
 	return _valid;
 }
 
-void Request::set_host_and_port(std::string &host_line_value)
-{
-	size_t colon_position;
 
-	colon_position = host_line_value.find(":");
-	if (colon_position == host_line_value.npos)
+bool Request::check_number_elements_request_line(std::vector<std::string> result)
+{
+	if (result.size() != 3)
+		return set_validity(BAD_REQUEST);
+	// if(debug == true){std::cout << "La línea tiene la cantidad  de elementos adecuada" << std::endl;}
+	return true; 
+}
+
+void Request::get_params_from_uri()
+{
+	size_t question_mark_pos;
+	question_mark_pos = _uri.find("?");
+
+	if (question_mark_pos != _uri.npos)
 	{
-		_host = host_line_value;
-		_port = DEFAULT_HTTP_PORT;
-	}
-	else
-	{
-		_host = host_line_value.substr(0, colon_position);
-		_port = atoi(host_line_value.substr(colon_position + 1).c_str());
+		std::string params_raw = _uri.substr(question_mark_pos + 1);
+		_uri = _uri.substr(0, question_mark_pos);
+		split_params(params_raw);
 	}
 }
 
-
-bool Request::check_request_line()
-{
-	if (this->_valid == false)
-		return false;
-	check_spaces_at_beginning();
-	check_method();
-	check_uri();
-	check_protocol();
-	return true;
-}
-
-bool Request::check_protocol()
-{
-	if (_valid == false)
-		return false;
-	size_t bar_positition = _protocol.find("/");
-	if (_protocol.find("/") == _protocol.npos)
-		return set_validity(BAD_REQUEST);
-	std::string protocol = _protocol.substr(0, bar_positition);
-	std::string version = _protocol.substr(bar_positition + 1);
-	// if (debug == true){std::cout << "Protocol: " << protocol << std::endl;
-	// std::cout << "Version: " << version << std::endl;}
-	if (protocol != "HTTP")
-		return set_validity(BAD_REQUEST);
-	if (version == "1.0")
-		return set_validity(HTTP_VERSION_NOT_SUPPORTED);
-	if (version != "1.1")
-		return set_validity(BAD_REQUEST);
-	return true;
-}
-
-bool Request::check_uri()  //falta implementar
-{
-	if (_valid == false)
-		return false;
-	// buscar uri en location
-		// buscar coincidencia exacta
-		// buscar coincidencia parcial
-		// si no hay, retroceder un / y volver a comparar
-	return true;
-}
 
 bool Request::check_spaces_at_beginning()
 {
@@ -180,73 +235,55 @@ bool Request::check_method()
 	return true;
 }
 
-bool Request::check_any_valid_line()
+bool Request::check_uri()  //falta implementar
 {
-	if (this->_lines.empty())
+	if (_valid == false)
+		return false;
+	// buscar uri en location
+		// buscar coincidencia exacta
+		// buscar coincidencia parcial
+		// si no hay, retroceder un / y volver a comparar
+	return true;
+}
+
+bool Request::check_protocol()
+{
+	if (_valid == false)
+		return false;
+	size_t bar_positition = _protocol.find("/");
+	if (_protocol.find("/") == _protocol.npos)
+		return set_validity(BAD_REQUEST);
+	std::string protocol = _protocol.substr(0, bar_positition);
+	std::string version = _protocol.substr(bar_positition + 1);
+	// if (debug == true){std::cout << "Protocol: " << protocol << std::endl;
+	// std::cout << "Version: " << version << std::endl;}
+	if (protocol != "HTTP")
+		return set_validity(BAD_REQUEST);
+	if (version == "1.0")
+		return set_validity(HTTP_VERSION_NOT_SUPPORTED);
+	if (version != "1.1")
 		return set_validity(BAD_REQUEST);
 	return true;
 }
 
 
-void Request::extract_request_line()
+void Request::set_host_and_port(std::string &host_line_value)
 {
-	if (this->_valid == false)
-		return;
-	std::string first_line = _lines[0];
-	std::vector<std::string> result;
-	std::string aux;
-	std::string::iterator it = first_line.begin();
+	size_t colon_position;
 
-	while (it != first_line.end())
+	colon_position = host_line_value.find(":");
+	if (colon_position == host_line_value.npos)
 	{
-		if (*it == SP)
-		{
-			if (!aux.empty())
-			{
-				result.push_back(aux);
-				aux.clear();
-			}
-		}
-		else
-		{
-			aux += *it;
-		}
-		it++;
+		_host = host_line_value;
+		_port = DEFAULT_HTTP_PORT;
 	}
-	if (!aux.empty())
+	else
 	{
-		result.push_back(aux);
+		_host = host_line_value.substr(0, colon_position);
+		_port = atoi(host_line_value.substr(colon_position + 1).c_str());
 	}
-
-	/* if (debug == true)
-	{
-		std::cout << "Estos son los componentes de la primera línea:\n";
-		for (size_t i = 0; i < result.size(); i++)
-		{
-			std::cout << result[i] << std::endl;
-		}
-	} */
-	if (check_number_elements_request_line(result))
-	{
-		_method = result[0];
-		_uri = result[1];
-		_protocol = result[2];
-	}
-	get_params_from_uri();
 }
 
-void Request::get_params_from_uri()
-{
-	size_t question_mark_pos;
-	question_mark_pos = _uri.find("?");
-
-	if (question_mark_pos != _uri.npos)
-	{
-		std::string params_raw = _uri.substr(question_mark_pos + 1);
-		_uri = _uri.substr(0, question_mark_pos);
-		split_params(params_raw);
-	}
-}
 
 void Request::split_params(std::string &params_raw)
 {
@@ -312,15 +349,6 @@ bool Request::check_and_set_params(std::vector<std::string> params_unchecked)
 }
 
 
-bool Request::check_number_elements_request_line(std::vector<std::string> result)
-{
-	if (result.size() != 3)
-		return set_validity(BAD_REQUEST);
-	// if(debug == true){std::cout << "La línea tiene la cantidad  de elementos adecuada" << std::endl;}
-	return true; 
-}
-
-
 /* void Request::read_request_lines(std::vector<char> &request)
 {
 	std::vector<char>::iterator it = request.begin();
@@ -350,47 +378,7 @@ bool Request::check_number_elements_request_line(std::vector<std::string> result
 	}
 } */
 
-void Request::read_request_lines()
-{
-	std::vector<char>::iterator it = _request.begin();
-	std::vector<char>::iterator line_start = it;
-	while (it != _request.end())
-	{
-		if (*it == '\r' && (it + 1) != _request.end() && *(it + 1) == '\n')
-		{
-			std::string line(line_start, it);
-
-			_lines.push_back(line);
-			it += 2; 
-			line_start = it;
-			if (it != _request.end() && *it == '\r' && (it + 1) != _request.end() && *(it + 1) == '\n')
-			{
-				it += 2;
-				if (it != _request.end())
-				{
-					_body = std::vector<char> (it, _request.end());
-				}
-			}
-		}
-		else
-		{
-			it++;
-		}
-	}
-}
-
-void Request::parse_request(const char *buffer)
-{
-	(void)buffer;
-
-}
-
-void Request::manage_request(int socket_fd)
-{
-	(void)socket_fd;
-}
-
-void Request::get_lines(const std::string &request)
+/* void Request::get_lines(const std::string &request)
 {
 	std::string::size_type start = 0;
 	std::string::size_type end;
@@ -408,13 +396,7 @@ void Request::get_lines(const std::string &request)
 	{
 		_lines.push_back(request.substr(start));
 	}
-}
-
-void get_lines(std::vector<char> &request)
-{
-	std::vector<char>::iterator begin = request.begin();
-	(void)begin;
-}
+} */
 
 
 // --------------------  GETTERS  -------------------- //
@@ -426,10 +408,10 @@ std::vector<char> Request::get_body()
 {
 	return (this->_body);
 }
-std::string Request::get_request_str()
+/* std::string Request::get_request_str()
 {
 	return (this->_request_str);
-}
+} */
 std::string Request::get_method()
 {
 	return (this->_method);
@@ -470,8 +452,14 @@ bool Request::get_validity()
 {
 	return (this->_valid);
 }
-
-
+std::map<std::string, std::string> Request::get_headers()
+{
+	return _headers;
+}
+std::map<std::string, std::string> Request::get_params()
+{
+	return _params;
+}
 
 // --------------------  SETTERS  -------------------- //
 bool Request::set_validity(int error_code)
@@ -520,8 +508,6 @@ void Request::check_vector(const std::vector<char> &request)
 	std::cout << std::endl;
 }
 
-		// if (debug == true){std::cout << "" << std::endl;}
-
 void Request::print_request_complete_info()
 {
 	if (_valid == true)
@@ -559,3 +545,5 @@ void Request::print_request_complete_info()
 	}
 
 }
+
+// if (debug == true){std::cout << "" << std::endl;}
