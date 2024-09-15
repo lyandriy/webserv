@@ -20,11 +20,23 @@ std::vector<Server>    &recv_conf(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+    int ready;
     std::vector<Server> server;
+    std::vector<Request> requests;
+	std::vector<Response> response;
     server = recv_conf(argc, argv);//recibe conf de servidres
     
-    struct pollfd* fds = new pollfd[BACKLOG];
-    SocketManager   socketM = SocketManager(fds, server);//abre los socket para cada puerto
+    struct pollfd* pfds = new pollfd[BACKLOG];
+    SocketManager   socketManager = SocketManager(pfds, server);//abre los socket para cada puerto
 
-    
+    while (true)
+    {
+        ready = poll(pfds, socketManager.getSockNum(), -1);//monitorear si hay algun cliente
+        socketManager.error(ready);
+        socketManager.AcceptClient(pfds, ready);//comprueba si hay un cliente y lo acepta
+        socketManager.recvRequest(pfds, requests);//recibe mensajes de request
+        //crear response
+        //abrir el archivo a enviar y meterlo en pollfd
+        //crear un bucle para ver los archivos con revent de POLLOUT y hacer send
+    }
 }

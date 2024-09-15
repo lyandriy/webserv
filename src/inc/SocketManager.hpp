@@ -6,7 +6,8 @@
 class SocketManager
 {
     private:
-        int sock_num;
+        int sock_num;//socket de escucha + socket de clientes
+        int listen_sockets;//socket de escucha
         
         SocketManager();
     public:
@@ -18,6 +19,8 @@ class SocketManager
         void    error(int);
 
         int getSockNum() const;
+        void    AcceptClient(struct pollfd*, int);
+        void    recvRequest(struct pollfd*, std::vector<Request> &);
 };
 
 # endif

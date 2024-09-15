@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 	socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // protocolo 0 para q elija el sistema el más apropiado
 	if (socket_fd < 0)
 	{
-		perror("Wololo");
+		perror("error");
 		std::cout << strerror(errno) << std::endl;
 		exit(1);
 	}
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 						"Keep-Alive: timeout=2, max=10\r\n"
 						"Content-Length: 24\r\n"
 						"\r\n"
-						"<h1>Hola WOLOLO!!!</h1>\n";
+						"<h1>Hola!!!</h1>\n";
 					for (size_t i = 0; i < strlen(buffer); i++)
 					{
 						if (buffer[i] == '\r')
