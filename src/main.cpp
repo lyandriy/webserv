@@ -17,6 +17,7 @@ int main()
 	struct pollfd poll_fd[MAX_CLIENTS + 1];
 	int num_clientes = 0; (void)num_clientes;
 	std::vector<Request> requests;
+	std::vector<std::vector<char> >request_accumulator;
 	(void)poll_fd;
 	(void)len;
 
@@ -150,7 +151,7 @@ int main()
 						close(socket_fd);
 						return 0;
 					}
-					memset(buffer, 0, strlen(buffer));
+					memset(buffer, 0, BUFFER_SIZE);
 					send(poll_fd[i].fd, response, strlen(response), 0);
 				}
 			}
