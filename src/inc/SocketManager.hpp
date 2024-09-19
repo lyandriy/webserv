@@ -8,6 +8,8 @@ class SocketManager
     private:
         int sock_num;//socket de escucha + socket de clientes
         int listen_sockets;//socket de escucha
+        std::map<int, Request> requests;
+        std::map<int, Response> response;
         
         SocketManager();
     public:
@@ -20,7 +22,8 @@ class SocketManager
 
         int getSockNum() const;
         void    AcceptClient(struct pollfd*, int);
-        void    recvRequest(struct pollfd*, std::vector<Request> &);
+        void    recvRequest(struct pollfd*, std::vector<Server> &);
+        void    sendResponse(struct pollfd*);
 };
 
 # endif

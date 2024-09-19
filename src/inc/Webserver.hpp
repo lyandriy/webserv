@@ -23,6 +23,7 @@
 # include <fstream>
 # include <sstream>
 # include <cstdlib>
+# include <fcntl.h>
 
 # include "Request.hpp"
 # include "Response.hpp"

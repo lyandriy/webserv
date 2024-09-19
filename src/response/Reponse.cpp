@@ -26,6 +26,9 @@ Response::Response(Location &location, Request &request){
     this->host = request.get_host();
     this->help_message = request.get_help_message();
     this->headers = request.get_headers();
+    this->_fd_socket = request.get_fd_socket();
+    this->_pos_socket = request.get_pos_socket();
+    this->_pos_file_response = -1;
 }
 
 Response::Response(Server &server, Request &request){
@@ -46,6 +49,9 @@ Response::Response(Server &server, Request &request){
     this->host = request.get_host();
     this->help_message = request.get_help_message();
     this->headers = request.get_headers();
+    this->_fd_socket = request.get_fd_socket();
+    this->_pos_socket = request.get_pos_socket();
+    this->_pos_file_response = -1;
 }
 
 Response::Response(Request &request)
@@ -60,6 +66,9 @@ Response::Response(Request &request)
         this->root = "/error/505.html";
     else
         this->root = "/error/400.html";
+    this->_fd_socket = request.get_fd_socket();
+    this->_pos_socket = request.get_pos_socket();
+    this->_pos_file_response = -1;
 }
 
 Response &Response::operator=(const Response &other){
@@ -77,6 +86,9 @@ Response &Response::operator=(const Response &other){
     this->host = other.host;
     this->help_message = other.help_message;
     this->headers = other.headers;
+    this->_fd_socket = other._fd_socket;
+    this->_pos_socket = other._pos_socket;
+    this->_pos_file_response = other._pos_file_response;
     return *this;
 }
 
@@ -150,6 +162,21 @@ std::map<std::string, std::string>  Response::getHeaders() const
     return (this->headers);
 }
 
+int Response::get_fd_socket() const
+{
+    return (this->_fd_socket);
+}
+
+int Response::get_pos_socket() const
+{
+    return (this->_pos_socket);
+}
+
+int Response::get_pos_file_response() const
+{
+    return (this->_pos_file_response);
+}
+
 void Response::setListen(struct sockaddr_in listen)
 {
     this->listen = listen;
@@ -220,24 +247,23 @@ void Response::setHeaders(std::map<std::string, std::string> headers)
     this->headers = headers;
 }
 
-char *Response::make_response()
+int Response::open_file(int pos_file_response)
 {
-    try_error_code();
-    std::string root_uri = root + uri;
+    int fd_file;
 
-    if (!redirection.rbegin()->second.empty())
-        root_uri = redirection.rbegin()->second;
-    if (!access(root_uri.c_str(), R_OK))
+    _pos_file_response = pos_file_response;
+    if (redirection.second.empty())
     {
-
-        if (send(fds.fd, response, strlen(response), 0) < 0)
+        if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
         {
-            std::cout << strerror(errno) << std::endl;
-            exit(1);
+            fd_file = open("/error/404.html", O_RDONLY);
         }
     }
     else
     {
-
+        if ((fd_file = open(redirection.second.c_str(), O_RDONLY)) == -1)
+        {
+            fd_file = open("/error/404.html", O_RDONLY);
+        }
     }
 }

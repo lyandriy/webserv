@@ -22,8 +22,8 @@ int main(int argc, char **argv)
 {
     int ready;
     std::vector<Server> server;
-    std::vector<Request> requests;
-	std::vector<Response> response;
+    //std::map<int, Request> requests;
+	//std::vector<Response> response;
     server = recv_conf(argc, argv);//recibe conf de servidres
     
     struct pollfd* pfds = new pollfd[BACKLOG];
@@ -31,12 +31,11 @@ int main(int argc, char **argv)
 
     while (true)
     {
-        ready = poll(pfds, socketManager.getSockNum(), -1);//monitorear si hay algun cliente
-        socketManager.error(ready);
+        if ((ready = poll(pfds, socketManager.getSockNum(), -1)) == -1)//monitorear si hay algun cliente
+             std::cerr << "Error: poll error." << std::endl;
         socketManager.AcceptClient(pfds, ready);//comprueba si hay un cliente y lo acepta
-        socketManager.recvRequest(pfds, requests);//recibe mensajes de request
-        //crear response
-        //abrir el archivo a enviar y meterlo en pollfd
-        //crear un bucle para ver los archivos con revent de POLLOUT y hacer send
+        socketManager.recvRequest(pfds, server);//recibe mensajes de request
+        socketManager.sendResponse(pfds);//responder al cliente
+        //ver que pasa si socket se sierra solo por algun error
     }
 }

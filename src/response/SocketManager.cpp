@@ -90,26 +90,79 @@ void    SocketManager::AcceptClient(struct pollfd* pfds, int ready)
     }
 }
 
-void    SocketManager::recvRequest(struct pollfd* pfds , std::vector<Request>  &requests)
+void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &server)
 {
     int     valread;
     char    buffer[BUFFER_SIZE + 1] = {0};
 
-    for (int i = listen_sockets; i <= sock_num; i++)
+    for (int i = listen_sockets; i <= sock_num; i++)//recorre todos los sockets
     {
-        if (pfds[i].revents & POLLIN)
+        if (pfds[i].revents & POLLIN)//si algun socket tiene un revent de POLLIN
         {
-            valread = recv(pfds[i].fd, buffer, BUFFER_SIZE, 0);
+            valread = recv(pfds[i].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de cliente
+            requests[i] = Request(i, pfds[i].fd);//si se destruye SocketManager se destruye tambien Request?
             if (valread <= 0)//ha terminado de recibir el mensaje
             {
-                //creo que hay que crear un nuevo socket para response
-                //ya se puede hacer el parseo de reques
+                pfds[i].events = POLLOUT;//cambiamos en event de socket al POLLOUT, porque la request ya ha llegado entera y tenemos que responder al cliente
+                requests[i].validity();//parsear la request
+                response[i] = requests[i].request_resolution(server);//parsear con los datos de conf de server, si hay algun error, va a crear una response de error
+                pfds[sock_num].fd = response[i].open_file(sock_num);//abre el archivo a enviar y retorna el numero fd (comprobar si se ha abierto bien el archivo, si hay error, enviar respuesta de error)
+                //hay que indicar en que posicion de pdfs esta el fd del archivo a enviarle.
+                pfds[sock_num].events = POLLIN;//el evento para poder leer desde el archivo
+                sock_num++;
             }
             else
-                //para saber que parte del buffer corresponde a que cliente se puede comparar sockaddr con getsockname
-                //aun no ha recibido todo el mensaje
-                //ir comprobando el tamaño de body
-
+            {
+                if (!requests[i].split_request(buffer))//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
+                {
+                    pfds[i].events = POLLOUT;
+                    response[i] = Response(requests[i]);//crrea la response de error
+                    pfds[sock_num].fd = response[i].open_file(sock_num);//retorna fd de archivo de error
+                    pfds[sock_num].events = POLLIN;
+                    sock_num++;
+                }
+            }
+            memset(buffer, 0, strlen(buffer));
         }
     }
 }
+
+void    SocketManager::sendResponse(struct pollfd* pfds)
+{
+    int     valread;
+    int _pos_file_response;
+    char    buffer[BUFFER_SIZE + 1] = {0};
+
+    for (int i = listen_sockets; i <= sock_num; i++)//recorre todos los sockets
+    {
+        if (pfds[i].revents & POLLOUT)//si algun socket tiene un revent de POLLIN
+        {
+            _pos_file_response = response[i].get_pos_file_response();//posicion en pfds donde esta guardado el fd del archivo a enviar
+            valread = read(pfds[_pos_file_response].fd, buffer, BUFFER_SIZE);//leer del archivo a enviar BUFFER_SIZE bytes
+            //cambiar la i por la posicion que tiene el archivo a enviar
+            if (valread == -1)//leemos de archivo BUFFER_SIZE bytes, si da error hay que responder con error code 503
+            {
+                pfds[_pos_file_response].fd = open("/error/503.html", O_RDONLY);//abrir el archivo de error que se va a enviar y guardarlo en la posicion de pfds de este cliente
+                pfds[_pos_file_response].events = POLLIN;
+            }
+            else
+            {
+                send(pfds[i].fd, buffer, strlen(buffer), 0);//enviar el buffer leido de archivo
+                if (valread != BUFFER_SIZE)//significa que hemos llegado hasta el final del archivo
+                {
+                    pfds[i].events = POLLIN;//volver a escuchar con el socket (ver cuando se sierra la conexion con el cliente)
+                    close(pfds[_pos_file_response].fd);//serrar el fd de archivo
+                    sock_num--;//ver que hay que hacer con el pfds que se queda vacio al serrar el fd del archivo
+                }
+            }
+        }
+        memset(buffer, 0, strlen(buffer));
+    }
+}
+
+/*
+el socket del cliente se sierra cuando hay algun error o timeout. 
+Si hay un error se manda el archivo de error, 
+en el header se indica que se sierra la conexion con el socket.
+VER EL RFC!!!
+*/

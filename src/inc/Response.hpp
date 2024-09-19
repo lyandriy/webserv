@@ -20,6 +20,9 @@ class Response
         std::string protocol;
         std::string help_message;
         std::map<std::string, std::string>  headers;
+        int _fd_socket;
+	    int _pos_socket;//posicion del socket en pfds
+        int _pos_file_response;//posicion del archivo que se va a responder en pfds
     public:
         Response();
         ~Response();
@@ -44,6 +47,9 @@ class Response
         std::string getProtocol() const;
         std::string getHelpMessage() const;
         std::map<std::string, std::string>  getHeaders() const;
+        int get_fd_socket() const;
+        int get_pos_socket() const;
+        int get_pos_file_response() const;
 
         void setListen(struct sockaddr_in);
         void setHost(std::string);
@@ -60,7 +66,7 @@ class Response
         void setHelpMessage(std::string);
         void setHeaders(std::map<std::string, std::string>);
 
-        char *make_response();
+        int open_file(int);
 };
 
 #endif
