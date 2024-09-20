@@ -7,6 +7,42 @@
 # define MAX_CLIENTS 20
 # define BUFFER_SIZE 1024
 
+bool check_request_complete(std::vector<char> &request_accumulator)
+{
+	std::string request(request_accumulator.begin(), request_accumulator.end());
+	size_t header_end_pos;
+
+//buscar final de los encabezados o de la propia request
+	header_end_pos = request.find("\r\n\r\n");
+	if (header_end_pos == std::string::npos)
+		return false;
+	
+//buscar header de Content-Length
+	std::string content_length_str = "Content-Length:";
+	size_t content_length_pos = request.find(content_length_str);
+	if (content_length_pos != std::string::npos)
+	{
+		size_t content_length_start = content_length_pos + content_length_str.size();
+		size_t content_length_end = request.find("\r\n", content_length_start);
+		content_length_str = request.substr(content_length_start, content_length_end - content_length_start);
+		int content_length = std::atoi(content_length_str.c_str());
+		(void) content_length;
+	}
+
+//buscar header Transfer-Enconding: chunked
+	size_t transfer_encoding_pos = request.find("Transfer-Encoding: chunked");
+	if (transfer_encoding_pos == std::string::npos)
+		transfer_encoding_pos = request.find("Transfer-Encoding: chunked");
+	if (transfer_encoding_pos != std::string::npos)
+	{
+		size_t chunck_end = request.find("0\r\n\r\n", header_end_pos + 4);
+		if (chunck_end != std::string::npos)
+			return true;
+	}
+
+	return false;
+}
+
 int main()
 {
 	int socket_fd;
@@ -17,7 +53,7 @@ int main()
 	struct pollfd poll_fd[MAX_CLIENTS + 1];
 	int num_clientes = 0; (void)num_clientes;
 	std::vector<Request> requests;
-	std::vector<std::vector<char> >request_accumulator;
+	std::vector<std::vector<char> >request_accumulators(MAX_CLIENTS);
 	(void)poll_fd;
 	(void)len;
 
@@ -139,7 +175,11 @@ int main()
 						else
 							std::cout << buffer[i];
 					}
-
+					request_accumulators[i].insert(request_accumulators[i].end(), buffer, buffer + valread);
+					if (check_request_complete(request_accumulators[i]) == true)
+					{
+						//procesar la petición, crear la instancia de Request etc...
+					}
 					
 					Request prueba(buffer);
 					if (prueba.get_validity() == true)
