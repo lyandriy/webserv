@@ -1,4 +1,24 @@
-# include "../inc/Request.hpp"
+Request::Request(int i, int fd) : _pos_socket(i), _fd_socket(fd), _method(""), _uri(""), _protocol(""), _host(""), _port(0),
+						  _body(), _help_message(), _valid(true), _error_code(0), _headers(),
+						  _params(), _request(), _accept_method(), _request_line(""), _lines()
+
+// Se crea la instancia con este constructor
+    // acumular buffer en vector<char>
+        //se verifica que se han recibido los headers
+            // recibidos -> procesar headers
+                // asignar valores al map de headers
+                // buscar encabezados de cachitos
+                    // hay encabezado de cachos
+                        // Content-Length
+                            // verificar lenght body cada vez 
+                                // no coincide -> error de request
+                                // si coincide -> rellenar body
+                        // Chuncked
+                            //verificar numero chunks
+                                // si cero -> último chunk
+                                // no cero -> seguir leyendo
+
+# include "../inc/Webserver.hpp"
 
 Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 					_body(), _help_message(), _valid(true), _error_code(0),
@@ -552,3 +572,172 @@ void Request::print_request_complete_info()
 }
 
 // if (debug == true){std::cout << "" << std::endl;}
+
+Location    Request::compareUri(const std::vector<Location> &location, const std::string &uri)
+{
+    std::string uri_location;
+    std::size_t found;
+
+    for (int i = 0; i < location.size(); i++)
+    {
+        uri_location = location[i].getUri();
+        found = uri.find(location[i].getUri());
+        if (found == 0)
+            return (location[i]);
+    }
+    return Location();
+}
+
+bool    Request::compareListen(std::vector<struct sockaddr_in> listen, int port)
+{
+    if (!listen.empty())
+    {
+        for (int i = 0; i < listen.size(); i++)
+        {
+            if (ntohs(listen[i].sin_port) == port)
+                return (true);
+        }
+    }
+    return (false);
+}
+
+bool     Request::compareRequest(Server &server)
+{
+    if (this->_method == "GET" && server.getAcceptMethod().get == 0)
+            return (false);
+    if (this->_method == "POST" && server.getAcceptMethod().post == 0)
+            return (false);
+    if (this->_method == "DELETE" && server.getAcceptMethod().del == 0)
+            return (false);
+    if (!compareListen(server.getListen(), this->_port))
+        return (false);
+    return (true);
+}
+
+Response    Request::request_resolution(std::vector<Server> &server)
+{
+    std::vector<Server>::iterator it_serv;
+    Location    location;
+
+	if (this->_error_code)
+		return (Response(*this));
+    for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)
+    {
+        if (this->_host == it_serv->getServerName())
+            break;
+    }
+    if (it_serv != server.end())
+    {
+        if (compareRequest(*it_serv))
+        {
+            location = compareUri(it_serv->getLocation(), this->_uri);
+            if (location.getAcceptMethod().get == -1)
+                return (Response(location, *this));
+            else
+                return (Response(*it_serv, *this));
+        }
+    }
+    return (Response(*this));
+}
+
+
+
+# pragma once
+
+# include "../inc/Webserver.hpp"
+# define SP ' '
+# define DEFAULT_HTTP_PORT 80
+# define DEFAULT_HTTPS_PORT 443
+class Request
+{
+private:
+	// Importantes //
+	int					_fd_socket;
+	int					_pos_socket;
+	std::string 		_method;
+	std::string 		_uri;
+	std::string 		_protocol;
+	std::string 		_host;			// server_name???
+	int					_port;			// unsigned int?
+	std::vector<char>	_body;
+	std::string			_help_message;
+	bool 				_valid;
+	int 				_error_code;
+	std::map<std::string, std::string> _headers;
+	std::map<std::string, std::string> _params;
+
+	// Auxiliares //
+	std::vector<char> _request;
+	std::vector<std::string> _accept_method;
+	std::string _request_line;
+	std::vector<std::string>_lines;
+	// std::string _request_str;  //solo lo conservo por si acaso, funciones que lo usan tb comentadas
+
+
+	void read_request_lines();
+	bool check_any_valid_line();
+	void extract_request_line();
+	bool check_request_line();
+	bool read_headers_lines();
+
+	bool check_number_elements_request_line(std::vector<std::string> result);
+	void get_params_from_uri();
+
+	bool check_spaces_at_beginning();
+	bool check_method();
+	bool check_uri();
+	bool check_protocol();
+
+	void set_host_and_port(std::string &host_line_value);
+	
+	void split_params(std::string &params_raw);
+	bool check_and_set_params(std::vector<std::string> params_unchecked);
+
+	Request(void);
+
+public:
+	bool debug;
+	Request(int i, int fd);
+	Request(char *buffer);
+	Request(Request const &copy);
+	Request & operator=(Request const & rhs);
+	~Request();
+
+	//  -----   SETTERS   -----  //
+	bool set_validity(int error_code);
+	bool set_validity(int error_code, std::string help_message);
+
+	//  -----   GETTERS   -----  //
+	std::vector<char> get_full_request();
+	std::vector<char> get_body();
+	std::string get_request_str();
+	std::string get_method();
+	std::string get_uri();
+	std::string get_protocol();
+	std::string get_request_line();
+	std::string get_help_message();
+	std::string get_host();
+	std::vector<std::string> get_accept_method();
+	int get_error_code();
+	int get_port();
+	bool get_validity();
+	std::map<std::string, std::string> get_headers();
+	std::map<std::string, std::string> get_params();
+
+
+
+
+
+
+	// Para debug //
+	void check_lines(std::vector<std::string> lines);
+	void find_CRLF(const std::string &str);
+	void find_CRLF(const std::vector<char> &request);
+	void check_vector(const std::vector<char> &request);
+	void print_request_complete_info();
+
+	Location    compareUri(const std::vector<Location> &, const std::string &);
+	bool		compareListen(std::vector<struct sockaddr_in> , int);
+	bool		compareRequest(Server &);
+	Response	request_resolution(std::vector<Server> &);
+};

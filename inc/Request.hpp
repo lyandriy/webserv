@@ -8,6 +8,8 @@ class Request
 {
 private:
 	// Importantes //
+	int					_fd_socket;
+	int					_pos_socket;
 	std::string 		_method;
 	std::string 		_uri;
 	std::string 		_protocol;
@@ -21,10 +23,10 @@ private:
 	std::map<std::string, std::string> _params;
 
 	// Auxiliares //
-	std::vector<char> _request;
-	std::vector<std::string> _accept_method;
-	std::string _request_line;
-	std::vector<std::string>_lines;
+	std::vector<char> 			_request;
+	std::vector<std::string> 	_accept_method;
+	std::string 				_request_line;
+	std::vector<std::string>	_lines;
 	// std::string _request_str;  //solo lo conservo por si acaso, funciones que lo usan tb comentadas
 
 
@@ -51,6 +53,7 @@ private:
 
 public:
 	bool debug;
+	Request(int i, int fd);
 	Request(char *buffer);
 	Request(Request const &copy);
 	Request & operator=(Request const & rhs);
@@ -78,7 +81,10 @@ public:
 	std::map<std::string, std::string> get_params();
 
 
-
+	// Location    compareUri(const std::vector<Location> &, const std::string &);
+	// bool		compareListen(std::vector<struct sockaddr_in> , int);
+	// bool		compareRequest(Server &);
+	// Response	request_resolution(std::vector<Server> &);
 
 
 
