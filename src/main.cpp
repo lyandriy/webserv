@@ -5,7 +5,9 @@
 // nc localhost 8080   <----    para hacer peticiones
 
 # define MAX_CLIENTS 20
-# define BUFFER_SIZE 1024
+# define BUFFER_SIZE 24
+
+void print_raw_request(char *buffer);
 
 bool check_request_complete(std::vector<char> &request_accumulator)
 {
@@ -40,7 +42,7 @@ bool check_request_complete(std::vector<char> &request_accumulator)
 			return true;
 	}
 
-	return false;
+	return true;
 }
 
 int main()
@@ -53,7 +55,7 @@ int main()
 	struct pollfd poll_fd[MAX_CLIENTS + 1];
 	int num_clientes = 0; (void)num_clientes;
 	std::vector<Request> requests;
-	std::vector<std::vector<char> >request_accumulators(MAX_CLIENTS);
+	std::vector<std::vector<char> > request_accumulators(MAX_CLIENTS);
 	(void)poll_fd;
 	(void)len;
 
@@ -124,6 +126,7 @@ int main()
 			{
 				poll_fd[num_clientes + 1].fd = new_sock;
 				poll_fd[num_clientes + 1].events = POLLIN;
+				requests.push_back(Request(num_clientes, poll_fd[num_clientes].fd));
 				num_clientes++;
 				std::cout << "Nuevo cliente conectado, en total hay " << num_clientes << std::endl;
 			}
@@ -158,34 +161,24 @@ int main()
 				}
 				else
 				{
-					const char *response = 
-						"HTTP/1.1 200 OK\r\n"
-						"Content-Type: text/html\r\n"
-						"Connection: keep-alive\r\n"
-						"Keep-Alive: timeout=2, max=10\r\n"
-						"Content-Length: 24\r\n"
-						"\r\n"
-						"<h1>Hola WOLOLO!!!</h1>\n";
-					for (size_t i = 0; i < strlen(buffer); i++)
-					{
-						if (buffer[i] == '\r')
-							std::cout << "\\r";
-						else if (buffer[i] == '\n')
-							std::cout << "\\n";
-						else
-							std::cout << buffer[i];
-					}
+					const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\nKeep-Alive: timeout=2, max=10\r\nContent-Length: 24\r\n\r\n<h1>Hola WOLOLO!!!</h1>\n";
+					print_raw_request(buffer);
+
 					request_accumulators[i].insert(request_accumulators[i].end(), buffer, buffer + valread);
 					if (check_request_complete(request_accumulators[i]) == true)
 					{
 						//procesar la petición, crear la instancia de Request etc...
+						std::cout << "\nRequest lista para ser procesada\n";
+						Request prueba(buffer);
+						if (prueba.get_validity() == true)
+							requests.push_back(prueba);
+					}
+					else
+					{
+						std::cout << "\nRequest incompleta\n";
 					}
 					
-					Request prueba(buffer);
-					if (prueba.get_validity() == true)
-						requests.push_back(prueba);
-					int diff = strncmp(buffer, "cerrar servidor", 15);
-					if (diff == 0)
+					if (strncmp(buffer, "cerrar servidor", 15) == 0)
 					{
 						close(poll_fd[i].fd);
 						close(socket_fd);
@@ -200,6 +193,19 @@ int main()
 	close(socket_fd);
 	
 	return 0;
+}
+
+void print_raw_request(char * buffer)
+{
+	for (size_t i = 0; i < strlen(buffer); i++)
+	{
+		if (buffer[i] == '\r')
+			std::cout << "\\r";
+		else if (buffer[i] == '\n')
+			std::cout << "\\n";
+		else
+			std::cout << buffer[i];
+	}
 }
 
 /* 

@@ -13,10 +13,14 @@ Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 	// comprobar si tb vale cuando hay memoria reservada para headers, creo que sí.
 } */
 
-Request::Request(int i, int fd) : _pos_socket(i), _fd_socket(fd), _method(""), _uri(""), _protocol(""), _host(""), _port(0),
+Request::Request(int i, int fd) : _fd_socket(fd), _pos_socket(i), _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 						  _body(), _help_message(), _valid(true), _error_code(0), _headers(),
 						  _params(), _request(), _accept_method(), _request_line(""), _lines()
-{}
+{
+	std::cout << "Constructor con índice y fd llamado. Valor de i: " << i
+				<<" valor de fd: " << fd << "\n";
+
+}
 
 Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 								_body(), _help_message(), _valid(true), _error_code(0),
