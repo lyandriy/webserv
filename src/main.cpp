@@ -9,7 +9,7 @@
 
 void print_raw_request(char *buffer);
 
-bool check_request_complete(std::vector<char> &request_accumulator)
+int check_request_complete(std::vector<char> &request_accumulator)
 {
 	std::string request(request_accumulator.begin(), request_accumulator.end());
 	size_t header_end_pos;
@@ -17,7 +17,7 @@ bool check_request_complete(std::vector<char> &request_accumulator)
 //buscar final de los encabezados o de la propia request
 	header_end_pos = request.find("\r\n\r\n");
 	if (header_end_pos == std::string::npos)
-		return false;
+		return INCOMPLETE_REQUEST;
 	
 //buscar header de Content-Length
 	std::string content_length_str = "Content-Length:";
@@ -126,7 +126,7 @@ int main()
 			{
 				poll_fd[num_clientes + 1].fd = new_sock;
 				poll_fd[num_clientes + 1].events = POLLIN;
-				requests.push_back(Request(num_clientes, poll_fd[num_clientes].fd));
+				// requests.push_back(Request(num_clientes, poll_fd[num_clientes].fd));
 				num_clientes++;
 				std::cout << "Nuevo cliente conectado, en total hay " << num_clientes << std::endl;
 			}
@@ -165,17 +165,22 @@ int main()
 					print_raw_request(buffer);
 
 					request_accumulators[i].insert(request_accumulators[i].end(), buffer, buffer + valread);
-					if (check_request_complete(request_accumulators[i]) == true)
+					if (check_request_complete(request_accumulators[i]) > 0)
 					{
 						//procesar la petición, crear la instancia de Request etc...
 						std::cout << "\nRequest lista para ser procesada\n";
-						Request prueba(buffer);
+						Request prueba(i, poll_fd[i].fd, request_accumulators[i]);
 						if (prueba.get_validity() == true)
 							requests.push_back(prueba);
 					}
 					else
 					{
 						std::cout << "\nRequest incompleta\n";
+						// for (size_t j = 0; j < request_accumulators[i].size(); j++)
+						// {
+						// 	std::cout << request_accumulators[i][j];
+						// }
+						// std::cout << std::endl;
 					}
 					
 					if (strncmp(buffer, "cerrar servidor", 15) == 0)

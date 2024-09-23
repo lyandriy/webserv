@@ -21,6 +21,19 @@ Request::Request(int i, int fd) : _fd_socket(fd), _pos_socket(i), _method(""), _
 				<<" valor de fd: " << fd << "\n";
 
 }
+Request::Request(int i, int fd, std::vector<char> request_accumulator) : _fd_socket(fd), _pos_socket(i), 
+						  _req_uccumulator(request_accumulator), 
+						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
+						  _body(), _help_message(), _valid(true), _error_code(0), _headers(),
+						  _params(), _request(), _accept_method(), _request_line(""), _lines()
+{
+	std::cout << "Constructor con índice, fd y acumulador llamado. Valor de i: " << i
+				<<" valor de fd: " << fd << "\n";
+	for (size_t i = 0; i < _req_uccumulator.size(); i++)
+		std::cout << _req_uccumulator[i];
+	std::cout << "\nFinal de la request\n" << std::endl;
+	
+}
 
 Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 								_body(), _help_message(), _valid(true), _error_code(0),

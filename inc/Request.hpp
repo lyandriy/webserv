@@ -4,12 +4,18 @@
 # define SP ' '
 # define DEFAULT_HTTP_PORT 80
 # define DEFAULT_HTTPS_PORT 443
+# define INCOMPLETE_REQUEST 0
+# define COMPLETE_REQUEST 1
+# define REQUEST_WITH_BODY 2
+# define CHUNKED_REQUEST 3
+
 class Request
 {
 private:
 	// Importantes //
 	int					_fd_socket;
 	int					_pos_socket;
+	std::vector<char>	_req_uccumulator;
 	std::string 		_method;
 	std::string 		_uri;
 	std::string 		_protocol;
@@ -54,6 +60,7 @@ private:
 public:
 	bool debug;
 	Request(int i, int fd);
+	Request(int i, int fd, std::vector<char> request_accumulator);
 	Request(char *buffer);
 	Request(Request const &copy);
 	Request & operator=(Request const & rhs);
