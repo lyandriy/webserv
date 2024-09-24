@@ -24,11 +24,12 @@ int check_request_complete(std::vector<char> &request_accumulator)
 	size_t content_length_pos = request.find(content_length_str);
 	if (content_length_pos != std::string::npos)
 	{
-		size_t content_length_start = content_length_pos + content_length_str.size();
-		size_t content_length_end = request.find("\r\n", content_length_start);
-		content_length_str = request.substr(content_length_start, content_length_end - content_length_start);
-		int content_length = std::atoi(content_length_str.c_str());
-		(void) content_length;
+		return REQUEST_WITH_BODY;
+		// size_t content_length_start = content_length_pos + content_length_str.size();
+		// size_t content_length_end = request.find("\r\n", content_length_start);
+		// content_length_str = request.substr(content_length_start, content_length_end - content_length_start);
+		// int content_length = std::atoi(content_length_str.c_str());
+		// (void) content_length;
 	}
 
 //buscar header Transfer-Enconding: chunked
@@ -37,12 +38,14 @@ int check_request_complete(std::vector<char> &request_accumulator)
 		transfer_encoding_pos = request.find("Transfer-Encoding: chunked");
 	if (transfer_encoding_pos != std::string::npos)
 	{
-		size_t chunck_end = request.find("0\r\n\r\n", header_end_pos + 4);
-		if (chunck_end != std::string::npos)
-			return true;
+		return CHUNKED_REQUEST;
+		// size_t chunck_end = request.find("0\r\n\r\n", header_end_pos + 4);
+		// if (chunck_end != std::string::npos)
+		// 	return true;
 	}
 
-	return true;
+	return COMPLETE_REQUEST;
+	// return true;
 }
 
 int main()
@@ -161,11 +164,26 @@ int main()
 				}
 				else
 				{
-					const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\nKeep-Alive: timeout=2, max=10\r\nContent-Length: 24\r\n\r\n<h1>Hola WOLOLO!!!</h1>\n";
+					const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\nKeep-Alive: timeout=2, max=10\r\nContent-Length: 22\r\n\r\n<h1>Hola ELOY!!!</h1>\n";
 					print_raw_request(buffer);
 
 					request_accumulators[i].insert(request_accumulators[i].end(), buffer, buffer + valread);
-					if (check_request_complete(request_accumulators[i]) > 0)
+					switch (check_request_complete(request_accumulators[i]))
+					{
+					case COMPLETE_REQUEST:
+						manage_complete_request(request_accumulators[i]);
+						break;
+					case REQUEST_WITH_BODY:
+						manage_request_with_body(request_accumulators[i]);
+						break;
+					case CHUNKED_REQUEST:
+						manage_request_chunked(request_accumulators[i]);
+						break;
+					default:
+						std::cout << "\nRequest incompleta\n";
+						break;
+					}
+					/* if (check_request_complete(request_accumulators[i]) > 0)
 					{
 						//procesar la petición, crear la instancia de Request etc...
 						std::cout << "\nRequest lista para ser procesada\n";
@@ -188,7 +206,7 @@ int main()
 						close(poll_fd[i].fd);
 						close(socket_fd);
 						return 0;
-					}
+					} */
 					memset(buffer, 0, BUFFER_SIZE);
 					send(poll_fd[i].fd, response, strlen(response), 0);
 				}

@@ -569,3 +569,22 @@ void Request::print_request_complete_info()
 }
 
 // if (debug == true){std::cout << "" << std::endl;}
+
+
+
+
+void manage_complete_request(std::vector<char>request_accumulator)
+{
+	(void)request_accumulator;
+	std::cout << "Request completa" << std::endl;
+}
+void manage_request_with_body(std::vector<char>request_accumulator)
+{
+	(void)request_accumulator;
+	std::cout << "Request con body" << std::endl;
+}
+void manage_request_chunked(std::vector<char>request_accumulator)
+{
+	(void)request_accumulator;
+	std::cout << "Request chunked" << std::endl;
+}

@@ -103,4 +103,6 @@ public:
 	void print_request_complete_info();
 };
 
-
+void manage_complete_request(std::vector<char>request_accumulator);
+void manage_request_with_body(std::vector<char>request_accumulator);
+void manage_request_chunked(std::vector<char>request_accumulator);
