@@ -2,8 +2,10 @@
 
 # include "Common.hpp"
 # define SP ' '
+
 # define DEFAULT_HTTP_PORT 80
 # define DEFAULT_HTTPS_PORT 443
+
 # define INCOMPLETE_REQUEST 0
 # define COMPLETE_REQUEST 1
 # define REQUEST_WITH_BODY 2
@@ -33,6 +35,7 @@ private:
 	std::vector<std::string> 	_accept_method;
 	std::string 				_request_line;
 	std::vector<std::string>	_lines;
+	int							_type;
 	// std::string _request_str;  //solo lo conservo por si acaso, funciones que lo usan tb comentadas
 
 
@@ -55,12 +58,17 @@ private:
 	void split_params(std::string &params_raw);
 	bool check_and_set_params(std::vector<std::string> params_unchecked);
 
-	Request(void);
+	void manage_complete_request();
+	void manage_request_with_body();
+	void manage_request_chunked();
+
 
 public:
 	bool debug;
+	Request(void);
 	Request(int i, int fd);
 	Request(int i, int fd, std::vector<char> request_accumulator);
+	Request(int i, int fd, std::vector<char> request_accumulator, int type);
 	Request(char *buffer);
 	Request(Request const &copy);
 	Request & operator=(Request const & rhs);

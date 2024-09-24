@@ -21,6 +21,7 @@ Request::Request(int i, int fd) : _fd_socket(fd), _pos_socket(i), _method(""), _
 				<<" valor de fd: " << fd << "\n";
 
 }
+
 Request::Request(int i, int fd, std::vector<char> request_accumulator) : _fd_socket(fd), _pos_socket(i), 
 						  _req_uccumulator(request_accumulator), 
 						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
@@ -32,6 +33,29 @@ Request::Request(int i, int fd, std::vector<char> request_accumulator) : _fd_soc
 	for (size_t i = 0; i < _req_uccumulator.size(); i++)
 		std::cout << _req_uccumulator[i];
 	std::cout << "\nFinal de la request\n" << std::endl;
+	
+}
+
+Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
+						  _req_uccumulator(request_accumulator), 
+						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
+						  _body(), _help_message(), _valid(true), _error_code(0), _headers(),
+						  _params(), _request(), _accept_method(), _request_line(""), _lines(), _type(type)
+{
+	std::cout << "Constructor útlimo guay\n";
+	switch (_type)
+	{
+	case COMPLETE_REQUEST:
+		manage_complete_request();
+		break;
+	case REQUEST_WITH_BODY:
+		manage_request_with_body();
+		break;
+	case CHUNKED_REQUEST:
+		manage_request_chunked();
+		break;
+	}
+	
 	
 }
 
@@ -371,6 +395,8 @@ bool Request::check_and_set_params(std::vector<std::string> params_unchecked)
 }
 
 
+
+
 /* void Request::read_request_lines(std::vector<char> &request)
 {
 	std::vector<char>::iterator it = request.begin();
@@ -573,18 +599,15 @@ void Request::print_request_complete_info()
 
 
 
-void manage_complete_request(std::vector<char>request_accumulator)
+void Request::manage_complete_request()
 {
-	(void)request_accumulator;
 	std::cout << "Request completa" << std::endl;
 }
-void manage_request_with_body(std::vector<char>request_accumulator)
+void Request::manage_request_with_body()
 {
-	(void)request_accumulator;
 	std::cout << "Request con body" << std::endl;
 }
-void manage_request_chunked(std::vector<char>request_accumulator)
+void Request::manage_request_chunked()
 {
-	(void)request_accumulator;
 	std::cout << "Request chunked" << std::endl;
 }

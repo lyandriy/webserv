@@ -1,6 +1,7 @@
 import socket
+import time
 
-requests = []
+requests: list[str] = []
 
 i = 0
 requests.append(f" GET / HTTP/1.1\r\nHost: localhost:8080\r\nPeticion:{i}\r\n\r\n") # espacio al principio de la request
@@ -26,15 +27,15 @@ i += 1
 requests.append(f"GET / HTTP/1.1\r\nHost: localhost:8080\r\nPeticion:{i}\r\n\r\n") # OK
 i += 1
 requests.append(																	# Esta es válida, simula una petición hecha con header Transfer-Encoding: chunked
-    "POST /upload HTTP/1.1\r\n"
-    "Host: localhost\r\n"
-    "Transfer-Encoding: chunked\r\n"
-    "Content-Type: text/plain\r\n"
-    "\r\n"
-    "7\r\nMozilla\r\n"
-    "9\r\nDeveloper\r\n"
-    "7\r\nNetwork\r\n"
-    "0\r\n\r\n"
+	"POST /upload HTTP/1.1\r\n"
+	"Host: localhost\r\n"
+	"Transfer-Encoding: chunked\r\n"
+	"Content-Type: text/plain\r\n"
+	"\r\n"
+	"7\r\nMozilla\r\n"
+	"9\r\nDeveloper\r\n"
+	"7\r\nNetwork\r\n"
+	"0\r\n\r\n"
 )
 # test pendientes:
 	# menos de 3 elementos en request line
@@ -48,4 +49,5 @@ for request in requests:
 	sock.sendall(request.encode('utf-8'))
 	response = sock.recv(4096)
 	print(response.decode('utf-8'))
-sock.close()
+	time.sleep(0.5)	
+sock.close()    

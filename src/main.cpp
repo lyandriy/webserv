@@ -57,7 +57,7 @@ int main()
 	socklen_t len = sizeof(server_addr);
 	struct pollfd poll_fd[MAX_CLIENTS + 1];
 	int num_clientes = 0; (void)num_clientes;
-	std::vector<Request> requests;
+	std::vector<Request> requests(MAX_CLIENTS);
 	std::vector<std::vector<char> > request_accumulators(MAX_CLIENTS);
 	(void)poll_fd;
 	(void)len;
@@ -167,22 +167,28 @@ int main()
 					const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\nKeep-Alive: timeout=2, max=10\r\nContent-Length: 22\r\n\r\n<h1>Hola ELOY!!!</h1>\n";
 					print_raw_request(buffer);
 
+					if (i <= MAX_CLIENTS)
 					request_accumulators[i].insert(request_accumulators[i].end(), buffer, buffer + valread);
-					switch (check_request_complete(request_accumulators[i]))
+					int request_complete = check_request_complete(request_accumulators[i]);
+					if (request_complete > 0)
+						requests[i] = Request(i, poll_fd[i].fd, request_accumulators[i], request_complete);
+
+
+					/* switch (check_request_complete(request_accumulators[i]))
 					{
 					case COMPLETE_REQUEST:
-						manage_complete_request(request_accumulators[i]);
+						requests[i] = Request(i, poll_fd[i].fd, request_accumulators[i], COMPLETE_REQUEST);
 						break;
 					case REQUEST_WITH_BODY:
-						manage_request_with_body(request_accumulators[i]);
+						requests[i] = Request(i, poll_fd[i].fd, request_accumulators[i], REQUEST_WITH_BODY);
 						break;
 					case CHUNKED_REQUEST:
-						manage_request_chunked(request_accumulators[i]);
+						requests[i] = Request(i, poll_fd[i].fd, request_accumulators[i], CHUNKED_REQUEST);
 						break;
 					default:
 						std::cout << "\nRequest incompleta\n";
 						break;
-					}
+					} */
 					/* if (check_request_complete(request_accumulators[i]) > 0)
 					{
 						//procesar la petición, crear la instancia de Request etc...
