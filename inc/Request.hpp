@@ -36,6 +36,7 @@ private:
 	std::string 				_request_line;
 	std::vector<std::string>	_lines;
 	int							_type;
+	int							_status;
 	// std::string _request_str;  //solo lo conservo por si acaso, funciones que lo usan tb comentadas
 
 
@@ -94,6 +95,7 @@ public:
 	bool get_validity();
 	std::map<std::string, std::string> get_headers();
 	std::map<std::string, std::string> get_params();
+	int get_current_status();
 
 
 	// Location    compareUri(const std::vector<Location> &, const std::string &);

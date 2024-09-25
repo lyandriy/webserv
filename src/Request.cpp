@@ -508,6 +508,10 @@ std::map<std::string, std::string> Request::get_params()
 {
 	return _params;
 }
+int Request::get_current_status()
+{
+	return _status;
+}
 
 // --------------------  SETTERS  -------------------- //
 bool Request::set_validity(int error_code)
