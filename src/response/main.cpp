@@ -22,8 +22,6 @@ int main(int argc, char **argv)
 {
     int ready;
     std::vector<Server> server;
-    //std::map<int, Request> requests;
-	//std::vector<Response> response;
     server = recv_conf(argc, argv);//recibe conf de servidres
     
     struct pollfd* pfds = new pollfd[BACKLOG];
@@ -31,9 +29,9 @@ int main(int argc, char **argv)
 
     while (true)
     {
-        if ((ready = poll(pfds, socketManager.getSockNum(), -1)) == -1)//monitorear si hay algun cliente
+        if ((ready = poll(pfds, socketManager.getSockNum(), 1000)) == -1)//monitorear si hay algun cliente
              std::cerr << "Error: poll error." << std::endl;
-        socketManager.AcceptClient(pfds, ready);//comprueba si hay un cliente y lo acepta
+        socketManager.acceptClient(pfds, ready);//comprueba si hay un cliente y lo acepta
         socketManager.recvRequest(pfds, server);//recibe mensajes de request
         socketManager.sendResponse(pfds);//responder al cliente
         //ver que pasa si socket se sierra solo por algun error

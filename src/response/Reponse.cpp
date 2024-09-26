@@ -255,15 +255,12 @@ int Response::open_file(int pos_file_response)
     if (redirection.second.empty())
     {
         if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
-        {
-            fd_file = open("/error/404.html", O_RDONLY);
-        }
+            fd_file = open("/error/404.html", O_RDONLY);//ver que hcer si open de "/error/404.html" falla
     }
     else
     {
         if ((fd_file = open(redirection.second.c_str(), O_RDONLY)) == -1)
-        {
             fd_file = open("/error/404.html", O_RDONLY);
-        }
     }
+    return (fd_file);
 }

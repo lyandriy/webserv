@@ -80,11 +80,6 @@ public:
 	std::map<std::string, std::string> get_headers();
 	std::map<std::string, std::string> get_params();
 
-
-
-
-
-
 	// Para debug //
 	void check_lines(std::vector<std::string> lines);
 	void find_CRLF(const std::string &str);

@@ -13,16 +13,14 @@ SRCS_PATH = src/
 INCS_PATH = inc/
 BIN_PATH = bin/
 
-BIN_PATH = bin/
+SRCS =	src/response/main.cpp \
+		src/response/Location.cpp \
+		src/response/Server.cpp \
+		src/response/Parser.cpp \
+		src/response/Response.cpp \
+		src/response/SocketManager.cpp \
 
-SRCS =	pars/main.cpp \
-		pars/Location.cpp \
-		pars/Server.cpp \
-		pars/Parser.cpp \
-
-
-
-OBJS = $(SRCS:%.cpp=bin/%.o)
+OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(BIN_PATH)%.o)
 
 CC = g++
 CFLAGS = -std=c++98 -Wall -Werror -Wextra #-g -O0
@@ -33,7 +31,7 @@ RM = rm -f
 all: $(NAME)
 
 $(BIN_PATH)%.o: $(SRCS_PATH)%.cpp
-	mkdir -p bin
+	mkdir -p $(BIN_PATH)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 	
