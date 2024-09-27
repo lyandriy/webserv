@@ -1,4 +1,4 @@
-# include "../inc/Request.hpp"
+# include "../inc/Webserver.hpp"
 
 Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 					_body(), _help_message(), _valid(true), _error_code(0),
@@ -22,7 +22,7 @@ Request::Request(int i, int fd) : _fd_socket(fd), _pos_socket(i), _method(""), _
 
 }
 
-Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
+Request::Request(int i, int fd, std::vector<char> request_accumulator) : _fd_socket(fd), _pos_socket(i), 
 						  _req_uccumulator(request_accumulator), 
 						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 						  _body(), _help_message(), _valid(true), _error_code(0), _headers(),
@@ -36,7 +36,7 @@ Request::Request(int i, int fd, std::vector<char> request_accumulator, int type)
 	
 }
 
-/* Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
+Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
 						  _req_uccumulator(request_accumulator), 
 						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 						  _body(), _help_message(), _valid(true), _error_code(0), _headers(),
@@ -57,7 +57,7 @@ Request::Request(int i, int fd, std::vector<char> request_accumulator, int type)
 	}
 	
 	
-} */
+}
 
 Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 								_body(), _help_message(), _valid(true), _error_code(0),
@@ -395,7 +395,76 @@ bool Request::check_and_set_params(std::vector<std::string> params_unchecked)
 }
 
 
+// ---------------------------------------------------//
 
+Location    Request::compareUri(const std::vector<Location> &location, const std::string &uri)
+{
+    std::string uri_location;
+    std::size_t found;
+
+    for (int i = 0; i < location.size(); i++)
+    {
+        uri_location = location[i].getUri();
+        found = uri.find(location[i].getUri());
+        if (found == 0)
+            return (location[i]);
+    }
+    return Location();
+}
+
+bool    Request::compareListen(std::vector<struct sockaddr_in> listen, int port)
+{
+    if (!listen.empty())
+    {
+        for (int i = 0; i < listen.size(); i++)
+        {
+            if (ntohs(listen[i].sin_port) == port)
+                return (true);
+        }
+    }
+    return (false);
+}
+
+bool     Request::compareRequest(Server &server)
+{
+    if (this->_method == "GET" && server.getAcceptMethod().get == 0)
+            return (false);
+    if (this->_method == "POST" && server.getAcceptMethod().post == 0)
+            return (false);
+    if (this->_method == "DELETE" && server.getAcceptMethod().del == 0)
+            return (false);
+    if (!compareListen(server.getListen(), this->_port))
+        return (false);
+    return (true);
+}
+
+Response    Request::request_resolution(std::vector<Server> &server)
+{
+    std::vector<Server>::iterator it_serv;
+    Location    location;
+
+	if (this->_error_code)
+		return (Response(*this));
+    for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)
+    {
+        if (this->_host == it_serv->getServerName())
+            break;
+    }
+    if (it_serv != server.end())
+    {
+        if (compareRequest(*it_serv))
+        {
+            location = compareUri(it_serv->getLocation(), this->_uri);
+            if (location.getAcceptMethod().get == -1)
+                return (Response(location, *this));
+            else
+                return (Response(*it_serv, *this));
+        }
+    }
+    return (Response(*this));
+}
+
+// -----------------------------------------------------//
 
 /* void Request::read_request_lines(std::vector<char> &request)
 {
@@ -612,6 +681,3 @@ void Request::manage_request_with_body()
 	std::cout << "Request con body" << std::endl;
 }
 void Request::manage_request_chunked()
-{
-	std::cout << "Request chunked" << std::endl;
-}
