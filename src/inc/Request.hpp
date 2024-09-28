@@ -2,14 +2,25 @@
 
 # include "../inc/Webserver.hpp"
 # define SP ' '
+
 # define DEFAULT_HTTP_PORT 80
 # define DEFAULT_HTTPS_PORT 443
+
+# define INCOMPLETE_REQUEST 0
+# define COMPLETE_REQUEST 1
+# define REQUEST_WITH_BODY 2
+# define CHUNKED_REQUEST 3
+
+class Server;
+class Location;
+
 class Request
 {
 private:
 	// Importantes //
 	int					_fd_socket;
 	int					_pos_socket;
+	std::vector<char>	_req_uccumulator;
 	std::string 		_method;
 	std::string 		_uri;
 	std::string 		_protocol;
@@ -23,10 +34,13 @@ private:
 	std::map<std::string, std::string> _params;
 
 	// Auxiliares //
-	std::vector<char> _request;
-	std::vector<std::string> _accept_method;
-	std::string _request_line;
-	std::vector<std::string>_lines;
+	std::vector<char> 			_request;
+	std::vector<std::string> 	_accept_method;
+	std::string 				_request_line;
+	std::vector<std::string>	_lines;
+	int							_type;
+	int							_status;
+	time_t						conecction_time;
 	// std::string _request_str;  //solo lo conservo por si acaso, funciones que lo usan tb comentadas
 
 
@@ -49,11 +63,17 @@ private:
 	void split_params(std::string &params_raw);
 	bool check_and_set_params(std::vector<std::string> params_unchecked);
 
-	Request(void);
+	void manage_complete_request();
+	void manage_request_with_body();
+	void manage_request_chunked();
+
 
 public:
 	bool debug;
+	Request(void);
 	Request(int i, int fd);
+	Request(int i, int fd, std::vector<char> request_accumulator);
+	Request(int i, int fd, std::vector<char> request_accumulator, int type);
 	Request(char *buffer);
 	Request(Request const &copy);
 	Request & operator=(Request const & rhs);
@@ -79,6 +99,8 @@ public:
 	bool get_validity();
 	std::map<std::string, std::string> get_headers();
 	std::map<std::string, std::string> get_params();
+	int get_current_status();
+	time_t	get_time();
 
 	// Para debug //
 	void check_lines(std::vector<std::string> lines);
@@ -91,4 +113,9 @@ public:
 	bool		compareListen(std::vector<struct sockaddr_in> , int);
 	bool		compareRequest(Server &);
 	Response	request_resolution(std::vector<Server> &);
+	void	last_conection_time();
 };
+
+void manage_complete_request(std::vector<char>request_accumulator);
+void manage_request_with_body(std::vector<char>request_accumulator);
+void manage_request_chunked(std::vector<char>request_accumulator);

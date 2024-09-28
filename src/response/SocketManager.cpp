@@ -114,6 +114,7 @@ void    SocketManager::acceptClient(struct pollfd* pfds, int ready)
                 pfds[sock_num].fd = new_sock;
                 pfds[sock_num].events = POLLIN;
                 requests[sock_num] = Request(sock_num, new_sock);
+                requests[sock_num].last_conection_time();
                 sock_num++;
             }
             else
@@ -158,10 +159,12 @@ void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<S
 void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &server)
 {
     int     valread;
+    double  seconds;
     char    buffer[BUFFER_SIZE + 1] = {0};
 
     for (int client = listen_sockets; client < sock_num; client++)//recorre todos los sockets
     {
+        
         if (pfds[client].revents & POLLIN)//si algun socket tiene un revent de POLLIN
         {
             if (sock_num == BACKLOG)
@@ -176,6 +179,8 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
                 check_join(client, pfds, server, buffer);//recibe una parte del mensaje
             memset(buffer, 0, strlen(buffer));
         }
+        else if (difftime(time(NULL), requests[client].get_time()) > 65)//si no hay evento y el tiempo es mayoa a 65, desconectamos al cliente
+            close_move_pfd(pfds, client);
     }
 }
 
@@ -274,6 +279,7 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
                 {
                     pfds[i].events = POLLIN;//volver a escuchar con el socket (ver cuando se sierra la conexion con el cliente)
                     close_move_pfd(pfds, _pos_file_response);//cerrar el fd de archivo
+                    requests[i].last_conection_time();
                     ///ver si el archivo que le mando es un error que cierra la conexion
                 }
             }

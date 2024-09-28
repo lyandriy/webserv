@@ -24,6 +24,7 @@
 # include <sstream>
 # include <cstdlib>
 # include <fcntl.h>
+# include <ctime>
 
 # include "Request.hpp"
 # include "Response.hpp"
