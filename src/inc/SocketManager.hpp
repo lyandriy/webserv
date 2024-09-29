@@ -11,7 +11,8 @@ class SocketManager
         std::map<int, Request>  requests;//posicion del cliente en pfds y su correspondiente request
         std::map<int, Response> response;//posicion del cliente en pfds y su correspondiente response
         std::map<int, int>      fd_file;//posicion del cliente en pfds y su correspondiente fd de archivo responder
-        
+        std::map<int, std::string> status_code;///codigo de respuesta y el texto que va en el response line
+
         SocketManager();
     public:
         ~SocketManager();
@@ -31,6 +32,7 @@ class SocketManager
         void    make_response(int, struct pollfd*, std::vector<Server> &);
         void    check_join(int, struct pollfd*, std::vector<Server> &, char *);
         void    close_move_pfd(struct pollfd*, int);
+        void    sendErrorResponse(struct pollfd*, int, int);
 };
 
 # endif

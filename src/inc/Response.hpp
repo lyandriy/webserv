@@ -16,6 +16,7 @@ class Response
         std::string accept_method;//mettodo get, post, delete
         std::map<int, std::string>  error_page;//paginas de error que se pueden usar
         int error_code;
+        
         bool    cgi;//on o off
         std::string protocol;
         std::string help_message;
@@ -23,6 +24,7 @@ class Response
         int _fd_socket;
 	    int _pos_socket;//posicion del socket en pfds
         int _pos_file_response;//posicion del archivo que se va a responder en pfds
+        struct stat fileStat;//informacion sobre el archivo
     public:
         Response();
         ~Response();
@@ -50,6 +52,7 @@ class Response
         int get_fd_socket() const;
         int get_pos_socket() const;
         int get_pos_file_response() const;
+        struct stat get_fileStat() const;
 
         void setListen(struct sockaddr_in);
         void setHost(std::string);
@@ -66,7 +69,8 @@ class Response
         void setHelpMessage(std::string);
         void setHeaders(std::map<std::string, std::string>);
 
-        int open_file(int);
+        int     open_file(int);
+        void    err(int, std::string);
 };
 
 #endif

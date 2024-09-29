@@ -607,7 +607,10 @@ bool Request::set_validity(int error_code, std::string help_message)
 	return _valid;
 }
 
-
+void	Request::set_error_code(int error_code)
+{
+	this->_error_code = error_code;
+}
 
 // --------------------  DEBUG  -------------------- //
 

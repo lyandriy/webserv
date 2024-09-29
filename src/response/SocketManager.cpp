@@ -54,6 +54,16 @@ SocketManager::SocketManager(struct pollfd* pfds, std::vector<Server> &server)
     this->sock_num = 0;
     this->listen_sockets = 0;
     int flag = 0;
+    status_code[200] = "HTTP/1.1 200 OK\r\n";
+    status_code[400] = "HTTP/1.1 400 Bad Request\r\n";
+    status_code[403] = "HTTP/1.1 403 Forbidden\r\n";
+    status_code[404] = "HTTP/1.1 404 Not Found\r\n";
+    status_code[405] = "HTTP/1.1 405 Method Not Allowed\r\n";
+    status_code[413] = "HTTP/1.1 413 Content Too Large\r\n";
+    status_code[414] = "HTTP/1.1 414 URI Too Long\r\n";
+    status_code[500] = "HTTP/1.1 500 OInternal Server ErrorK\r\n";
+    status_code[503] = "HTTP/1.1 503 Service Unavailable\r\n";
+    status_code[505] = "HTTP/1.1 505 HTTP Version Not Supported\r\n";
     
     for (size_t i = 0; i < server.size(); ++i)//recorre los server
     {
@@ -101,16 +111,15 @@ void    SocketManager::acceptClient(struct pollfd* pfds, int ready)
     {
         if (pfds[i].revents & POLLIN)//si hay algun evento
         {
+            if (sock_num == BACKLOG - 1)
+            {
+                std::cerr << "Error: No hay espacio." << std::endl;//que hago si no hay mas espacio para almacenar las struct pollfd
+                break;
+            }
             struct sockaddr_in client_addr;
             socklen_t client_len = sizeof(client_addr);
             if ((new_sock = accept(pfds[i].fd, (struct sockaddr *)&client_addr, &client_len)) != -1)//aceptar evento
             {
-                if (sock_num == BACKLOG)
-                {
-                    std::cerr << "Error: No hay espacio." << std::endl;//que hago si no hay mas espacio para almacenar las struct pollfd
-                    close(new_sock);
-                    break;
-                }
                 pfds[sock_num].fd = new_sock;
                 pfds[sock_num].events = POLLIN;
                 requests[sock_num] = Request(sock_num, new_sock);
@@ -167,17 +176,22 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
         
         if (pfds[client].revents & POLLIN)//si algun socket tiene un revent de POLLIN
         {
-            if (sock_num == BACKLOG)
+            if (sock_num == BACKLOG - 1)//si no hay espacio en pollfd para el fd del archivo
             {
-                std::cerr << "Error: No hay espacio." << std::endl;//que hago si no hay mas espacio para almacenar las struct pollfd
-                break ;
+                pfds[client].events = POLLOUT;
+                requests[client].set_error_code(SERVICE_UNAVAIBLE);
+                response[client] = Response(requests[client]);
+                fd_file[client] = -1;
             }
-            valread = recv(pfds[client].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de cliente
-            if (valread <= 0)
-                make_response(client, pfds, server);//ha terminado de recibir el mensaje
             else
-                check_join(client, pfds, server, buffer);//recibe una parte del mensaje
-            memset(buffer, 0, strlen(buffer));
+            {
+                valread = recv(pfds[client].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de cliente
+                if (valread <= 0)
+                    make_response(client, pfds, server);//ha terminado de recibir el mensaje
+                else
+                    check_join(client, pfds, server, buffer);//recibe una parte del mensaje
+                memset(buffer, 0, strlen(buffer));
+            }
         }
         else if (difftime(time(NULL), requests[client].get_time()) > 65)//si no hay evento y el tiempo es mayoa a 65, desconectamos al cliente
             close_move_pfd(pfds, client);
@@ -186,6 +200,8 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
 
 void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
 {
+    if (pfds[pfd_free].fd == -1)
+        return ;
     close(pfds[pfd_free].fd);
     if (pfd_free == sock_num)
     {
@@ -285,6 +301,68 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
             }
         }
         memset(buffer, 0, strlen(buffer));
+    }
+}
+
+void    SocketManager::sendErrorResponse(struct pollfd* pfds, int i, int _pos_file_response)
+{
+    std::string response_buff;
+    
+    if (response[i].getErrorCode() == SERVICE_UNAVAIBLE)
+        response_buff = "HTTP/1.1 503 Service Unavaible\r\n"
+                    "Content-Type: text/html\r\n"
+                    "Content-Length: 30\r\n"
+                    "\r\n"
+                    "<h1>503 Service Unavaible</h1>";
+    else if (response[i].getErrorCode() == INTERNAL_SERVER_ERROR)
+        response_buff = "HTTP/1.1 500 Internal Server Error\r\n"
+                        "Content-Type: text/html\r\n"
+                        "Content-Length: 35\r\n"
+                        "\r\n"
+                        "<h1>500 Internal Server Error</h1>";
+    send(pfds[i].fd, response_buff.c_str(), strlen(response_buff.c_str()), 0);//mandar el mensaje de error
+    pfds[i].events = POLLIN;
+    requests[i].last_conection_time();
+    if (fd_file[i] != -1)
+        close_move_pfd(pfds, _pos_file_response);//cerrar el fd de archivo
+}
+
+void    SocketManager::sendResponse(struct pollfd* pfds)
+{
+    int valread;
+    int _pos_file_response;
+    std::string string_buffer;
+    std::string response_str;
+    char *buffer;
+
+    for (int i = listen_sockets; i <= sock_num; i++)//recorre todos los sockets
+    {
+        if (pfds[i].revents & POLLOUT)//si algun socket tiene un revent de POLLIN
+        {
+            _pos_file_response = fd_file[i];//posicion en pfds donde esta guardado el fd del archivo a enviar
+            if (response[i].getErrorCode() == INTERNAL_SERVER_ERROR
+                || response[i].getErrorCode() == SERVICE_UNAVAIBLE)
+                sendErrorResponse(pfds, i, _pos_file_response);
+            else
+            {
+                valread = read(pfds[_pos_file_response].fd, buffer, BUFFER_SIZE);//leer del archivo a enviar BUFFER_SIZE bytes
+                string_buffer.assign(buffer);//convirte char * en std::string
+                if (response[i].getErrorCode())
+                {
+                    response_str = status_code[response[i].getErrorCode()]
+                        + "Content-Length: " + string_buffer;
+                }
+                else
+                    response_str = status_code[OK] + "Content-Length: " + string_buffer;
+                send(pfds[i].fd, response_str.c_str(), response_str.size(), 0);//enviar el buffer leido de archivo
+                if (valread != BUFFER_SIZE || string_buffer.size() == response[i].get_fileStat().st_size)//significa que hemos llegado hasta el final del archivo
+                {
+                    pfds[i].events = POLLIN;//volver a escuchar con el socket (ver cuando se sierra la conexion con el cliente)
+                    close_move_pfd(pfds, _pos_file_response);//cerrar el fd de archivo
+                    requests[i].last_conection_time();
+                }
+            }
+        }
     }
 }
 

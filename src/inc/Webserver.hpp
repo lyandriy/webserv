@@ -25,6 +25,9 @@
 # include <cstdlib>
 # include <fcntl.h>
 # include <ctime>
+# include <sys/stat.h>
+# include <stdlib.h>
+
 
 # include "Request.hpp"
 # include "Response.hpp"

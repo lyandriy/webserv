@@ -114,6 +114,7 @@ public:
 	bool		compareRequest(Server &);
 	Response	request_resolution(std::vector<Server> &);
 	void	last_conection_time();
+	void	set_error_code(int);
 };
 
 void manage_complete_request(std::vector<char>request_accumulator);
