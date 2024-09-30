@@ -26,8 +26,6 @@ Response::Response(Location &location, Request &request){
     this->host = request.get_host();
     this->help_message = request.get_help_message();
     this->headers = request.get_headers();
-    this->_fd_socket = request.get_fd_socket();
-    this->_pos_socket = request.get_pos_socket();
     this->_pos_file_response = -1;
 }
 
@@ -49,8 +47,6 @@ Response::Response(Server &server, Request &request){
     this->host = request.get_host();
     this->help_message = request.get_help_message();
     this->headers = request.get_headers();
-    this->_fd_socket = request.get_fd_socket();
-    this->_pos_socket = request.get_pos_socket();
     this->_pos_file_response = -1;
 }
 
@@ -60,14 +56,18 @@ Response::Response(Request &request)
     this->listen.sin_port = htons(request.get_port());
     this->listen.sin_addr.s_addr = INADDR_ANY;
     this->help_message = request.get_help_message();
-    if (request.get_error_code() == METHOD_NOT_ALLOWED)
-        this->root = "/error/405.html";
+    if (request.get_error_code() == BAD_REQUEST)
+        this->root = ROOT_BAD_REQUEST;
+    else if (request.get_error_code() == METHOD_NOT_ALLOWED)
+        this->root = ROOT_METHOD_NOT_ALLOWED;
+    else if (request.get_error_code() == CONTENT_TOO_LARGE)
+        this->root = ROOT_CONTENT_TOO_LARGE;
+    else if (request.get_error_code() == URI_TOO_LONG)
+        this->root = ROOT_URI_TOO_LONG;
+    else if (request.get_error_code() == SERVICE_UNAVAIBLE)
+        this->root = ROOT_SERVICE_UNAVAIBLE;
     else if (request.get_error_code() == HTTP_VERSION_NOT_SUPPORTED)
-        this->root = "/error/505.html";
-    else
-        this->root = "/error/400.html";
-    this->_fd_socket = request.get_fd_socket();
-    this->_pos_socket = request.get_pos_socket();
+        this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
     this->_pos_file_response = -1;
 }
 
@@ -177,6 +177,11 @@ int Response::get_pos_file_response() const
     return (this->_pos_file_response);
 }
 
+struct stat Response::get_fileStat() const
+{
+    return (this->fileStat);
+}
+
 void Response::setListen(struct sockaddr_in listen)
 {
     this->listen = listen;
@@ -247,20 +252,29 @@ void Response::setHeaders(std::map<std::string, std::string> headers)
     this->headers = headers;
 }
 
+void    Response::err(int error, std::string root_error)
+{
+    error_code = error;
+    root = root_error;
+}
+
 int Response::open_file(int pos_file_response)
 {
-    int fd_file;
+    int fd_file = -1;
 
     _pos_file_response = pos_file_response;
-    if (redirection.second.empty())
-    {
-        if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
-            fd_file = open("/error/404.html", O_RDONLY);//ver que hcer si open de "/error/404.html" falla
-    }
+    if (!redirection.second.empty() && !error_code)//si existe redireccion y no hay ningun error
+        root = redirection.second;
     else
     {
-        if ((fd_file = open(redirection.second.c_str(), O_RDONLY)) == -1)
-            fd_file = open("/error/404.html", O_RDONLY);
+        if (access(root.c_str(), F_OK) == -1)//si achivo no existe
+            err(NOT_FOUND, ROOT_NOT_FOUND);
+        else if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
+            err(FORBIDEN, ROOT_FORBIDEN);
+        if (stat(root.c_str(), &fileStat) == -1)
+            err(NOT_FOUND, ROOT_NOT_FOUND);
+        else if  ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
+            err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
     }
     return (fd_file);
 }

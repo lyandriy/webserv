@@ -464,6 +464,11 @@ Response    Request::request_resolution(std::vector<Server> &server)
     return (Response(*this));
 }
 
+void	Request::last_conection_time()
+{
+	conecction_time = time(NULL);
+}
+
 // -----------------------------------------------------//
 
 /* void Request::read_request_lines(std::vector<char> &request)
@@ -582,6 +587,11 @@ int Request::get_current_status()
 	return _status;
 }
 
+time_t	Request::get_time()
+{
+	return (conecction_time);
+}
+
 // --------------------  SETTERS  -------------------- //
 bool Request::set_validity(int error_code)
 {
@@ -597,7 +607,10 @@ bool Request::set_validity(int error_code, std::string help_message)
 	return _valid;
 }
 
-
+void	Request::set_error_code(int error_code)
+{
+	this->_error_code = error_code;
+}
 
 // --------------------  DEBUG  -------------------- //
 
@@ -680,4 +693,4 @@ void Request::manage_request_with_body()
 {
 	std::cout << "Request con body" << std::endl;
 }
-void Request::manage_request_chunked()
+//void Request::manage_request_chunked()
