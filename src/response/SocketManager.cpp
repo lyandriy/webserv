@@ -152,9 +152,9 @@ void    SocketManager::make_response(int client, struct pollfd* pfds, std::vecto
     }
 }
 
-void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<Server> &server, char *buffer)
+void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
-    if (!requests[client].join_request(*buffer))//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
+    if (!requests[client].join_request(*buffer, valread))//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
     {
         pfds[client].events = POLLOUT;
         response[client] = Response(requests[client]);//crear la response de error
@@ -189,7 +189,7 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
                 if (valread <= 0)
                     make_response(client, pfds, server);//ha terminado de recibir el mensaje
                 else
-                    check_join(client, pfds, server, buffer);//recibe una parte del mensaje
+                    check_join(client, pfds, server, buffer, valread);//recibe una parte del mensaje
                 memset(buffer, 0, strlen(buffer));
             }
         }
@@ -326,6 +326,34 @@ void    SocketManager::sendErrorResponse(struct pollfd* pfds, int i, int _pos_fi
     if (fd_file[i] != -1)
         close_move_pfd(pfds, _pos_file_response);//cerrar el fd de archivo
 }
+std::string SocketManager::make_response_str(std::string string_buffer, int int_code)
+{
+    time_t rawtime;
+    std::string day;
+    struct tm *timeinfo;
+    const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"};
+    const char* days[] = {"Mon", "Tues", "Weds", "Thur", "Fri", "Sat", "Sun"};
+    std::string string_buffer = "este es el body!!!";
+
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    std::ostringstream str;
+
+    str << status_code[int_code]
+        << "Connection: Keep-Alive\r\n"
+        << "Date: " << days[timeinfo->tm_wday] << ", "
+        << timeinfo->tm_mday << " " 
+        << months[timeinfo->tm_mon] << " "
+        << (timeinfo->tm_year + 1900) << " " 
+        << timeinfo->tm_hour << ":"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_min << ":"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_sec
+        << " GMT\r\n"
+        << "Content-Length: " << string_buffer.size() << "\r\n"
+        << "\r\n" << string_buffer;
+
+    return (str.str());
+}
 
 void    SocketManager::sendResponse(struct pollfd* pfds)
 {
@@ -348,12 +376,9 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
                 valread = read(pfds[_pos_file_response].fd, buffer, BUFFER_SIZE);//leer del archivo a enviar BUFFER_SIZE bytes
                 string_buffer.assign(buffer);//convirte char * en std::string
                 if (response[i].getErrorCode())
-                {
-                    response_str = status_code[response[i].getErrorCode()]
-                        + "Content-Length: " + string_buffer;
-                }
+                    response_str = make_response_str(string_buffer, response[i].getErrorCode());
                 else
-                    response_str = status_code[OK] + "Content-Length: " + string_buffer;
+                    response_str = make_response_str(string_buffer, OK);
                 send(pfds[i].fd, response_str.c_str(), response_str.size(), 0);//enviar el buffer leido de archivo
                 if (valread != BUFFER_SIZE || string_buffer.size() == response[i].get_fileStat().st_size)//significa que hemos llegado hasta el final del archivo
                 {
