@@ -108,6 +108,20 @@ Request& Request::operator=(Request const & other)
 Request::~Request()
 {}
 
+int Request::join_request(char *buffer, int read_size)
+{
+	int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
+	
+	this->_req_uccumulator.insert(_req_uccumulator.end(), buffer, buffer + read_size);
+	if (_req_uccumulator.size() > server_body_size)
+	{
+		if (debug == true){std::cout << "Ls request es más larga de lo que admite la configuración del server" << std::endl;}
+		set_validity(CONTENT_TOO_LARGE, "Entity Too Large");
+		return BODY_SIZE_BIGGER_THAN_SERVER_SUPPORTED;
+	}
+	// otros chequeos aquí???
+}
+
 
 void Request::read_request_lines()
 {

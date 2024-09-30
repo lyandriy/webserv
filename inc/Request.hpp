@@ -11,6 +11,8 @@
 # define REQUEST_WITH_BODY 2
 # define CHUNKED_REQUEST 3
 
+# define BODY_SIZE_BIGGER_THAN_SERVER_SUPPORTED 0
+
 class Request
 {
 private:
@@ -25,8 +27,8 @@ private:
 	int					_port;			// unsigned int?
 	std::vector<char>	_body;
 	std::string			_help_message;
-	bool 				_valid;
-	int 				_error_code;
+	bool				_valid;
+	int					_error_code;
 	std::map<std::string, std::string> _headers;
 	std::map<std::string, std::string> _params;
 
@@ -74,6 +76,9 @@ public:
 	Request(Request const &copy);
 	Request & operator=(Request const & rhs);
 	~Request();
+
+	int join_request(char *buffer);
+	int join_request(char *buffer, int read_size);
 
 	//  -----   SETTERS   -----  //
 	bool set_validity(int error_code);

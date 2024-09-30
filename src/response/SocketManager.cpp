@@ -152,9 +152,9 @@ void    SocketManager::make_response(int client, struct pollfd* pfds, std::vecto
     }
 }
 
-void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<Server> &server, char *buffer)
+void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
-    if (!requests[client].join_request(*buffer))//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
+    if (!requests[client].join_request(*buffer, valread))//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
     {
         pfds[client].events = POLLOUT;
         response[client] = Response(requests[client]);//crear la response de error
@@ -189,7 +189,7 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
                 if (valread <= 0)
                     make_response(client, pfds, server);//ha terminado de recibir el mensaje
                 else
-                    check_join(client, pfds, server, buffer);//recibe una parte del mensaje
+                    check_join(client, pfds, server, buffer, valread);//recibe una parte del mensaje
                 memset(buffer, 0, strlen(buffer));
             }
         }
