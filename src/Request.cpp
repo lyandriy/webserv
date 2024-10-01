@@ -131,9 +131,22 @@ int Request::join_request(char *buffer, int read_size)
 	//definir estados transitortios para no hacer todas las comporbaciones cada vez que se recibe una parte del body
 	this->_req_uccumulator.insert(_req_uccumulator.end(), buffer, buffer + read_size);
 	// buscar doble CRLF
-	if (search_double_CRLF() == false)
-		return INCOMPLETE_REQUEST;
+	if (_status == INVALID_REQUEST)
+		return INVALID_REQUEST;
+	if (_status == INCOMPLETE_REQUEST)
+	{
+		if (search_double_CRLF() == false)
+			return INCOMPLETE_REQUEST;
+	}
+	else if (_status != REQUEST_WITH_BODY && _status != CHUNKED_REQUEST)
+	{
+		
+	}
 	// Si no hay doble CRLF no se ha recibido la request entera	
+	if (_status == INCOMPLETE_REQUEST)
+	{
+		
+	}
 	if (_req_uccumulator.size() > server_body_size)
 	{
 		if (debug == true){std::cout << "Ls request es más larga de lo que admite la configuración del server" << std::endl;}
@@ -145,15 +158,20 @@ int Request::join_request(char *buffer, int read_size)
 bool Request::search_double_CRLF()
 {
 	if (_req_uccumulator.size() < 4)
+	{
+		_status = INCOMPLETE_REQUEST;
 		return false;
+	}
 	
 	for (std::vector<char>::iterator it = _req_uccumulator.begin(); it != _req_uccumulator.end() - 3; ++it)
 	{
 		if (*it == '\r' && *(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
 		{
+			_status = HEADERS_RECEIVED;
 			return true;
 		}
 	}
+	_status = INCOMPLETE_REQUEST;
 	return false;
 }
 
