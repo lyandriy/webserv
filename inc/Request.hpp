@@ -6,12 +6,16 @@
 # define DEFAULT_HTTP_PORT 80
 # define DEFAULT_HTTPS_PORT 443
 
-# define INCOMPLETE_REQUEST 0
-# define COMPLETE_REQUEST 1
-# define REQUEST_WITH_BODY 2
-# define CHUNKED_REQUEST 3
+# define INVALID_REQUEST  0
+# define INCOMPLETE_REQUEST 1
+# define COMPLETE_REQUEST 2
+# define REQUEST_WITH_BODY 3
+# define CHUNKED_REQUEST 4
+# define FULL_COMPLETE_REQUEST 5
 
 # define BODY_SIZE_BIGGER_THAN_SERVER_SUPPORTED 0
+
+# define DOUBLE_CRLF "\r\n\r\n"
 
 class Request
 {
@@ -61,6 +65,8 @@ private:
 	void split_params(std::string &params_raw);
 	bool check_and_set_params(std::vector<std::string> params_unchecked);
 
+	bool search_double_CRLF();
+
 	void manage_complete_request();
 	void manage_request_with_body();
 	void manage_request_chunked();
@@ -79,6 +85,7 @@ public:
 
 	int join_request(char *buffer);
 	int join_request(char *buffer, int read_size);
+
 
 	//  -----   SETTERS   -----  //
 	bool set_validity(int error_code);

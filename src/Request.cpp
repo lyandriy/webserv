@@ -1,5 +1,6 @@
 # include "../inc/Request.hpp"
-# include "./inc/Webserver.hpp"
+// # include "./inc/Webserver.hpp"
+
 
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_uccumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
@@ -127,15 +128,33 @@ Request::~Request()
 int Request::join_request(char *buffer, int read_size)
 {
 	int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
-	
+	//definir estados transitortios para no hacer todas las comporbaciones cada vez que se recibe una parte del body
 	this->_req_uccumulator.insert(_req_uccumulator.end(), buffer, buffer + read_size);
+	// buscar doble CRLF
+	if (search_double_CRLF() == false)
+		return INCOMPLETE_REQUEST;
+	// Si no hay doble CRLF no se ha recibido la request entera	
 	if (_req_uccumulator.size() > server_body_size)
 	{
 		if (debug == true){std::cout << "Ls request es más larga de lo que admite la configuración del server" << std::endl;}
 		set_validity(CONTENT_TOO_LARGE, "Entity Too Large");
 		return BODY_SIZE_BIGGER_THAN_SERVER_SUPPORTED;
 	}
-	// otros chequeos aquí???
+}
+
+bool Request::search_double_CRLF()
+{
+	if (_req_uccumulator.size() < 4)
+		return false;
+	
+	for (std::vector<char>::iterator it = _req_uccumulator.begin(); it != _req_uccumulator.end() - 3; ++it)
+	{
+		if (*it == '\r' && *(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void Request::read_request_lines()
