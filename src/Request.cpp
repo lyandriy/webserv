@@ -2,7 +2,7 @@
 // # include "./inc/Webserver.hpp"
 
 
-Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_uccumulator(),
+Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
 											_body(), _help_message(), _valid(true), _error_code(0), _headers(),
 											_params(), _request(), _accept_method(), _request_line(""), _lines(),
@@ -39,21 +39,21 @@ Request::Request(int i, int fd) : _fd_socket(fd), _pos_socket(i), _method(""), _
 }
 
 Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
-						  _req_uccumulator(request_accumulator), 
+						  _req_accumulator(request_accumulator), 
 						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 						  _body(), _help_message(), _valid(true), _error_code(0), _headers(),
 						  _params(), _request(), _accept_method(), _request_line(""), _lines()
 {
 	std::cout << "Constructor con índice, fd y acumulador llamado. Valor de i: " << i
 				<<" valor de fd: " << fd << "\n";
-	for (size_t i = 0; i < _req_uccumulator.size(); i++)
-		std::cout << _req_uccumulator[i];
+	for (size_t i = 0; i < _req_accumulator.size(); i++)
+		std::cout << _req_accumulator[i];
 	std::cout << "\nFinal de la request\n" << std::endl;
 	
 }
 
 /* Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
-						  _req_uccumulator(request_accumulator), 
+						  _req_accumulator(request_accumulator), 
 						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 						  _body(), _help_message(), _valid(true), _error_code(0), _headers(),
 						  _params(), _request(), _accept_method(), _request_line(""), _lines(), _type(type)
@@ -129,41 +129,55 @@ int Request::join_request(char *buffer, int read_size)
 {
 	int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
 	//definir estados transitortios para no hacer todas las comporbaciones cada vez que se recibe una parte del body
-	this->_req_uccumulator.insert(_req_uccumulator.end(), buffer, buffer + read_size);
-	// buscar doble CRLF
 	if (_status == INVALID_REQUEST)
 		return INVALID_REQUEST;
-	if (_status == INCOMPLETE_REQUEST)
+	if (_status == FULL_COMPLETE_REQUEST)
 	{
-		if (search_double_CRLF() == false)
-			return INCOMPLETE_REQUEST;
+		set_validity(INVALID_REQUEST, "The request body is malformed.");
+		return INVALID_REQUEST;
 	}
-	else if (_status != REQUEST_WITH_BODY && _status != CHUNKED_REQUEST)
-	{
-		
-	}
-	// Si no hay doble CRLF no se ha recibido la request entera	
-	if (_status == INCOMPLETE_REQUEST)
-	{
-		
-	}
-	if (_req_uccumulator.size() > server_body_size)
+	this->_req_accumulator.insert(_req_accumulator.end(), buffer, buffer + read_size);
+	if (_req_accumulator.size() > server_body_size)
 	{
 		if (debug == true){std::cout << "Ls request es más larga de lo que admite la configuración del server" << std::endl;}
 		set_validity(CONTENT_TOO_LARGE, "Entity Too Large");
 		return BODY_SIZE_BIGGER_THAN_SERVER_SUPPORTED;
 	}
+	// buscar doble CRLF
+	if (_status == INCOMPLETE_REQUEST)
+	{
+		if (search_double_CRLF() == false)
+			return INCOMPLETE_REQUEST;
+		else
+		{
+			_status = HEADERS_RECEIVED;
+			// parsear la línea de request
+			// validar línea de request
+			// extraer headers
+				// si no hay ni body ni chunk -> _status = 5 y return 5
+				// si hay body_size -> extraer valor y comparar con body_server
+					// si tb hay chunked -> status = 0, validity(0, "Invalid request")
+					// menor -> status = 3
+					// igual -> status = 5
+					// mayor -> status = 0, validity(0, "mal body size")
+				// si hay chunked:
+					// esto no lo tengo claro, hay demasiadas posibilidades
+					// seccionar los \r\n -> vector de pairs num+texto
+											// comprobar equidad num y len texto
+											// num = 0 -> status = 5
+		}
+	}
 }
 
 bool Request::search_double_CRLF()
 {
-	if (_req_uccumulator.size() < 4)
+	if (_req_accumulator.size() < 4)
 	{
 		_status = INCOMPLETE_REQUEST;
 		return false;
 	}
 	
-	for (std::vector<char>::iterator it = _req_uccumulator.begin(); it != _req_uccumulator.end() - 3; ++it)
+	for (std::vector<char>::iterator it = _req_accumulator.begin(); it != _req_accumulator.end() - 3; ++it)
 	{
 		if (*it == '\r' && *(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
 		{

@@ -25,7 +25,7 @@ private:
 	// Importantes //
 	int					_fd_socket;
 	int					_pos_socket;
-	std::vector<char>	_req_uccumulator;
+	std::vector<char>	_req_accumulator;
 	std::string 		_method;
 	std::string 		_uri;
 	std::string 		_protocol;
