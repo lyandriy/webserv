@@ -154,7 +154,7 @@ void    SocketManager::make_response(int client, struct pollfd* pfds, std::vecto
 
 void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
-    if (!requests[client].join_request(*buffer, valread))//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
+    if (!requests[client].join_request(buffer, valread))//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
     {
         pfds[client].events = POLLOUT;
         response[client] = Response(requests[client]);//crear la response de error

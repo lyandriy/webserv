@@ -128,6 +128,29 @@ Request::~Request()
 int Request::join_request(char *buffer, int read_size)
 {
 	int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
+	
+	switch (_status)
+	{
+	case INVALID_REQUEST:
+		return INVALID_REQUEST;
+		break;
+	case INCOMPLETE_REQUEST:
+		return manage_incomplete_request(server_body_size);
+		break;
+	case HEADERS_RECEIVED:
+		return manage_headers_received(server_body_size);
+		break;
+	case REQUEST_WITH_BODY:
+		return manage_request_with_body(server_body_size);
+		break;
+	case CHUNKED_REQUEST:
+		return manage_chunked_request();
+		break;
+	case FULL_COMPLETE_REQUEST:
+		return manage_full_complete_request();
+		break;
+	}
+	/* 
 	//definir estados transitortios para no hacer todas las comporbaciones cada vez que se recibe una parte del body
 	if (_status == INVALID_REQUEST)
 		return INVALID_REQUEST;
@@ -166,8 +189,92 @@ int Request::join_request(char *buffer, int read_size)
 											// comprobar equidad num y len texto
 											// num = 0 -> status = 5
 		}
+	} */
+}
+
+int	Request::manage_incomplete_request(int server_body_size)
+{
+	if (search_double_CRLF() == false)
+		return INCOMPLETE_REQUEST;
+	else
+	{
+		_status = HEADERS_RECEIVED;
+		return (manage_headers_received(server_body_size));
 	}
 }
+
+bool Request::search_body_length_header()
+{
+	std::map<std::string, std::string>::iterator it;
+
+	for(it = _headers.begin(); it != _headers.end(); it++)
+	{
+		if (it->first == "Content-Length")
+		{
+			_body_size = atoi(it->first.c_str());
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Request::search_chunked_body()
+{
+	return true;
+}
+
+int	Request::manage_headers_received(int server_body_size)
+{
+	read_request_lines();
+	if (check_any_valid_line() == false)
+		return INVALID_REQUEST;
+	extract_request_line();
+	if (check_request_line() == false)
+		return INVALID_REQUEST;
+	if (read_headers_lines() == false)
+		return INVALID_REQUEST;
+	if (search_body_length_header() == true)
+	{
+		// esto empieza a crecer lo suficiente como para hacer pasarlo a manage_request_with_body
+		_status = REQUEST_WITH_BODY;
+		if (_body_size > server_body_size)
+			{
+				set_validity(CONTENT_TOO_LARGE, "Payload Too Large");
+				return INVALID_REQUEST;
+			}
+		// guardar lo que pase del CRLFx2 en _body y calcular su longitud
+	}
+	if (search_chunked_body() == true)
+	{
+		if (_status == REQUEST_WITH_BODY)
+		{
+			set_validity(BAD_REQUEST, "Incompatible headers");
+			return (INVALID_REQUEST);
+		}
+		else
+		{
+			_status = CHUNKED_REQUEST;
+		}
+	}
+	return _status;
+}
+
+int	Request::manage_request_with_body(int server_body_size)
+{
+	return INVALID_REQUEST;
+}
+
+int	Request::manage_chunked_request()
+{
+	return INVALID_REQUEST;
+}
+
+int	Request::manage_full_complete_request()
+{
+	return INVALID_REQUEST;
+}
+
+
 
 bool Request::search_double_CRLF()
 {
@@ -680,18 +787,3 @@ void Request::print_request_complete_info()
 
 // if (debug == true){std::cout << "" << std::endl;}
 
-
-
-
-void Request::manage_complete_request()
-{
-	std::cout << "Request completa" << std::endl;
-}
-void Request::manage_request_with_body()
-{
-	std::cout << "Request con body" << std::endl;
-}
-void Request::manage_request_chunked()
-{
-	std::cout << "Request chunked" << std::endl;
-}

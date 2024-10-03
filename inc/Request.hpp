@@ -38,6 +38,9 @@ private:
 	std::map<std::string, std::string> _headers;
 	std::map<std::string, std::string> _params;
 
+	// Solo para request con body //
+	int					_body_size;
+
 	// Auxiliares //
 	std::vector<char> 			_request;
 	std::vector<std::string> 	_accept_method;
@@ -69,10 +72,14 @@ private:
 
 	bool search_double_CRLF();
 
-	void manage_complete_request();
-	void manage_request_with_body();
-	void manage_request_chunked();
+	int	manage_incomplete_request(int);
+	int	manage_headers_received(int);
+	int manage_request_with_body(int);
+	int manage_chunked_request();
+	int manage_full_complete_request();
 
+	bool search_body_length_header();
+	bool search_chunked_body();
 
 public:
 	bool debug;
@@ -127,6 +134,3 @@ public:
 	void print_request_complete_info();
 };
 
-void manage_complete_request(std::vector<char>request_accumulator);
-void manage_request_with_body(std::vector<char>request_accumulator);
-void manage_request_chunked(std::vector<char>request_accumulator);
