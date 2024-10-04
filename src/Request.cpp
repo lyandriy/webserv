@@ -235,14 +235,30 @@ int	Request::manage_headers_received(int server_body_size)
 		return INVALID_REQUEST;
 	if (search_body_length_header() == true)
 	{
-		// esto empieza a crecer lo suficiente como para hacer pasarlo a manage_request_with_body
+		// esto empieza a crecer lo suficiente como para hacer pasarlo a manage_request_with_body ->NO, manage_request_w_body va a ser para almacenar los sucesivos buffers de la request con body en body  
 		_status = REQUEST_WITH_BODY;
-		if (_body_size > server_body_size)
-			{
-				set_validity(CONTENT_TOO_LARGE, "Payload Too Large");
-				return INVALID_REQUEST;
-			}
-		// guardar lo que pase del CRLFx2 en _body y calcular su longitud
+		// separar antes y después de CRLFx2
+		if (_req_accumulator.size() - 4 == _CRLFx2_index - 1) // el CRLFx2 justo coincide en el final del vector
+		{
+			_body.clear();
+		}
+		else if (_req_accumulator.size() - 4 > _CRLFx2_index - 1) //hay cosas después del CRLFx2
+		{
+			std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
+			_body = after_CRLFx2;
+		}
+		//verificar longitud de body
+		if (_body.size() == _body_size) // teóricamente completa, no se deberían recibir más partes de esta request
+		{
+			_status = FULL_COMPLETE_REQUEST; 
+			return FULL_COMPLETE_REQUEST;
+		}
+		if (_body.size() > _body_size) // el body es más largo que el indicado en el header
+		{
+			set_validity(BAD_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
+			return INVALID_REQUEST;
+		}
+		return REQUEST_WITH_BODY;
 	}
 	if (search_chunked_body() == true)
 	{
@@ -278,16 +294,19 @@ int	Request::manage_full_complete_request()
 
 bool Request::search_double_CRLF()
 {
-	if (_req_accumulator.size() < 4)
+	size_t request_len = _req_accumulator.size();
+	if (request_len < 4)
 	{
 		_status = INCOMPLETE_REQUEST;
 		return false;
 	}
 	
-	for (std::vector<char>::iterator it = _req_accumulator.begin(); it != _req_accumulator.end() - 3; ++it)
+	for (size_t i = 0; i < request_len - 3; i++)
 	{
-		if (*it == '\r' && *(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
+		if (_req_accumulator[i] == '\r' && _req_accumulator[i+1] == '\n'
+			 && _req_accumulator[i+2] == '\r' && _req_accumulator[i+3] == '\n')
 		{
+			_CRLFx2_index = i;
 			_status = HEADERS_RECEIVED;
 			return true;
 		}

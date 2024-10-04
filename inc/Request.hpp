@@ -48,6 +48,7 @@ private:
 	std::vector<std::string>	_lines;
 	int							_type;
 	int							_status;
+	size_t						_CRLFx2_index;
 	// std::string _request_str;  //solo lo conservo por si acaso, funciones que lo usan tb comentadas
 
 
