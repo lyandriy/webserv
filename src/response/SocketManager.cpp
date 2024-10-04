@@ -296,7 +296,6 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
                     pfds[i].events = POLLIN;//volver a escuchar con el socket (ver cuando se sierra la conexion con el cliente)
                     close_move_pfd(pfds, _pos_file_response);//cerrar el fd de archivo
                     requests[i].last_conection_time();
-                    ///ver si el archivo que le mando es un error que cierra la conexion
                 }
             }
         }
@@ -392,9 +391,5 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
 }
 
 /*
-falta enviar HEADER
-el socket del cliente se sierra cuando hay algun error o timeout. 
-Si hay un error se manda el archivo de error, 
-en el header se indica que se cierra la conexion con el socket.
 VER EL RFC!!!
 */
