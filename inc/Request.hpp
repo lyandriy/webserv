@@ -73,11 +73,11 @@ private:
 
 	bool search_double_CRLF();
 
-	int	manage_incomplete_request(int);
+	int	manage_incomplete_request(char *, int, int);
 	int	manage_headers_received(int);
-	int manage_request_with_body(int);
-	int manage_chunked_request();
-	int manage_full_complete_request();
+	int manage_request_with_body(char *, int, int);
+	int manage_chunked_request(char *, int, int);
+	int manage_full_complete_request(char *, int, int);
 
 	bool search_body_length_header();
 	bool search_chunked_body();

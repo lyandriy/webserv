@@ -135,19 +135,19 @@ int Request::join_request(char *buffer, int read_size)
 		return INVALID_REQUEST;
 		break;
 	case INCOMPLETE_REQUEST:
-		return manage_incomplete_request(server_body_size);
+		return manage_incomplete_request(buffer, read_size, server_body_size);
 		break;
 	case HEADERS_RECEIVED:
 		return manage_headers_received(server_body_size);
 		break;
 	case REQUEST_WITH_BODY:
-		return manage_request_with_body(server_body_size);
+		return manage_request_with_body(buffer, read_size, server_body_size);
 		break;
 	case CHUNKED_REQUEST:
-		return manage_chunked_request();
+		return manage_chunked_request(buffer, read_size, server_body_size);
 		break;
 	case FULL_COMPLETE_REQUEST:
-		return manage_full_complete_request();
+		return manage_full_complete_request(buffer, read_size, server_body_size);
 		break;
 	}
 	/* 
@@ -192,8 +192,9 @@ int Request::join_request(char *buffer, int read_size)
 	} */
 }
 
-int	Request::manage_incomplete_request(int server_body_size)
+int	Request::manage_incomplete_request(char *buffer, int read_size, int server_body_size)
 {
+	_req_accumulator.insert(_req_accumulator.end(), buffer, buffer + read_size);
 	if (search_double_CRLF() == false)
 		return INCOMPLETE_REQUEST;
 	else
@@ -251,14 +252,11 @@ int	Request::manage_headers_received(int server_body_size)
 		if (_body.size() == _body_size) // teóricamente completa, no se deberían recibir más partes de esta request
 		{
 			_status = FULL_COMPLETE_REQUEST; 
-			return FULL_COMPLETE_REQUEST;
 		}
 		if (_body.size() > _body_size) // el body es más largo que el indicado en el header
 		{
 			set_validity(BAD_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
-			return INVALID_REQUEST;
 		}
-		return REQUEST_WITH_BODY;
 	}
 	if (search_chunked_body() == true)
 	{
@@ -275,17 +273,28 @@ int	Request::manage_headers_received(int server_body_size)
 	return _status;
 }
 
-int	Request::manage_request_with_body(int server_body_size)
+int	Request::manage_request_with_body(char *buffer, int read_size, int server_body_size)
+{
+	//aquí ya ha sido procesado el header de Content-Length y extraído el valor del body size y posiblemente body tenga algún valor (o no si el último buffer coincidión con el CRLFx2)
+	_body.insert(_body.end(), buffer, buffer + read_size);
+	size_t body_len = _body.size();
+	if (body_len == _body_size)
+		_status = FULL_COMPLETE_REQUEST;
+	if (body_len > _body_size)
+	{
+		set_validity(INVALID_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
+		_status = INVALID_REQUEST;
+	}
+	//si body_len < _body_size no hay que hacer nada, el status sigue siendo el mismo y hay que seguir leyendo más request
+	return _status;
+}
+
+int	Request::manage_chunked_request(char *buffer, int read_size, int server_body_size)
 {
 	return INVALID_REQUEST;
 }
 
-int	Request::manage_chunked_request()
-{
-	return INVALID_REQUEST;
-}
-
-int	Request::manage_full_complete_request()
+int	Request::manage_full_complete_request(char *buffer, int read_size, int server_body_size)
 {
 	return INVALID_REQUEST;
 }
