@@ -221,7 +221,13 @@ bool Request::search_body_length_header()
 
 bool Request::search_chunked_body()
 {
-	return true;
+	std::map<std::string, std::string>::iterator it;
+	for(it = _headers.begin(); it != _headers.end(); it++)
+	{
+		if (it->first == "Transfer-Encoding" && it->second == "Chunked")
+			return true;
+	}
+	return false;
 }
 
 int	Request::manage_headers_received(std::vector<Server> &server)
@@ -275,7 +281,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	return _status;
 }
 
-int	Request::manage_request_with_body(char *buffer, int read_size, int server_body_size)
+int	Request::manage_request_with_body(char *buffer, int read_size)
 {
 	//aquí ya ha sido procesado el header de Content-Length y extraído el valor del body size y posiblemente body tenga algún valor (o no si el último buffer coincidión con el CRLFx2)
 	_body.insert(_body.end(), buffer, buffer + read_size);
@@ -291,15 +297,17 @@ int	Request::manage_request_with_body(char *buffer, int read_size, int server_bo
 	return _status;
 }
 
-int	Request::manage_chunked_request(char *buffer, int read_size, int server_body_size)
+int	Request::manage_chunked_request(char *buffer, int read_size)
 {
 	return INVALID_REQUEST;
 }
 
-int	Request::manage_full_complete_request(char *buffer, int read_size, int server_body_size)
+int	Request::manage_full_complete_request(char *buffer, int read_size)
 {
 	//set validity()
-	return INVALID_REQUEST;
+	set_validity(BAD_REQUEST, "The request is malformed");
+	_status = INVALID_REQUEST;
+	return _status;
 }
 
 
