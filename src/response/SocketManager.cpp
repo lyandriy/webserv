@@ -68,7 +68,7 @@ SocketManager::SocketManager(struct pollfd* pfds, std::vector<Server> &server)
     for (size_t i = 0; i < server.size(); ++i)//recorre los server
     {
         std::vector<struct sockaddr_in> addr_vect = server[i].getListen();
-        for (size_t a = 0; a < addr_vect.size(); ++a)// recorre los sockaddr_in (los puetros que tiene un servidor)
+        for (size_t a = 0; a < addr_vect.size(); ++a)// recorre los sockaddr_in (los puertos que tiene un servidor)
         {
             if (!connect_socket(pfds, addr_vect[a]))//si ha fallado algo al conectar el socket
                 std::cerr << "Error: Can't connect socket " << server[i].getServerName() << " to port." << std::endl;
@@ -135,17 +135,21 @@ void    SocketManager::acceptClient(struct pollfd* pfds, int ready)
 void    SocketManager::make_response(int client, struct pollfd* pfds, std::vector<Server> &server)
 {
     pfds[client].events = POLLOUT;//cambiamos en event de socket al POLLOUT, porque la request ya ha llegado entera y tenemos que responder al cliente
-    if (response.find(client) != response.end())//si existe la instancia de response
+    if (requests[client].get_current_status() != FULL_COMPLETE_ REQUEST)//cuando ha ocurrido un error con recv y no ha habbido una lectura previa
     {
-        requests[client].validity();//parsear la request
-        response[client] = requests[client].request_resolution(server);//parsear con los datos de conf de server, si hay algun error, va a crear una response de error
+        requests[client].set_error_code(BAD_REQUEST);
+        response[client] = Response(requests[client]);//crear la response de error
         pfds[sock_num].fd = response[client].open_file(sock_num);
         fd_file[client] = sock_num;
         sock_num++;
     }
     else
-    { 
-        response[client] = Response(requests[client]);//crear la response de error
+    {
+        if (requests[client].getLoc().getBodySize() == -1)
+            response[client] = Response(requests[client].getLoc(), requests[client]);//crear la response de error
+        else
+            response[client] = Response(requests[client].getServ(), requests[client]);
+        //response[client] = requests[client].request_resolution(server);//parsear con los datos de conf de server, si hay algun error, va a crear una response de error
         pfds[sock_num].fd = response[client].open_file(sock_num);
         fd_file[client] = sock_num;
         sock_num++;
@@ -154,7 +158,7 @@ void    SocketManager::make_response(int client, struct pollfd* pfds, std::vecto
 
 void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
-    if (!requests[client].join_request(*buffer, valread))//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
+    if (!requests[client].join_request(*buffer, valread, server))//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
     {
         pfds[client].events = POLLOUT;
         response[client] = Response(requests[client]);//crear la response de error

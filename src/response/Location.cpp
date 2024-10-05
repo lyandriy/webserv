@@ -7,6 +7,7 @@ Location::Location(){
     accept_method.del = -1;
     cgi = -1;
     autoindex = -1;
+    client_max_body_size = -1;
 }
 
 Location::~Location(){}
@@ -15,7 +16,9 @@ Location::Location(const Location &other)
 {
     *this = other;
 }
-
+/*
+HOLA LYUDMYLA <3
+*/
 Location &Location::operator=(const Location &other)
 {
     this->listen = other.listen;

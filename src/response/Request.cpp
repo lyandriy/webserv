@@ -75,7 +75,7 @@ Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host("")
 	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
 	// std::string aux(_request.begin(), _request.end());
 	// _request_str = aux;
-	read_request_lines();
+	read_request_lines();	
 	check_any_valid_line();
 	extract_request_line();
 	check_request_line();
@@ -395,81 +395,7 @@ bool Request::check_and_set_params(std::vector<std::string> params_unchecked)
 }
 
 
-// ---------------------------------------------------//
 
-Location    Request::compareUri(const std::vector<Location> &location, const std::string &uri)
-{
-    std::string uri_location;
-    std::size_t found;
-
-    for (int i = 0; i < location.size(); i++)
-    {
-        uri_location = location[i].getUri();
-        found = uri.find(location[i].getUri());
-        if (found == 0)
-            return (location[i]);
-    }
-    return Location();
-}
-
-bool    Request::compareListen(std::vector<struct sockaddr_in> listen, int port)
-{
-    if (!listen.empty())
-    {
-        for (int i = 0; i < listen.size(); i++)
-        {
-            if (ntohs(listen[i].sin_port) == port)
-                return (true);
-        }
-    }
-    return (false);
-}
-
-bool     Request::compareRequest(Server &server)
-{
-    if (this->_method == "GET" && server.getAcceptMethod().get == 0)
-            return (false);
-    if (this->_method == "POST" && server.getAcceptMethod().post == 0)
-            return (false);
-    if (this->_method == "DELETE" && server.getAcceptMethod().del == 0)
-            return (false);
-    if (!compareListen(server.getListen(), this->_port))
-        return (false);
-    return (true);
-}
-
-Response    Request::request_resolution(std::vector<Server> &server)
-{
-    std::vector<Server>::iterator it_serv;
-    Location    location;
-
-	if (this->_error_code)
-		return (Response(*this));
-    for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)
-    {
-        if (this->_host == it_serv->getServerName())
-            break;
-    }
-    if (it_serv != server.end())
-    {
-        if (compareRequest(*it_serv))
-        {
-            location = compareUri(it_serv->getLocation(), this->_uri);
-            if (location.getAcceptMethod().get == -1)
-                return (Response(location, *this));
-            else
-                return (Response(*it_serv, *this));
-        }
-    }
-    return (Response(*this));
-}
-
-void	Request::last_conection_time()
-{
-	conecction_time = time(NULL);
-}
-
-// -----------------------------------------------------//
 
 /* void Request::read_request_lines(std::vector<char> &request)
 {
@@ -587,11 +513,6 @@ int Request::get_current_status()
 	return _status;
 }
 
-time_t	Request::get_time()
-{
-	return (conecction_time);
-}
-
 // --------------------  SETTERS  -------------------- //
 bool Request::set_validity(int error_code)
 {
@@ -607,10 +528,7 @@ bool Request::set_validity(int error_code, std::string help_message)
 	return _valid;
 }
 
-void	Request::set_error_code(int error_code)
-{
-	this->_error_code = error_code;
-}
+
 
 // --------------------  DEBUG  -------------------- //
 
@@ -693,4 +611,116 @@ void Request::manage_request_with_body()
 {
 	std::cout << "Request con body" << std::endl;
 }
-//void Request::manage_request_chunked()
+void Request::manage_request_chunked()
+{
+	std::cout << "Request chunked" << std::endl;
+}
+
+
+//añadidas por Lyudmyla
+//va despues de recibir el header (listen es siempre de server)
+bool    Request::compareListen(std::vector<struct sockaddr_in> listen, int port)
+{
+    if (!listen.empty())
+    {
+        for (int i = 0; i < listen.size(); i++)
+        {
+            if (ntohs(listen[i].sin_port) == port)
+                return (true);
+        }
+    }
+    return (false);
+}
+
+Location    Request::compareUri(const std::vector<Location> &location, const std::string &uri)
+{
+    std::string uri_location;
+    std::size_t found;
+
+    for (int i = 0; i < location.size(); i++)
+    {
+        uri_location = location[i].getUri();
+        found = uri.find(location[i].getUri());
+        if (found == 0)
+            return (location[i]);
+    }
+    return Location();
+}
+
+bool     Request::compareMethod(Server &server)
+{
+    if (this->_method == "GET" && server.getAcceptMethod().get == 0)
+            return (false);
+    if (this->_method == "POST" && server.getAcceptMethod().post == 0)
+            return (false);
+    if (this->_method == "DELETE" && server.getAcceptMethod().del == 0)
+            return (false);
+    return (true);
+}
+//esta funcion va despues de parsear la request line
+int    Request::check_request_line(std::vector<Server> &server)
+{
+	std::vector<Server>::iterator it_serv;
+	conf_loc = Location();
+
+	for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)//buscar si hay configuracion para este server name
+    {
+        if (this->_host == it_serv->getServerName())
+            break;
+    }
+	if (it_serv != server.end())///si hay este server name
+	{
+		if (compareMethod(*it_serv))//comprobar em metodo y si el puerto por el que habla el cliente y el puerto de conf coinciden
+        {
+			if (!it_serv->getLocation().empty())//si el server no tiene location comprobamos la uri con root
+				conf_loc = compareUri(it_serv->getLocation(), this->_uri);//buscamos si hay uri que esta pidiendo el cliente
+			if (conf_loc.getBodySize() == -1)//no existe la location
+			{
+				if (this->_uri.find(it_serv->getRoot()) != 0)
+				{
+					this->client_max_body_size = it_serv->getBodySize();
+					conf_serv = *it_serv;
+					return (1);
+				}
+			}
+			else
+			{
+				this->client_max_body_size = conf_loc.getBodySize();
+				conf_serv = *it_serv;
+				return (1);
+			}
+		}
+    }
+	this->_error_code = NOT_FOUND;
+	return (0);
+}
+
+void  Request::last_conection_time()
+{
+      conecction_time = time(NULL);
+}
+
+time_t        Request::get_time()
+{
+      return (conecction_time);
+}
+
+void  Request::set_error_code(int error_code)
+{
+      this->_error_code = error_code;
+}
+
+void Request::manage_request_chunked()
+{
+      std::cout << "Request chunked" << std::endl;
+}
+
+Location	Request::getLoc() const
+{
+	return (this->conf_loc);
+}
+
+Server	Request::getServ() const
+{
+	return (this->conf_serv);
+}

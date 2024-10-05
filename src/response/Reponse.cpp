@@ -8,7 +8,7 @@ Response::Response(const Response &other){
     *this = other;
 }
 
-Response::Response(Location &location, Request &request){
+Response::Response(const Location &location, Request &request){
     this->root = location.getRoot();
     this->index = location.getIndex();
     this->redirection = location.getRedirection();
@@ -29,7 +29,7 @@ Response::Response(Location &location, Request &request){
     this->_pos_file_response = -1;
 }
 
-Response::Response(Server &server, Request &request){
+Response::Response(const Server &server, Request &request){
     this->root = server.getRoot();
     this->index = server.getIndex();
     this->redirection = server.getRedirection();

@@ -30,8 +30,8 @@ class Response
         ~Response();
         Response &operator=(const Response &);
         Response(const Response &);
-        Response(Location &, Request &);
-        Response(Server &, Request &);
+        Response(const Location &, Request &);
+        Response(const Server &, Request &);
         Response(Request &);
 
 
