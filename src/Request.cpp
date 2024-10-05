@@ -125,9 +125,9 @@ Request::~Request()
 {}
 
 
-int Request::join_request(char *buffer, int read_size)
+int Request::join_request(char *buffer, int read_size, std::vector<Server> &server)
 {
-	int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
+	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
 	
 	switch (_status)
 	{
@@ -135,19 +135,19 @@ int Request::join_request(char *buffer, int read_size)
 		return INVALID_REQUEST;
 		break;
 	case INCOMPLETE_REQUEST:
-		return manage_incomplete_request(buffer, read_size, server_body_size);
+		return manage_incomplete_request(buffer, read_size, server);
 		break;
 	case HEADERS_RECEIVED:
-		return manage_headers_received(server_body_size);
+		return manage_headers_received(server);
 		break;
 	case REQUEST_WITH_BODY:
-		return manage_request_with_body(buffer, read_size, server_body_size);
+		return manage_request_with_body(buffer, read_size);
 		break;
 	case CHUNKED_REQUEST:
-		return manage_chunked_request(buffer, read_size, server_body_size);
+		return manage_chunked_request(buffer, read_size);
 		break;
 	case FULL_COMPLETE_REQUEST:
-		return manage_full_complete_request(buffer, read_size, server_body_size);
+		return manage_full_complete_request(buffer, read_size);
 		break;
 	}
 	/* 
@@ -192,7 +192,7 @@ int Request::join_request(char *buffer, int read_size)
 	} */
 }
 
-int	Request::manage_incomplete_request(char *buffer, int read_size, int server_body_size)
+int	Request::manage_incomplete_request(char *buffer, int read_size, std::vector<Server> &server)
 {
 	_req_accumulator.insert(_req_accumulator.end(), buffer, buffer + read_size);
 	if (search_double_CRLF() == false)
@@ -200,7 +200,7 @@ int	Request::manage_incomplete_request(char *buffer, int read_size, int server_b
 	else
 	{
 		_status = HEADERS_RECEIVED;
-		return (manage_headers_received(server_body_size));
+		return (manage_headers_received(server));
 	}
 }
 
@@ -224,12 +224,14 @@ bool Request::search_chunked_body()
 	return true;
 }
 
-int	Request::manage_headers_received(int server_body_size)
+int	Request::manage_headers_received(std::vector<Server> &server)
 {
 	read_request_lines();
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
 	extract_request_line();
+		// función Lyudmyla
+	check_request_line(server);
 	if (check_request_line() == false)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
@@ -296,6 +298,7 @@ int	Request::manage_chunked_request(char *buffer, int read_size, int server_body
 
 int	Request::manage_full_complete_request(char *buffer, int read_size, int server_body_size)
 {
+	//set validity()
 	return INVALID_REQUEST;
 }
 

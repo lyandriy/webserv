@@ -94,7 +94,7 @@ public:
 	~Request();
 
 	int join_request(char *buffer);
-	int join_request(char *buffer, int read_size);
+	int join_request(char *buffer, int read_size, std::vector<Server> &server);
 
 
 	//  -----   SETTERS   -----  //
