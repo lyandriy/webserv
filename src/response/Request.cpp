@@ -670,6 +670,11 @@ int    Request::check_request_line(std::vector<Server> &server)
     }
 	if (it_serv != server.end())///si hay este server name
 	{
+		if (!compareListen(it_serv->getListen(), this->_port))
+		{
+			this->_error_code = NOT_FOUND;
+        	return (0);
+		}
 		if (compareMethod(*it_serv))//comprobar em metodo y si el puerto por el que habla el cliente y el puerto de conf coinciden
         {
 			if (!it_serv->getLocation().empty())//si el server no tiene location comprobamos la uri con root
