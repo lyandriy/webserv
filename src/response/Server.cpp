@@ -83,13 +83,12 @@ void    Server::setRedirection(std::vector<std::string> &words)
 
 void    Server::setErrorPage(std::vector<std::string> &words)
 {
-    int a = 1;
     std::string str_number;
     int int_number;
 
-    for (a = 1; a < (words.size() - 1); a++)
+    for (size_t a = 1; a < (words.size() - 1); a++)
     {
-        for (int i = 0; (isdigit(words[a][i]) && i < words[a].size()); i++)
+        for (size_t i = 0; (isdigit(words[a][i]) && i < words[a].size()); i++)
             str_number += words[a][i];
         int_number = atoi(str_number.c_str());
         str_number.clear();
@@ -100,8 +99,8 @@ void    Server::setErrorPage(std::vector<std::string> &words)
 void    Server::setBodySize(std::vector<std::string> &words)
 {
     std::string str_number;
-    unsigned long long int  int_number;
-    int i = 0;
+    int  int_number;
+    size_t i = 0;
 
     while (isdigit(words[1][i]) && i < words[1].size())
     {
@@ -233,7 +232,7 @@ std::map<int, std::string>    Server::getErrorPage() const
     return(this->error_page);
 }
 
-unsigned long long int    Server::getBodySize() const
+int    Server::getBodySize() const
 {
     return(this->client_max_body_size);
 }

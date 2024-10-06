@@ -6,10 +6,18 @@
 # define DEFAULT_HTTP_PORT 80
 # define DEFAULT_HTTPS_PORT 443
 
-# define INCOMPLETE_REQUEST 0
-# define COMPLETE_REQUEST 1
-# define REQUEST_WITH_BODY 2
-# define CHUNKED_REQUEST 3
+
+// --- STATUS --- //
+# define INVALID_REQUEST  0
+# define INCOMPLETE_REQUEST 1
+# define HEADERS_RECEIVED 2
+# define REQUEST_WITH_BODY 3
+# define CHUNKED_REQUEST 4
+# define FULL_COMPLETE_REQUEST 5
+
+# define BODY_SIZE_BIGGER_THAN_SERVER_SUPPORTED 0
+
+# define DOUBLE_CRLF "\r\n\r\n"
 
 class Server;
 class Location;
@@ -20,18 +28,21 @@ private:
 	// Importantes //
 	int					_fd_socket;
 	int					_pos_socket;
-	std::vector<char>	_req_uccumulator;
+	std::vector<char>	_req_accumulator;
 	std::string 		_method;
 	std::string 		_uri;
 	std::string 		_protocol;
-	std::string 		_host;			// server_name???
-	int					_port;			// unsigned int?///puerdo de request line
+	std::string 		_host;			
+	int					_port;			// unsigned int?//puerdo de request line
 	std::vector<char>	_body;
 	std::string			_help_message;
-	bool 				_valid;
-	int 				_error_code;
+	bool				_valid;
+	int					_error_code;
 	std::map<std::string, std::string> _headers;//esta aqui el puerto de header
 	std::map<std::string, std::string> _params;
+
+	// Solo para request con body //
+	int					_body_size;//del header
 
 	// Auxiliares //
 	std::vector<char> 			_request;
@@ -40,13 +51,15 @@ private:
 	std::vector<std::string>	_lines;
 	int							_type;
 	int							_status;
-	time_t						conecction_time;
+	size_t						_CRLFx2_index;
 	// std::string _request_str;  //solo lo conservo por si acaso, funciones que lo usan tb comentadas
 
 	//añadidas por Lyudmyla
 	Server	conf_serv;
 	Location	conf_loc;
-	unsigned long long int  client_max_body_size;
+	int  server_body_size;
+	time_t						conecction_time;
+
 
 	void read_request_lines();
 	bool check_any_valid_line();
@@ -67,10 +80,16 @@ private:
 	void split_params(std::string &params_raw);
 	bool check_and_set_params(std::vector<std::string> params_unchecked);
 
-	void manage_complete_request();
-	void manage_request_with_body();
-	void manage_request_chunked();
+	bool search_double_CRLF();
 
+	int	manage_incomplete_request(char *, int, std::vector<Server> &);
+	int	manage_headers_received(std::vector<Server> &);
+	int manage_request_with_body(char *, int);
+	int manage_chunked_request(char *, int);
+	int manage_full_complete_request(char *, int);
+
+	bool search_body_length_header();
+	bool search_chunked_body();
 
 public:
 	bool debug;
@@ -82,6 +101,10 @@ public:
 	Request(Request const &copy);
 	Request & operator=(Request const & rhs);
 	~Request();
+
+	int join_request(char *buffer);
+	int join_request(char *buffer, int read_size, std::vector<Server> &server);
+
 
 	//  -----   SETTERS   -----  //
 	bool set_validity(int error_code);
@@ -104,7 +127,23 @@ public:
 	std::map<std::string, std::string> get_headers();
 	std::map<std::string, std::string> get_params();
 	int get_current_status();
-	time_t	get_time();
+
+
+	// Location    compareUri(const std::vector<Location> &, const std::string &);
+	// bool		compareListen(std::vector<struct sockaddr_in> , int);
+	// bool		compareRequest(Server &);
+	// Response	request_resolution(std::vector<Server> &);
+
+	//añadidas por Lyudmyla
+	int    check_request_line(std::vector<Server> &);//!!!
+	Location    compareUri(const std::vector<Location> &);
+	bool		compareListen(std::vector<struct sockaddr_in>);//!!!
+	bool		compareMethod(Server &);
+	void	last_conection_time();
+	void	set_error_code(int);
+	Location	getLoc() const;
+	Server	getServ() const;
+
 
 	// Para debug //
 	void check_lines(std::vector<std::string> lines);
@@ -112,18 +151,7 @@ public:
 	void find_CRLF(const std::vector<char> &request);
 	void check_vector(const std::vector<char> &request);
 	void print_request_complete_info();
-
-	//añadidas por Lyudmyla
-	int    check_request_line(std::vector<Server> &);//!!!
-	Location    compareUri(const std::vector<Location> &, const std::string &);
-	bool		compareListen(std::vector<struct sockaddr_in> , int);//!!!
-	bool		compareMethod(Server &);
-	void	last_conection_time();
-	void	set_error_code(int);
-	Location	getLoc() const;
-	Server	getServ() const;
+	time_t	get_time();
+	void print_full_info();
 };
 
-void manage_complete_request(std::vector<char>request_accumulator);
-void manage_request_with_body(std::vector<char>request_accumulator);
-void manage_request_chunked(std::vector<char>request_accumulator);

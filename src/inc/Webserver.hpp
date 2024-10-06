@@ -30,14 +30,13 @@
 
 #include <iomanip>
 
-
+# include "httpMethods.hpp"
+# include "Location.hpp"
+# include "Server.hpp"
 # include "Request.hpp"
 # include "Response.hpp"
+# include "SocketManager.hpp"
 # include "Parser.hpp"
 # include "Error.hpp"
-# include "httpMethods.hpp"
-# include "Server.hpp"
-# include "Location.hpp"
-# include "SocketManager.hpp"
 
 # endif

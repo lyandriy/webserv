@@ -27,6 +27,10 @@ Response::Response(const Location &location, Request &request){
     this->help_message = request.get_help_message();
     this->headers = request.get_headers();
     this->_pos_file_response = -1;
+    if (request.get_headers().find("Connection") == request.get_headers().end())
+        this->connection_val = "keep-alive";
+    else
+        this->connection_val = request.get_headers()["Connection"];
 }
 
 Response::Response(const Server &server, Request &request){
@@ -48,6 +52,10 @@ Response::Response(const Server &server, Request &request){
     this->help_message = request.get_help_message();
     this->headers = request.get_headers();
     this->_pos_file_response = -1;
+    if (request.get_headers().find("Connection") == request.get_headers().end())
+        this->connection_val = "keep-alive";
+    else
+        this->connection_val = request.get_headers()["Connection"];
 }
 
 Response::Response(Request &request)
@@ -58,17 +66,29 @@ Response::Response(Request &request)
     this->help_message = request.get_help_message();
     if (request.get_error_code() == BAD_REQUEST)
         this->root = ROOT_BAD_REQUEST;
+    else if (request.get_error_code() == FORBIDEN)
+        this->root = ROOT_FORBIDEN;
+    else if (request.get_error_code() == NOT_FOUND)
+        this->root = ROOT_NOT_FOUND;
     else if (request.get_error_code() == METHOD_NOT_ALLOWED)
         this->root = ROOT_METHOD_NOT_ALLOWED;
+    else if (request.get_error_code() == REQUEST_TIMEOUT)
+        this->root = ROOT_REQUEST_TIMEOUT;
     else if (request.get_error_code() == CONTENT_TOO_LARGE)
         this->root = ROOT_CONTENT_TOO_LARGE;
     else if (request.get_error_code() == URI_TOO_LONG)
         this->root = ROOT_URI_TOO_LONG;
+    else if (request.get_error_code() == INTERNAL_SERVER_ERROR)
+        this->root = ROOT_INTERNAL_SERVER_ERROR;
     else if (request.get_error_code() == SERVICE_UNAVAIBLE)
         this->root = ROOT_SERVICE_UNAVAIBLE;
     else if (request.get_error_code() == HTTP_VERSION_NOT_SUPPORTED)
         this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
     this->_pos_file_response = -1;
+    if (request.get_headers().find("Connection") == request.get_headers().end())
+        this->connection_val = "keep-alive";
+    else
+        this->connection_val = request.get_headers()["Connection"];
 }
 
 Response &Response::operator=(const Response &other){
@@ -89,6 +109,8 @@ Response &Response::operator=(const Response &other){
     this->_fd_socket = other._fd_socket;
     this->_pos_socket = other._pos_socket;
     this->_pos_file_response = other._pos_file_response;
+    this->fileStat = other.fileStat;
+    this->connection_val = other.connection_val;
     return *this;
 }
 
@@ -182,6 +204,11 @@ struct stat Response::get_fileStat() const
     return (this->fileStat);
 }
 
+std::string Response::getConnectionVal() const
+{
+    return (this->connection_val);
+}
+
 void Response::setListen(struct sockaddr_in listen)
 {
     this->listen = listen;
@@ -252,6 +279,11 @@ void Response::setHeaders(std::map<std::string, std::string> headers)
     this->headers = headers;
 }
 
+void Response::setConnectionVal(std::string connection_val)
+{
+    this->connection_val = connection_val;
+}
+
 void    Response::err(int error, std::string root_error)
 {
     error_code = error;
@@ -273,8 +305,69 @@ int Response::open_file(int pos_file_response)
             err(FORBIDEN, ROOT_FORBIDEN);
         if (stat(root.c_str(), &fileStat) == -1)
             err(NOT_FOUND, ROOT_NOT_FOUND);
-        else if  ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
+        else if  ((fd_file = open(root.c_str(), O_RDONLY)) == -1)    
             err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
     }
     return (fd_file);
+}
+
+//*********************** PRINT RESPONSE ************************//
+
+void Response::print_full_info() {
+    std::cout << "-------- Response Info --------" << std::endl;
+
+    // Información básica
+    struct sockaddr_in listen_info = getListen();
+    std::cout << "Listen (Port): " << ntohs(listen_info.sin_port) << std::endl;
+    std::cout << "Host (Server Name): " << getHost() << std::endl;
+    std::cout << "Root Directory: " << getRoot() << std::endl;
+    std::cout << "URI: " << getURI() << std::endl;
+
+    // Redirección
+    std::pair<int, std::string> redirection_info = getRedirection();
+    std::cout << "Redirection Code: " << redirection_info.first << std::endl;
+    std::cout << "Redirection URI: " << redirection_info.second << std::endl;
+
+    // Otras configuraciones
+    std::cout << "Index File: " << getIndex() << std::endl;
+    std::cout << "Autoindex: " << (getAutoindex() ? "Enabled" : "Disabled") << std::endl;
+    std::cout << "Accepted Method: " << getAcceptMethod() << std::endl;
+
+    // Páginas de error
+    std::cout << "Error Pages: " << std::endl;
+    std::map<int, std::string> error_pages = getErrorPage();
+    std::map<int, std::string>::const_iterator it;
+    for (it = error_pages.begin(); it != error_pages.end(); ++it) {
+        std::cout << "  Error " << it->first << ": " << it->second << std::endl;
+    }
+
+    // Estado del CGI
+    std::cout << "CGI Enabled: " << (getCGI() ? "true" : "false") << std::endl;
+
+    // Protocolo y mensajes
+    std::cout << "Protocol: " << getProtocol() << std::endl;
+    std::cout << "Help Message: " << getHelpMessage() << std::endl;
+
+    // Headers
+    std::cout << "Headers: " << std::endl;
+    std::map<std::string, std::string> headers = getHeaders();
+    std::map<std::string, std::string>::const_iterator headers_it;
+    for (headers_it = headers.begin(); headers_it != headers.end(); ++headers_it) {
+        std::cout << "  " << headers_it->first << ": " << headers_it->second << std::endl;
+    }
+
+    // Información del socket
+    std::cout << "File Descriptor (Socket FD): " << get_fd_socket() << std::endl;
+    std::cout << "Socket Position: " << get_pos_socket() << std::endl;
+    std::cout << "File Response Position: " << get_pos_file_response() << std::endl;
+
+    // Información del archivo
+    struct stat file_stat = get_fileStat();
+    std::cout << "File Size: " << file_stat.st_size << std::endl;
+    std::cout << "Last Modified: " << ctime(&file_stat.st_mtime); // Convierte time_t a formato legible
+
+    // Valor de conexión
+    std::cout << "Connection Value: " << getConnectionVal() << std::endl;
+
+    std::cout << "--------------------------------" << std::endl;
 }

@@ -22,18 +22,17 @@ class SocketManager
 
         int     getSockNum() const;
 
-        void    acceptClient(struct pollfd*, int);
+        void    acceptClient(struct pollfd*);
         void    recvRequest(struct pollfd*, std::vector<Server> &);
         void    sendResponse(struct pollfd*);
 
-        int     find_free_pos_socket(struct pollfd*, int);
         int     free_pfds_fd(struct pollfd*, std::map<int, Response> &, int);
         int     connect_socket(struct pollfd*, struct sockaddr_in &);
         void    make_response(int, struct pollfd*, std::vector<Server> &);
         void    check_join(int, struct pollfd*, std::vector<Server> &, char *, int);
         void    close_move_pfd(struct pollfd*, int);
         void    sendErrorResponse(struct pollfd*, int, int);
-        std::string make_response_str(std::string, int);
+        std::string make_response_str(std::string, int, std::string);
 };
 
 # endif

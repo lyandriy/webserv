@@ -15,7 +15,7 @@ class Server
         httpMethods accept_method;                   //get
         std::pair<int, std::string> redirection;     //no es obligatorio
         std::map<int, std::string>  error_page;      //obligatorio
-        unsigned long long int  client_max_body_size;//0
+        int  client_max_body_size;//0
         int    autoindex;                           //bool off
         int    cgi;                                 //bool off
         std::vector<Location>  location;            //no es obligatorio
@@ -50,7 +50,7 @@ class Server
         httpMethods    getAcceptMethod() const;
         std::pair<int, std::string>    getRedirection() const;
         std::map<int, std::string>    getErrorPage() const;
-        unsigned long long int    getBodySize() const;
+        int    getBodySize() const;
         int    getAutoindex() const;
         int    getCGI() const;
         std::string     getUri(int) const;

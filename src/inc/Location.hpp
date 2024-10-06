@@ -15,7 +15,7 @@ class Location
         httpMethods accept_method;
         std::pair<int, std::string> redirection;
         std::map<int, std::string>  error_page;
-        unsigned long long int  client_max_body_size;
+        int  client_max_body_size;
         int    autoindex;
         int    cgi;
         std::string locationUri;   
@@ -44,7 +44,7 @@ class Location
         httpMethods getAcceptMethod() const;
         std::pair<int, std::string> getRedirection() const;
         std::map<int, std::string>  getErrorPage() const;
-        unsigned long long int  getBodySize() const;
+        int  getBodySize() const;
         int    getAutoindex() const;
         int    getCGI() const;
         std::string getUri() const;

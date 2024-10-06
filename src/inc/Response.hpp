@@ -3,6 +3,8 @@
 #define RESPONSE_HPP
 #include "Webserver.hpp"
 
+class Request;
+
 class Response
 {
     private:
@@ -25,6 +27,7 @@ class Response
 	    int _pos_socket;//posicion del socket en pfds
         int _pos_file_response;//posicion del archivo que se va a responder en pfds
         struct stat fileStat;//informacion sobre el archivo
+        std::string connection_val;
     public:
         Response();
         ~Response();
@@ -53,6 +56,7 @@ class Response
         int get_pos_socket() const;
         int get_pos_file_response() const;
         struct stat get_fileStat() const;
+        std::string    getConnectionVal() const;
 
         void setListen(struct sockaddr_in);
         void setHost(std::string);
@@ -68,9 +72,13 @@ class Response
         void setProtocol(std::string);
         void setHelpMessage(std::string);
         void setHeaders(std::map<std::string, std::string>);
+        void setConnectionVal(std::string);
 
         int     open_file(int);
         void    err(int, std::string);
+
+
+        void print_full_info();
 };
 
 #endif

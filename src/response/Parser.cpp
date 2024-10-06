@@ -52,7 +52,7 @@ int    Parser::listen(){
 }
 
 int    Parser::server_name(){
-    for (int i = 0; i < words[1].size(); i++)
+    for (size_t i = 0; i < words[1].size(); i++)
     {
         if (!std::isalnum(words[1][i]) && words[1][i] != '.' && words[1][i] != '-')
             throw std::runtime_error("server name is invalid.");
@@ -79,7 +79,7 @@ int    Parser::redirection(){
 
 bool    Parser::valid_path(std::string word)
 {
-    for (int i = 0; i < word.size(); i++)
+    for (size_t i = 0; i < word.size(); i++)
     {
         if (!(std::isalnum(word[i]) || word[i] == '/' 
             || word[i] == '-' || word[i] == '_' || word[i] == '.'))
@@ -89,7 +89,7 @@ bool    Parser::valid_path(std::string word)
 }
 
 int    Parser::index(){
-    for (int i = 0; i < words[1].size(); i++)
+    for (size_t i = 0; i < words[1].size(); i++)
     {
         if (!isprint(words[1][i]) || words[1][i] == '/' || words[1][i] == '*' || words[1][i] == '$')
             throw std::runtime_error("index is invalid.");
@@ -98,7 +98,7 @@ int    Parser::index(){
 }
 
 int    Parser::accept_method(){
-    for (int i = 1; i < words.size(); i++)
+    for (size_t i = 1; i < words.size(); i++)
     {
         if (words[i] != "GET" && words[i] != "POST" && words[i] != "DELETE")
             throw std::runtime_error("accept method is invalid.");
@@ -127,7 +127,7 @@ int Parser::is_number(std::string word)
 {
     std::string str_number;
 
-    for (int i = 0; i < word.size(); i++)
+    for (size_t i = 0; i < word.size(); i++)
     {
         if (isdigit(word[i]))
             str_number += word[i];
@@ -140,9 +140,9 @@ int Parser::is_number(std::string word)
     return (1);
 }
 
-int    Parser::error_page(){
-    int a = 1;
-    
+int    Parser::error_page()
+{
+    size_t a = 1;
     
     if (words.size() >= 3)
     {
@@ -153,7 +153,7 @@ int    Parser::error_page(){
         }
         if (a == (words.size() - 1))
         {
-            for (int i = 0; i < words[a].size(); i++)
+            for (size_t i = 0; i < words[a].size(); i++)
             {
                 if (!isprint(words[a][i]) || words[a][i] == '*' || words[a][i] == '$')
                     throw std::runtime_error("error page is invalid.");
@@ -164,10 +164,10 @@ int    Parser::error_page(){
     throw std::runtime_error("error page is invalid.");
 }
 
-int    Parser::client_max_body_size(){
+int    Parser::client_max_body_size()
+{
     std::string str_number;
-    unsigned long long int  int_number;
-    int i = 0;
+    size_t i = 0;
 
     while (isdigit(words[1][i]) && i < words[1].size())
     {
@@ -350,7 +350,7 @@ std::vector<Server> Parser::conf_file()
         else
             throw std::runtime_error("Error file.");
     }
-    for (int i = 0; i < server_size; i++)
-        this->server[i].printValuesServer();
+    //for (int i = 0; i < server_size; i++)
+    //    this->server[i].printValuesServer();
     return (server);
 }
