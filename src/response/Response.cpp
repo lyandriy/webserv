@@ -64,6 +64,13 @@ Response::Response(Request &request)
     this->listen.sin_port = htons(request.get_port());
     this->listen.sin_addr.s_addr = INADDR_ANY;
     this->help_message = request.get_help_message();
+    this->error_code = request.get_error_code();
+    this->uri = request.get_uri();
+    this->protocol = request.get_protocol();
+    this->host = request.get_host();
+    this->help_message = request.get_help_message();
+    this->headers = request.get_headers();
+    this->_pos_file_response = -1;
     if (request.get_error_code() == BAD_REQUEST)
         this->root = ROOT_BAD_REQUEST;
     else if (request.get_error_code() == FORBIDEN)
@@ -85,10 +92,17 @@ Response::Response(Request &request)
     else if (request.get_error_code() == HTTP_VERSION_NOT_SUPPORTED)
         this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
     this->_pos_file_response = -1;
+    std::cout << "\033[33m" << "keep-alive" <<  "\033[0m" << std::endl;
     if (request.get_headers().find("Connection") == request.get_headers().end())
+    {
+        std::cout << "\033[33m" << "Skeep-alive" <<  "\033[0m" << std::endl;
         this->connection_val = "keep-alive";
+    }
     else
+    {
+        //std::cout << "\033[33m" << request.get_headers()["Connection"] <<  "\033[0m" << std::endl;
         this->connection_val = request.get_headers()["Connection"];
+    }
 }
 
 Response &Response::operator=(const Response &other){

@@ -33,6 +33,7 @@ class SocketManager
         void    close_move_pfd(struct pollfd*, int);
         void    sendErrorResponse(struct pollfd*, int, int);
         std::string make_response_str(std::string, int, std::string);
+        int is_file(int);
 };
 
 # endif
