@@ -12,7 +12,7 @@ class Response
         std::string host;//es el server_name
         std::string root;//la ruta donde estan los archivos
         std::string uri;//lo que va despues de server_name(host), se una el root y uri y se busca alli
-        std::pair<int, std::string> redirection;//redirecciona una ruta a otra
+        std::string redirection;//redirecciona una ruta a otra
         std::string index;//de envia este archivo en caso si indican solo la ruta sin el archivo
         bool    autoindex;//en caso que no esta indes, se manda el listado de archivos en la ruta
         std::string accept_method;//mettodo get, post, delete
@@ -42,7 +42,7 @@ class Response
         std::string getHost() const;
         std::string getRoot() const;
         std::string getURI() const;
-        std::pair<int, std::string> getRedirection() const;
+        std::string getRedirection() const;
         std::string getIndex() const;
         bool getAutoindex() const;
         std::string getAcceptMethod() const;
@@ -62,7 +62,7 @@ class Response
         void setHost(std::string);
         void setRoot(std::string);
         void setURI(std::string);
-        void setRedirection(std::pair<int, std::string>);
+        void setRedirection(std::string);
         void setIndex(std::string);
         void setAutoindex(bool);
         void setAcceptMethod(std::string);

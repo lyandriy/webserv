@@ -103,7 +103,7 @@ Request::~Request()
 
 int Request::join_request(char *buffer, int read_size, std::vector<Server> &server)
 {
-	std::ofstream outfile("request.html");
+	/*std::ofstream outfile("request.html");
     if (!outfile.is_open()) {
         std::cerr << "Error opening file for writing." << std::endl;
         return INVALID_REQUEST; // Return an error if the file cannot be opened
@@ -128,7 +128,7 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
     }
 
     // Close the file after writing
-    outfile.close();
+    outfile.close();*/
 	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
 	switch (_status)
 	{

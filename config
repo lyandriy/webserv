@@ -6,3 +6,12 @@ server
     accept_method GET;
 
 }
+
+server
+{
+    listen 8081;
+    server_name example.com;
+    root html/test;
+    accept_method GET;
+
+}

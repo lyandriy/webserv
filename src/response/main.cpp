@@ -24,7 +24,6 @@ int main(int argc, char **argv)
     int ready;
     std::vector<Server> server;
     server = recv_conf(argc, argv);//recibe conf de servidres
-    
     struct pollfd* pfds = new pollfd[BACKLOG];
     SocketManager   socketManager = SocketManager(pfds, server);//abre los socket para cada puerto
 

@@ -92,17 +92,10 @@ Response::Response(Request &request)
     else if (request.get_error_code() == HTTP_VERSION_NOT_SUPPORTED)
         this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
     this->_pos_file_response = -1;
-    std::cout << "\033[33m" << "keep-alive" <<  "\033[0m" << std::endl;
     if (request.get_headers().find("Connection") == request.get_headers().end())
-    {
-        std::cout << "\033[33m" << "Skeep-alive" <<  "\033[0m" << std::endl;
         this->connection_val = "keep-alive";
-    }
     else
-    {
-        //std::cout << "\033[33m" << request.get_headers()["Connection"] <<  "\033[0m" << std::endl;
         this->connection_val = request.get_headers()["Connection"];
-    }
 }
 
 Response &Response::operator=(const Response &other){
@@ -148,7 +141,7 @@ std::string Response::getURI() const
     return (this->uri);
 }
 
-std::pair<int, std::string> Response::getRedirection() const
+std::string Response::getRedirection() const
 {
     return (this->redirection);
 }
@@ -243,7 +236,7 @@ void Response::setURI(std::string uri)
     this->uri = uri;
 }
 
-void Response::setRedirection(std::pair<int, std::string> redirection)
+void Response::setRedirection(std::string redirection)
 {
     this->redirection = redirection;
 }
@@ -309,19 +302,18 @@ int Response::open_file(int pos_file_response)
     int fd_file = -1;
 
     _pos_file_response = pos_file_response;
-    if (!redirection.second.empty() && !error_code)//si existe redireccion y no hay ningun error
-        root = redirection.second;
-    else
-    {
-        if (access(root.c_str(), F_OK) == -1)//si achivo no existe
-            err(NOT_FOUND, ROOT_NOT_FOUND);
-        else if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
-            err(FORBIDEN, ROOT_FORBIDEN);
-        if (stat(root.c_str(), &fileStat) == -1)
-            err(NOT_FOUND, ROOT_NOT_FOUND);
-        else if  ((fd_file = open(root.c_str(), O_RDONLY)) == -1)    
-            err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
-    }
+    if (!redirection.empty() && !error_code)//si existe redireccion y no hay ningun error
+        root = redirection;
+    std::cout << "root : " << root << std::endl;
+    if (access(root.c_str(), F_OK) == -1)//si achivo no existe
+        err(NOT_FOUND, ROOT_NOT_FOUND);
+    else if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
+        err(FORBIDEN, ROOT_FORBIDEN);
+    if (stat(root.c_str(), &fileStat) == -1)
+        err(NOT_FOUND, ROOT_NOT_FOUND);
+    else if  ((fd_file = open(root.c_str(), O_RDONLY)) == -1)    
+        err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
+    std::cout << "fd open : " << fd_file << std::endl;
     return (fd_file);
 }
 
@@ -338,9 +330,7 @@ void Response::print_full_info() {
     std::cout << "URI: " << getURI() << std::endl;
 
     // Redirección
-    std::pair<int, std::string> redirection_info = getRedirection();
-    std::cout << "Redirection Code: " << redirection_info.first << std::endl;
-    std::cout << "Redirection URI: " << redirection_info.second << std::endl;
+    std::cout << "Redirection URI: " << getRedirection() << std::endl;
 
     // Otras configuraciones
     std::cout << "Index File: " << getIndex() << std::endl;

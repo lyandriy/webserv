@@ -75,9 +75,9 @@ void    Location::setAcceptMethod(std::vector<std::string> &words)
         accept_method.del = 0;
 }
 
-void    Location::setRedirection(std::vector<std::string> &words)
+void    Location::setRedirection(std::string words)
 {
-    redirection = std::make_pair(atoi(words[1].c_str()), words[2]);
+    redirection = words;
 }
 
 void    Location::setErrorPage(std::vector<std::string> &words)
@@ -165,7 +165,7 @@ httpMethods    Location::getAcceptMethod() const
     return(this->accept_method);
 }
 
-std::pair<int, std::string>     Location::getRedirection() const
+std::string     Location::getRedirection() const
 {
     return(this->redirection);
 }
@@ -209,7 +209,7 @@ void Location::printValues() const {
     std::cout << "Autoindex: " << autoindex << std::endl;
     std::cout << "Index: " << index << std::endl;
     std::cout << "CGI: " << cgi << std::endl;
-    std::cout << "Redirection: " << redirection.first << " " << redirection.second << std::endl;
+    std::cout << "Redirection: " << redirection << std::endl;
     // Imprimir listen (direcciones)
     std::cout << "Listen Addresses: " << std::endl;
     for (size_t i = 0; i < listen.size(); i++) {

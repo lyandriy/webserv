@@ -13,7 +13,7 @@ class Location
         std::string root;
         std::string index;
         httpMethods accept_method;
-        std::pair<int, std::string> redirection;
+        std::string redirection;
         std::map<int, std::string>  error_page;
         int  client_max_body_size;
         int    autoindex;
@@ -30,7 +30,7 @@ class Location
         void    setRoot(std::string);
         void    setIndex(std::string);
         void    setAcceptMethod(std::vector<std::string> &);
-        void    setRedirection(std::vector<std::string> &);
+        void    setRedirection(std::string);
         void    setErrorPage(std::vector<std::string> &);
         void    setBodySize(std::vector<std::string> &);
         void    setAutoindex(std::string);
@@ -42,7 +42,7 @@ class Location
         std::string getRoot() const;
         std::string getIndex() const;
         httpMethods getAcceptMethod() const;
-        std::pair<int, std::string> getRedirection() const;
+        std::string getRedirection() const;
         std::map<int, std::string>  getErrorPage() const;
         int  getBodySize() const;
         int    getAutoindex() const;

@@ -76,9 +76,9 @@ void    Server::setAcceptMethod(std::vector<std::string> &words)
         accept_method.del = 0;
 }
 
-void    Server::setRedirection(std::vector<std::string> &words)
+void    Server::setRedirection(std::string words)
 {
-    redirection = std::make_pair(atoi(words[1].c_str()), words[2]);
+    redirection = words;
 }
 
 void    Server::setErrorPage(std::vector<std::string> &words)
@@ -156,7 +156,7 @@ void    Server::setLocation(std::vector<std::string> &words)
     else if (words[0] == "cgi")
         this->location.back().setCGI(words[1]);
     else if (words[0] == "redirection")
-        this->location.back().setRedirection(words);
+        this->location.back().setRedirection(words[1]);
     else if (words[0] == "accept_method")
         this->location.back().setAcceptMethod(words);
     else
@@ -171,8 +171,7 @@ void    Server::fillLocation()
         (*itl).server_name = this->server_name;
         if ((*itl).accept_method.get == -1 && (*itl).accept_method.post == -1 && (*itl).accept_method.del == -1)
             (*itl).accept_method = this->accept_method;
-        if ((*itl).redirection.first == 0 && (*itl).redirection.second.empty())
-            (*itl).redirection = this->redirection;
+        (*itl).redirection = this->redirection;
         if ((*itl).cgi == -1)
             (*itl).cgi = this->cgi;
         if ((*itl).root.empty())
@@ -222,7 +221,7 @@ httpMethods    Server::getAcceptMethod() const
     return(this->accept_method);
 }
 
-std::pair<int, std::string>    Server::getRedirection() const
+std::string    Server::getRedirection() const
 {
     return(this->redirection);
 }
@@ -267,7 +266,7 @@ void Server::printValuesServer() const {
             std::cout << "Autoindex: " << autoindex << std::endl;
             std::cout << "Index: " << index << std::endl;
             std::cout << "CGI: " << cgi << std::endl;
-            std::cout << "Redirection: " << redirection.first << " " << redirection.second << std::endl;
+            std::cout << "Redirection: " << redirection << std::endl;
 
             // Imprimir listen (direcciones)
             std::cout << "Listen Addresses: " << std::endl;
