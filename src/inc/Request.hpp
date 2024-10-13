@@ -8,6 +8,7 @@
 
 
 // --- STATUS --- //
+# define EMPTY_REQUEST -1
 # define INVALID_REQUEST  0
 # define INCOMPLETE_REQUEST 1
 # define HEADERS_RECEIVED 2
@@ -127,6 +128,8 @@ public:
 	std::map<std::string, std::string> get_headers();
 	std::map<std::string, std::string> get_params();
 	int get_current_status();
+	int	get_fd_socket();
+	int	get_pos_socket();
 
 
 	// Location    compareUri(const std::vector<Location> &, const std::string &);
@@ -141,6 +144,7 @@ public:
 	bool		compareMethod(Server &);
 	void	last_conection_time();
 	void	set_error_code(int);
+	void	set_current_status(int);
 	Location	getLoc() const;
 	Server	getServ() const;
 

@@ -92,10 +92,7 @@ Response::Response(Request &request)
     else if (request.get_error_code() == HTTP_VERSION_NOT_SUPPORTED)
         this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
     this->_pos_file_response = -1;
-    if (request.get_headers().find("Connection") == request.get_headers().end())
-        this->connection_val = "keep-alive";
-    else
-        this->connection_val = request.get_headers()["Connection"];
+    this->connection_val = "keep-alive";
 }
 
 Response &Response::operator=(const Response &other){

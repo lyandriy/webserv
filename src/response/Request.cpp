@@ -628,6 +628,16 @@ int Request::get_current_status()
 	return _status;
 }
 
+int	Request::get_fd_socket()
+{
+	return _fd_socket;
+}
+
+int	Request::get_pos_socket()
+{
+	return _pos_socket;
+}
+
 // --------------------  SETTERS  -------------------- //
 bool Request::set_validity(int error_code)
 {
@@ -824,6 +834,11 @@ Location	Request::getLoc() const
 Server	Request::getServ() const
 {
 	return (this->conf_serv);
+}
+
+void	Request::set_current_status(int status)
+{
+	_status = status;
 }
 
 

@@ -29,13 +29,12 @@ int main(int argc, char **argv)
 
     while (true)
     {
+        std::cout << "\033[33m" << " MAIN " <<  "\033[0m" << std::endl;
         if ((ready = poll(pfds, socketManager.getSockNum(), 1000)) == -1)//monitorear si hay algun cliente
              std::cerr << "Error: poll error." << std::endl;
         socketManager.acceptClient(pfds);//comprueba si hay un cliente y lo acepta
         socketManager.recvRequest(pfds, server);//recibe mensajes de request
-        std::cout << "\033[33m" << "main" <<  "\033[0m" << std::endl;
         socketManager.sendResponse(pfds);//responder al cliente
-        //ver que pasa si socket se sierra solo por algun error
     }
 }
 
