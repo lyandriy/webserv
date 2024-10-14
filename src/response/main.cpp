@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
     while (true)
     {
-        std::cout << "\033[33m" << " MAIN " <<  "\033[0m" << std::endl;
+        //std::cout << "\033[33m" << " MAIN " <<  "\033[0m" << std::endl;
         if ((ready = poll(pfds, socketManager.getSockNum(), 1000)) == -1)//monitorear si hay algun cliente
              std::cerr << "Error: poll error." << std::endl;
         socketManager.acceptClient(pfds);//comprueba si hay un cliente y lo acepta

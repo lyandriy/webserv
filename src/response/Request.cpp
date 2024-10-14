@@ -915,3 +915,13 @@ void Request::print_full_info() {
 
     std::cout << "--------------------------------" << std::endl;
 }
+
+/*void	Request::ok_request()
+{
+	std::cout << "\033[35m" << " OKKKKKKKKKKKKKKKKK " <<  "\033[0m" << std::endl;
+	_status = FULL_COMPLETE_REQUEST;
+	_accept_method.push_back("GET");
+	_host = "example.com";
+	_body_size = 78;
+	_error_code = 200;
+}*/
