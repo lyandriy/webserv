@@ -184,7 +184,7 @@ bool Request::search_body_length_header()
 
 bool Request::search_chunked_body()
 {
-	return true;
+	return false;
 }
 
 int	Request::manage_headers_received(std::vector<Server> &server)
@@ -223,7 +223,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 			set_validity(BAD_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
 		}
 	}
-	if (search_chunked_body() == true)
+	else if (search_chunked_body() == true)
 	{
 		if (_status == REQUEST_WITH_BODY)
 		{
@@ -234,6 +234,10 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		{
 			_status = CHUNKED_REQUEST;
 		}
+	}
+	else
+	{
+		_status = FULL_COMPLETE_REQUEST;
 	}
 	return _status;
 }
@@ -294,25 +298,25 @@ bool Request::search_double_CRLF()
 
 void Request::read_request_lines()
 {
-	std::vector<char>::iterator it = _request.begin();
+	std::vector<char>::iterator it = _req_accumulator.begin();
 	std::vector<char>::iterator line_start = it;
-	while (it != _request.end())
+	while (it != _req_accumulator.end())
 	{
-		if (*it == '\r' && (it + 1) != _request.end() && *(it + 1) == '\n')
+		if (*it == '\r' && (it + 1) != _req_accumulator.end() && *(it + 1) == '\n')
 		{
 			std::string line(line_start, it);
 
 			_lines.push_back(line);
 			it += 2; 
 			line_start = it;
-			if (it != _request.end() 
-				&& *it == '\r' && (it + 1) != _request.end() 
+			if (it != _req_accumulator.end() 
+				&& *it == '\r' && (it + 1) != _req_accumulator.end() 
 				&& *(it + 1) == '\n')
 			{
 				it += 2;
-				if (it != _request.end())
+				if (it != _req_accumulator.end())
 				{
-					_body = std::vector<char> (it, _request.end());
+					_body = std::vector<char> (it, _req_accumulator.end());
 				}
 			}
 		}
@@ -452,7 +456,9 @@ bool Request::check_method()
 	//verificar bloque server
 	//Determinar bloquer locatio correspondiente
 	//Verificar métodos dentro del location
-	size_t i;
+	size_t i = 0;
+	if (debug == true){std::cout << "Métodos aceptados: " << _accept_method.size() << "\n\n";}
+	if (debug == true){_accept_method.push_back("GET");}
 	for (i = 0; i < _accept_method.size(); i++)
 	{
 		if (_accept_method[i] == _method)
