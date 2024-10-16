@@ -93,6 +93,7 @@ Response::Response(Request &request)
         this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
     this->_pos_file_response = -1;
     this->connection_val = "close";
+    //this->connection_val = "keep-alive";
 }
 
 Response &Response::operator=(const Response &other){

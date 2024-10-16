@@ -224,7 +224,10 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
                 valread = recv(pfds[client].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de cliente
                 std::cout << "\033[33m" << " READ SIZE:  " << valread << " BUFFER:\n " << buffer << "\033[0m" << std::endl;
                 if (valread == 0)
+                {
+                    std::cout << "\033[35m" << " aaaaaaaaaaaaaaaaaaaaaaaaaaaaa " << "\033[0m" << std::endl;
                     close_move_pfd(pfds, client);
+                }
                 else if (valread <= 0)
                     make_response(client, pfds, server);//ha terminado de recibir el mensaje
                 else
