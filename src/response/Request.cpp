@@ -178,7 +178,7 @@ bool Request::search_body_length_header()
 	{
 		if (it->first == "Content-Length")
 		{
-			_body_size = atoi(it->first.c_str());
+			_body_size = atoi(it->second.c_str());
 			return true;
 		}
 	}
@@ -217,7 +217,8 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 			std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
 			_body = after_CRLFx2;
 		}
-		if (debug == true){}
+		// if (debug == true){std::cout << "ESTA ES LA LONGITUD DE BODY:" << _body_size << "\n";}
+		// if (debug == true){std::cout << "ESTA ES LA LONGITUD DE BODY REAL:" << _body.size() << "\n";}
 		//verificar longitud de body
 		if (static_cast<int>(_body.size()) == _body_size) // teóricamente completa, no se deberían recibir más partes de esta request
 		{
