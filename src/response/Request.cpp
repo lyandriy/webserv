@@ -130,6 +130,9 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
     // Close the file after writing
     outfile.close();*/
 	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
+
+	debug = true;
+
 	switch (_status)
 	{
 	case INVALID_REQUEST:
@@ -192,6 +195,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	read_request_lines();
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
+	// if (debug == true){std::cout << "VOY A LEER LOS HEADERS\n";}
 	extract_request_line();
 		// función Lyudmyla
 	check_request_line(server);
@@ -213,6 +217,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 			std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
 			_body = after_CRLFx2;
 		}
+		if (debug == true){}
 		//verificar longitud de body
 		if (static_cast<int>(_body.size()) == _body_size) // teóricamente completa, no se deberían recibir más partes de esta request
 		{
@@ -239,6 +244,10 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	{
 		_status = FULL_COMPLETE_REQUEST;
 	}
+	if (debug == true){print_full_info();}
+	if (debug == true){std::cout << "Se han leído las líneas de los header\n" << std::endl;}
+	if (debug == true){std::cout << "El estado es: " << _status << "\n" << std::endl;}
+
 	return _status;
 }
 
