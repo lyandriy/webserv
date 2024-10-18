@@ -2,7 +2,7 @@
 
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
-											_body(), _help_message(), _valid(true), _error_code(0), _headers(),
+											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
 											_params(), _request(), _accept_method(), _request_line(""), _lines(),
 											_type(0), _status(1)
 {
@@ -10,7 +10,7 @@ Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket
 }
 
 Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
-					_body(), _help_message(), _valid(true), _error_code(0),
+					_body(), _help_message(), _valid(true), _error_code(200),
 					_headers(), _params(),
 					_request(), _accept_method(), _request_line(""), _lines()
 {}
@@ -18,7 +18,7 @@ Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
 						  _req_accumulator(request_accumulator), 
 						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
-						  _body(), _help_message(), _valid(true), _error_code(0), _headers(),
+						  _body(), _help_message(), _valid(true), _error_code(200), _headers(),
 						  _params(), _request(), _accept_method(), _request_line(""), _lines()
 {
 	/*std::cout << "Constructor con índice, fd y acumulador llamado. Valor de i: " << i
@@ -31,7 +31,7 @@ Request::Request(int i, int fd, std::vector<char> request_accumulator, int type)
 }
 
 Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
-								_body(), _help_message(), _valid(true), _error_code(0),
+								_body(), _help_message(), _valid(true), _error_code(200),
 								_headers(), _params(),
 								_request(), _accept_method(), _request_line(""), _lines() 
 {
@@ -132,7 +132,6 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
 
 	debug = true;
-
 	switch (_status)
 	{
 	case INVALID_REQUEST:
@@ -198,11 +197,11 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	// if (debug == true){std::cout << "VOY A LEER LOS HEADERS\n";}
 	extract_request_line();
 		// función Lyudmyla
-	check_request_line(server);
 	if (check_request_line() == false)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
+	check_request_line(server);
 	if (search_body_length_header() == true)
 	{
 		// esto empieza a crecer lo suficiente como para hacer pasarlo a manage_request_with_body ->NO, manage_request_w_body va a ser para almacenar los sucesivos buffers de la request con body en body  
@@ -245,9 +244,9 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	{
 		_status = FULL_COMPLETE_REQUEST;
 	}
-	if (debug == true){print_full_info();}
-	if (debug == true){std::cout << "Se han leído las líneas de los header\n" << std::endl;}
-	if (debug == true){std::cout << "El estado es: " << _status << "\n" << std::endl;}
+	// if (debug == true){print_full_info();}
+	// if (debug == true){std::cout << "Se han leído las líneas de los header\n" << std::endl;}
+	// if (debug == true){std::cout << "El estado es: " << _status << "\n" << std::endl;}
 
 	return _status;
 }
@@ -387,7 +386,7 @@ bool Request::check_request_line()
 	if (this->_valid == false)
 		return false;
 	check_spaces_at_beginning();
-	check_method();
+	// check_method();
 	check_uri();
 	check_protocol();
 	return true;
@@ -412,6 +411,7 @@ bool Request::read_headers_lines()
 			return set_validity(BAD_REQUEST);
 		key = _lines[i].substr(0, colon_position);
 		value = _lines[i].substr(colon_position + 1);
+		spaces_trim(value);
 		_headers[key] = value;
 		if (key == "Host")
 			set_host_and_port(value);
@@ -419,6 +419,13 @@ bool Request::read_headers_lines()
 	return _valid;
 }
 
+void Request::spaces_trim(std::string &str)
+{
+	std::string::iterator it = str.begin();
+	while (it != str.end() && std::isspace(*it))
+		++it;
+	str.erase(str.begin(), it);
+}
 
 bool Request::check_number_elements_request_line(std::vector<std::string> result)
 {
@@ -787,6 +794,8 @@ int    Request::check_request_line(std::vector<Server> &server)
 
 	for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)//buscar si hay configuracion para este server name
     {
+		if (debug == true){std::cout << "HOOOOOOOOOOOOOOOOOOOOOOOST: " << _host << "\n";}
+		if (debug == true){std::cout << "SERVERRRRR NAMEEEEEEEEEEEE: " << it_serv->getServerName() << "\n";}
         if (this->_host == it_serv->getServerName())
             break;
     }
@@ -796,8 +805,10 @@ int    Request::check_request_line(std::vector<Server> &server)
         {
 			if (!it_serv->getLocation().empty())//si el server no tiene location comprobamos la uri con root
 				conf_loc = compareUri(it_serv->getLocation());//buscamos si hay uri que esta pidiendo el cliente
+			// if (debug == true){std::cout << "\t\t\tESTADO DE ERROR:   " << _error_code << "\n\n";}
 			if (conf_loc.getAutoindex() == -1)//no existe la location
 			{
+				// if (debug == true){std::cout << "\t\t\tNO EXISTE LA LOCATION" << _error_code << "\n\n";}
 				if (!compareListen(it_serv->getListen()) && _body_size > it_serv->getBodySize())
 				{
 					this->_error_code = NOT_FOUND;
@@ -812,6 +823,7 @@ int    Request::check_request_line(std::vector<Server> &server)
 			}
 			else
 			{
+				// if (debug == true){std::cout << "\t\t\tSI HAY LOCATION LOCATION" << _error_code << "\n\n";}
 				if (!compareListen(conf_loc.getListen()) && _body_size > conf_loc.getBodySize())
 				{
 					this->_error_code = NOT_FOUND;
@@ -823,6 +835,7 @@ int    Request::check_request_line(std::vector<Server> &server)
 			}
 		}
     }
+	if (debug == true){std::cout << "\t\t\tESTADO DE ERROR " << _error_code << "\n" << std::endl;}
 	this->_error_code = NOT_FOUND;
 	return (0);
 }

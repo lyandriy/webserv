@@ -76,6 +76,7 @@ private:
 	bool check_uri();
 	bool check_protocol();
 
+	void spaces_trim(std::string &str);
 	void set_host_and_port(std::string &host_line_value);
 	
 	void split_params(std::string &params_raw);
