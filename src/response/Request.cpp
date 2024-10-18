@@ -2,7 +2,7 @@
 
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
-											_body(), _help_message(), _valid(true), _error_code(0), _headers(),
+											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
 											_params(), _request(), _accept_method(), _request_line(""), _lines(),
 											_type(0), _status(1)
 {
@@ -10,7 +10,7 @@ Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket
 }
 
 Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
-					_body(), _help_message(), _valid(true), _error_code(0),
+					_body(), _help_message(), _valid(true), _error_code(200),
 					_headers(), _params(),
 					_request(), _accept_method(), _request_line(""), _lines()
 {}
@@ -18,7 +18,7 @@ Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
 						  _req_accumulator(request_accumulator), 
 						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
-						  _body(), _help_message(), _valid(true), _error_code(0), _headers(),
+						  _body(), _help_message(), _valid(true), _error_code(200), _headers(),
 						  _params(), _request(), _accept_method(), _request_line(""), _lines()
 {
 	/*std::cout << "Constructor con índice, fd y acumulador llamado. Valor de i: " << i
@@ -130,6 +130,9 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
     // Close the file after writing
     outfile.close();*/
 	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
+
+	debug = true;
+
 	switch (_status)
 	{
 	case INVALID_REQUEST:
@@ -184,7 +187,7 @@ bool Request::search_body_length_header()
 
 bool Request::search_chunked_body()
 {
-	return true;
+	return false;
 }
 
 int	Request::manage_headers_received(std::vector<Server> &server)
@@ -192,6 +195,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	read_request_lines();
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
+	// if (debug == true){std::cout << "VOY A LEER LOS HEADERS\n";}
 	extract_request_line();
 		// función Lyudmyla
 	check_request_line(server);
@@ -213,6 +217,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 			std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
 			_body = after_CRLFx2;
 		}
+		if (debug == true){}
 		//verificar longitud de body
 		if (static_cast<int>(_body.size()) == _body_size) // teóricamente completa, no se deberían recibir más partes de esta request
 		{
@@ -223,7 +228,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 			set_validity(BAD_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
 		}
 	}
-	if (search_chunked_body() == true)
+	else if (search_chunked_body() == true)
 	{
 		if (_status == REQUEST_WITH_BODY)
 		{
@@ -235,6 +240,14 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 			_status = CHUNKED_REQUEST;
 		}
 	}
+	else
+	{
+		_status = FULL_COMPLETE_REQUEST;
+	}
+	if (debug == true){print_full_info();}
+	if (debug == true){std::cout << "Se han leído las líneas de los header\n" << std::endl;}
+	if (debug == true){std::cout << "El estado es: " << _status << "\n" << std::endl;}
+
 	return _status;
 }
 
@@ -294,25 +307,25 @@ bool Request::search_double_CRLF()
 
 void Request::read_request_lines()
 {
-	std::vector<char>::iterator it = _request.begin();
+	std::vector<char>::iterator it = _req_accumulator.begin();
 	std::vector<char>::iterator line_start = it;
-	while (it != _request.end())
+	while (it != _req_accumulator.end())
 	{
-		if (*it == '\r' && (it + 1) != _request.end() && *(it + 1) == '\n')
+		if (*it == '\r' && (it + 1) != _req_accumulator.end() && *(it + 1) == '\n')
 		{
 			std::string line(line_start, it);
 
 			_lines.push_back(line);
 			it += 2; 
 			line_start = it;
-			if (it != _request.end() 
-				&& *it == '\r' && (it + 1) != _request.end() 
+			if (it != _req_accumulator.end() 
+				&& *it == '\r' && (it + 1) != _req_accumulator.end() 
 				&& *(it + 1) == '\n')
 			{
 				it += 2;
-				if (it != _request.end())
+				if (it != _req_accumulator.end())
 				{
-					_body = std::vector<char> (it, _request.end());
+					_body = std::vector<char> (it, _req_accumulator.end());
 				}
 			}
 		}
@@ -452,7 +465,9 @@ bool Request::check_method()
 	//verificar bloque server
 	//Determinar bloquer locatio correspondiente
 	//Verificar métodos dentro del location
-	size_t i;
+	size_t i = 0;
+	if (debug == true){std::cout << "Métodos aceptados: " << _accept_method.size() << "\n\n";}
+	if (debug == true){_accept_method.push_back("GET");}
 	for (i = 0; i < _accept_method.size(); i++)
 	{
 		if (_accept_method[i] == _method)
@@ -771,6 +786,8 @@ int    Request::check_request_line(std::vector<Server> &server)
 
 	for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)//buscar si hay configuracion para este server name
     {
+		std::cout << "this->_host " << this->_host << std::endl;
+		std::cout << "it_serv->getServerName() " << it_serv->getServerName() << std::endl;
         if (this->_host == it_serv->getServerName())
             break;
     }
@@ -807,6 +824,7 @@ int    Request::check_request_line(std::vector<Server> &server)
 			}
 		}
     }
+	std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
 	this->_error_code = NOT_FOUND;
 	return (0);
 }

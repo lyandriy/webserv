@@ -78,7 +78,10 @@ Response::Response(Request &request)
     else if (request.get_error_code() == NOT_FOUND)
         this->root = ROOT_NOT_FOUND;
     else if (request.get_error_code() == METHOD_NOT_ALLOWED)
+    {
         this->root = ROOT_METHOD_NOT_ALLOWED;
+        std::cout << "\033[30m" << this->root << "\033[0m" << std::endl;
+    }
     else if (request.get_error_code() == REQUEST_TIMEOUT)
         this->root = ROOT_REQUEST_TIMEOUT;
     else if (request.get_error_code() == CONTENT_TOO_LARGE)
@@ -92,8 +95,8 @@ Response::Response(Request &request)
     else if (request.get_error_code() == HTTP_VERSION_NOT_SUPPORTED)
         this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
     this->_pos_file_response = -1;
-    this->connection_val = "close";
-    //this->connection_val = "keep-alive";
+    //this->connection_val = "close";
+    this->connection_val = "keep-alive";
 }
 
 Response &Response::operator=(const Response &other){
@@ -302,14 +305,14 @@ int Response::open_file(int pos_file_response)
     _pos_file_response = pos_file_response;
     if (!redirection.empty() && !error_code)//si existe redireccion y no hay ningun error
         root = redirection;
-    std::cout << "root : " << root << std::endl;
+    std::cout << "root : " << root.c_str() << std::endl;
     if (access(root.c_str(), F_OK) == -1)//si achivo no existe
         err(NOT_FOUND, ROOT_NOT_FOUND);
     else if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
         err(FORBIDEN, ROOT_FORBIDEN);
     if (stat(root.c_str(), &fileStat) == -1)
         err(NOT_FOUND, ROOT_NOT_FOUND);
-    else if  ((fd_file = open(root.c_str(), O_RDONLY)) == -1)    
+    else if  ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
         err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
     std::cout << "fd open : " << fd_file << std::endl;
     return (fd_file);

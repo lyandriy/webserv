@@ -141,47 +141,28 @@ int SocketManager::is_file(int client)
     return (0);
 }
 
-void    SocketManager::make_response(int client, struct pollfd* pfds, std::vector<Server> &server)
+void    SocketManager::make_response(int client, struct pollfd* pfds)
 {
-    if (requests[client].get_current_status() == EMPTY_REQUEST)
-        return ;
-    (void)server;
     pfds[client].events = POLLOUT;//cambiamos en event de socket al POLLOUT, porque la request ya ha llegado entera y tenemos que responder al cliente
-    if (requests[client].get_current_status() != FULL_COMPLETE_REQUEST)//cuando ha ocurrido un error con recv y no ha habbido una lectura previa
-    {
-        //std::cout << "\033[33m" << " STATUS CODE BAD_REQUEST " << "\033[0m" << std::endl;
-        requests[client].set_error_code(BAD_REQUEST);
-        response[client] = Response(requests[client]);//crear la response de error
-        pfds[sock_num].fd = response[client].open_file(sock_num);
-        fd_file[client] = sock_num;
-        sock_num++;
-    }
+    //std::cout << "\033[33m" << " STATUS CODE 200 " << "\033[0m" << std::endl;
+    requests[client].set_error_code(OK);
+    if (requests[client].getLoc().getBodySize() == -1)
+        response[client] = Response(requests[client].getLoc(), requests[client]);//crear la response de error
     else
-    {
-        //std::cout << "\033[33m" << " STATUS CODE 200 " << "\033[0m" << std::endl;
-        requests[client].set_error_code(OK);
-        if (requests[client].getLoc().getBodySize() == -1)
-            response[client] = Response(requests[client].getLoc(), requests[client]);//crear la response de error
-        else
-            response[client] = Response(requests[client].getServ(), requests[client]);
-        pfds[sock_num].fd = response[client].open_file(sock_num);
-        fd_file[client] = sock_num;
-        sock_num++;
-    }
+        response[client] = Response(requests[client].getServ(), requests[client]);
+    pfds[sock_num].fd = response[client].open_file(sock_num);
+    fd_file[client] = sock_num;
+    sock_num++;
 }
 
 void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
-    //std::cout << "\033[33m" << " RECIV REQUEST ... " << "\033[0m" << std::endl;
-    (void)server;
-    (void)buffer;
-    (void)valread;
-    requests[client].set_error_code(200);
-    requests[client].join_request(buffer, valread, server);
-    //requests[client].ok_request();
+    std::cout << "\033[34m" << " RECIV REQUEST ... " << "\033[0m" << std::endl;
+    std::cout << requests[client].join_request(buffer, valread, server) << std::endl;
+    std::cout << requests[client].get_error_code() << std::endl;
     if (requests[client].get_error_code() != 200)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
     {
-        //std::cout << "\033[33m" << " STATUS CODE " << requests[client].get_error_code() << " \033[0m" << std::endl;
+        std::cout << "\033[33m" << " STATUS CODE " << requests[client].get_error_code() << " \033[0m" << std::endl;
         pfds[client].events = POLLOUT;
         response[client] = Response(requests[client]);//crear la response de error
         pfds[sock_num].fd = response[client].open_file(sock_num);//abre el archivo a enviar y retorna el numero fd (comprobar si se ha abierto bien el archivo, si hay error, enviar respuesta de error)
@@ -223,7 +204,13 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
             {
                 valread = recv(pfds[client].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de cliente
                 std::cout << "\033[33m" << " READ SIZE:  " << valread << " BUFFER:\n " << buffer << "\033[0m" << std::endl;
-                if (valread == 0)
+                if (requests[client].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0)
+                    make_response(client, pfds);//ha terminado de recibir el mensaje
+                else if (valread == 0 && requests[client].get_current_status() == EMPTY_REQUEST)
+                    close_move_pfd(pfds, client);
+                else
+                    check_join(client, pfds, server, buffer, valread);//recibe una parte del mensaje*
+                /*if (valread == 0)
                 {
                     std::cout << "\033[35m" << " aaaaaaaaaaaaaaaaaaaaaaaaaaaaa " << "\033[0m" << std::endl;
                     close_move_pfd(pfds, client);
@@ -231,7 +218,7 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
                 else if (valread <= 0)
                     make_response(client, pfds, server);//ha terminado de recibir el mensaje
                 else
-                    check_join(client, pfds, server, buffer, valread);//recibe una parte del mensaje
+                    check_join(client, pfds, server, buffer, valread);//recibe una parte del mensaje*/
                 memset(buffer, 0, strlen(buffer));
             }
         }
@@ -392,7 +379,7 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
         //std::cout << "\033[33m" << " sendResponse " << "\033[0m" << std::endl;
         if (pfds[i].revents & POLLOUT)//si algun socket tiene un revent de POLLOUT
         {
-            //std::cout << "\033[33m" << " Cliente " << i << " POLLOUT " << "\033[0m" << std::endl;
+            std::cout << "\033[33m" << " Cliente " << i << " POLLOUT " << "\033[0m" << std::endl;
             _pos_file_response = fd_file[i];//posicion en pfds donde esta guardado el fd del archivo a enviar
             if (response[i].getErrorCode() == INTERNAL_SERVER_ERROR
                 || response[i].getErrorCode() == SERVICE_UNAVAIBLE)
@@ -401,8 +388,8 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
             {
                 if (pfds[_pos_file_response].revents & POLLIN)
                 {
-                    std::cout << "\033[33m" << " SEND RESPONSE " << "\033[0m" << std::endl;
                     valread = read(pfds[_pos_file_response].fd, buffer, BUFFER_SIZE);//leer del archivo a enviar BUFFER_SIZE bytes
+                    std::cout << "\033[31m" << " SEND RESPONSE " << buffer << "\033[0m" << std::endl;
                     string_buffer.assign(buffer);//convirte char * en std::string
                     response_str = make_response_str(string_buffer, response[i].getErrorCode(), response[i].getConnectionVal());
                     send(pfds[i].fd, response_str.c_str(), response_str.size(), 0);//enviar el buffer leido de archivo

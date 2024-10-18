@@ -157,6 +157,6 @@ public:
 	void print_request_complete_info();
 	time_t	get_time();
 	void print_full_info();
-	//void	ok_request();
+	void	ok_request();
 };
 
