@@ -28,6 +28,7 @@ class Response
         int _pos_file_response;//posicion del archivo que se va a responder en pfds
         struct stat fileStat;//informacion sobre el archivo
         std::string connection_val;
+        size_t total_bytes_read;
     public:
         Response();
         ~Response();
@@ -57,6 +58,7 @@ class Response
         int get_pos_file_response() const;
         struct stat get_fileStat() const;
         std::string    getConnectionVal() const;
+        size_t  getBytesRead() const;
 
         void setListen(struct sockaddr_in);
         void setHost(std::string);
@@ -73,10 +75,13 @@ class Response
         void setHelpMessage(std::string);
         void setHeaders(std::map<std::string, std::string>);
         void setConnectionVal(std::string);
+        void setBytesRead(size_t);
 
         int     open_file(int);
         void    err(int, std::string);
-
+        int     get_fd(std::string);
+        int     make_autoindex_file();
+        int     internServerError();
 
         void print_full_info();
 };

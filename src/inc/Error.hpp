@@ -22,3 +22,4 @@
 # define ROOT_INTERNAL_SERVER_ERROR "html/error/500.html"
 # define ROOT_SERVICE_UNAVAIBLE "html/error/503.html"
 # define ROOT_HTTP_VERSION_NOT_SUPPORTED "html/error/505.html"
+# define AUTOINDEX_FILE "html/autoindex.html"

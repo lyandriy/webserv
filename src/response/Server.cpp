@@ -8,7 +8,7 @@ Server::Server(){
     client_max_body_size = 1048576;
     cgi = 0;
     autoindex = 0;
-    index = "/error/404.html";
+    index = "index.html";
 }
 
 Server::~Server(){}

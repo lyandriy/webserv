@@ -4,7 +4,7 @@ server
     server_name localhost;
     root html/test;
     accept_method GET;
-
+    autoindex on;
 }
 
 server
