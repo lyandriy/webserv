@@ -103,7 +103,33 @@ Request::~Request()
 
 int Request::join_request(char *buffer, int read_size, std::vector<Server> &server)
 {
-	/*std::ofstream outfile("request.html");
+	debug = true;
+	switch (_status)
+	{
+	case INVALID_REQUEST:
+		return INVALID_REQUEST;
+		break;
+	case INCOMPLETE_REQUEST:
+		return manage_incomplete_request(buffer, read_size, server);
+		break;
+	case HEADERS_RECEIVED:
+		return manage_headers_received(server);
+		break;
+	case REQUEST_WITH_BODY:
+		return manage_request_with_body(buffer, read_size);
+		break;
+	case CHUNKED_REQUEST:
+		return manage_chunked_request(buffer, read_size);
+		break;
+	case FULL_COMPLETE_REQUEST:
+		return manage_full_complete_request(buffer, read_size);
+		break;
+	}
+	return INCOMPLETE_REQUEST;
+
+	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
+
+		/*std::ofstream outfile("request.html");
     if (!outfile.is_open()) {
         std::cerr << "Error opening file for writing." << std::endl;
         return INVALID_REQUEST; // Return an error if the file cannot be opened
@@ -129,31 +155,6 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 
     // Close the file after writing
     outfile.close();*/
-	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
-
-	debug = true;
-	switch (_status)
-	{
-	case INVALID_REQUEST:
-		return INVALID_REQUEST;
-		break;
-	case INCOMPLETE_REQUEST:
-		return manage_incomplete_request(buffer, read_size, server);
-		break;
-	case HEADERS_RECEIVED:
-		return manage_headers_received(server);
-		break;
-	case REQUEST_WITH_BODY:
-		return manage_request_with_body(buffer, read_size);
-		break;
-	case CHUNKED_REQUEST:
-		return manage_chunked_request(buffer, read_size);
-		break;
-	case FULL_COMPLETE_REQUEST:
-		return manage_full_complete_request(buffer, read_size);
-		break;
-	}
-	return INCOMPLETE_REQUEST;
 }
 
 int	Request::manage_incomplete_request(char *buffer, int read_size, std::vector<Server> &server)
@@ -186,6 +187,16 @@ bool Request::search_body_length_header()
 
 bool Request::search_chunked_body()
 {
+	std::map<std::string, std::string>::iterator it;
+	std::string chunked = "chunked";
+	for(it = _headers.begin(); it != _headers.end(); it++)
+	{
+		if (it->first == "Transfer-Encoding")
+		{
+			if (spaces_trim(it->second) == chunked)
+				return true;
+		}
+	}
 	return false;
 }
 
@@ -238,6 +249,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		else
 		{
 			_status = CHUNKED_REQUEST;
+			manage_possible_chunked_beggining();
 		}
 	}
 	else
@@ -249,6 +261,20 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	// if (debug == true){std::cout << "El estado es: " << _status << "\n" << std::endl;}
 
 	return _status;
+}
+
+int Request::manage_possible_chunked_beggining()
+{
+	if (_req_accumulator.size() - 4 == _CRLFx2_index - 1) // el CRLFx2 justo coincide en el final del vector
+	{
+		_body.clear();
+	}
+	else if (_req_accumulator.size() - 4 > _CRLFx2_index - 1) //hay cosas después del CRLFx2
+	{
+		//empezar a extraer las chunks, parejas de int + string.
+		// comprobar q int y string size son iguales
+	}
+	return CHUNKED_REQUEST;
 }
 
 int	Request::manage_request_with_body(char *buffer, int read_size)
@@ -419,12 +445,13 @@ bool Request::read_headers_lines()
 	return _valid;
 }
 
-void Request::spaces_trim(std::string &str)
+std::string Request::spaces_trim(std::string &str)
 {
 	std::string::iterator it = str.begin();
 	while (it != str.end() && std::isspace(*it))
 		++it;
 	str.erase(str.begin(), it);
+	return str;
 }
 
 bool Request::check_number_elements_request_line(std::vector<std::string> result)

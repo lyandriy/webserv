@@ -76,7 +76,7 @@ private:
 	bool check_uri();
 	bool check_protocol();
 
-	void spaces_trim(std::string &str);
+	std::string spaces_trim(std::string &str);
 	void set_host_and_port(std::string &host_line_value);
 	
 	void split_params(std::string &params_raw);
@@ -89,6 +89,8 @@ private:
 	int manage_request_with_body(char *, int);
 	int manage_chunked_request(char *, int);
 	int manage_full_complete_request(char *, int);
+	
+	int	manage_possible_chunked_beggining();
 
 	bool search_body_length_header();
 	bool search_chunked_body();
