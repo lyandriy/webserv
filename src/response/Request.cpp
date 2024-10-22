@@ -271,6 +271,21 @@ int Request::manage_possible_chunked_beggining()
 	}
 	else if (_req_accumulator.size() - 4 > _CRLFx2_index - 1) //hay cosas después del CRLFx2
 	{
+		std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
+		if (debug == true){std::cout << "Esta es la primera parte del sobrante de los headers\n";
+						for (size_t i = 0; i < after_CRLFx2.size(); i++)
+							after_CRLFx2[i];
+						std::cout << std::endl;}
+		// recorrer todo el after_CRLFx2
+			// buscar CRLFs
+				// si es un número impar guardar el número
+					// si el número es 0 cambiar status a FULL_COMPLETE_REQUEST
+				// si es un número par guardar la string
+					// añadir la string al body
+			// guardar índice del último CRLF para leer entre ese y el encontrado
+				// qué hacer con la parte previa?
+			// dónde guardar si no llega un chunk completo???
+
 		//empezar a extraer las chunks, parejas de int + string.
 		// comprobar q int y string size son iguales
 	}
