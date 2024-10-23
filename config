@@ -4,13 +4,13 @@ server
     server_name localhost;
     root html/test;
     accept_method GET;
-
+    autoindex on;
 }
 
 server
 {
     listen 8081;
-    server_name example.com;
+    server_name localhost;
     root html/test;
     accept_method GET;
 

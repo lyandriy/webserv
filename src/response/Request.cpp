@@ -155,6 +155,31 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 
     // Close the file after writing
     outfile.close();*/
+	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
+
+	debug = true;
+	switch (_status)
+	{
+	case INVALID_REQUEST:
+		return INVALID_REQUEST;
+		break;
+	case INCOMPLETE_REQUEST:
+		return manage_incomplete_request(buffer, read_size, server);
+		break;
+	case HEADERS_RECEIVED:
+		return manage_headers_received(server);
+		break;
+	case REQUEST_WITH_BODY:
+		return manage_request_with_body(buffer, read_size);
+		break;
+	case CHUNKED_REQUEST:
+		return manage_chunked_request(buffer, read_size);
+		break;
+	case FULL_COMPLETE_REQUEST:
+		return manage_full_complete_request(buffer, read_size);
+		break;
+	}
+	return INCOMPLETE_REQUEST;
 }
 
 int	Request::manage_incomplete_request(char *buffer, int read_size, std::vector<Server> &server)
@@ -987,12 +1012,29 @@ void Request::print_full_info() {
     std::cout << "--------------------------------" << std::endl;
 }
 
-/*void	Request::ok_request()
+void	Request::reset(void)
 {
-	std::cout << "\033[35m" << " OKKKKKKKKKKKKKKKKK " <<  "\033[0m" << std::endl;
-	_status = FULL_COMPLETE_REQUEST;
-	_accept_method.push_back("GET");
-	_host = "example.com";
-	_body_size = 78;
+	_req_accumulator.clear();
+	_method.clear();
+	_uri.clear();
+	_protocol.clear();
+	_host.clear();
+	_port = 0;
+	_body.clear();
+	_help_message.clear();
+	_valid = true;
 	_error_code = 200;
-}*/
+	_headers.clear();
+	_params.clear();
+	_body_size = 0;
+	_request.clear();
+	_accept_method.clear();
+	_request_line.clear();
+	_lines.clear();
+	_type = 0;
+	_status = EMPTY_REQUEST;
+	_CRLFx2_index = 0;
+	//conf_serv
+	//conf_loc
+	server_body_size = 0;
+}

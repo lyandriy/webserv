@@ -17,8 +17,17 @@
 # define ROOT_NOT_FOUND "html/error/404.html"
 # define ROOT_METHOD_NOT_ALLOWED "html/error/405.html"
 # define ROOT_REQUEST_TIMEOUT "html/error/408.html"
+<<<<<<< HEAD
 # define ROOT_CONTENT_TOO_LARGE "/html/error/413.html"
 # define ROOT_URI_TOO_LONG "html/error/414.html"
 # define ROOT_INTERNAL_SERVER_ERROR "html/error/500.html"
 # define ROOT_SERVICE_UNAVAIBLE "html/error/503.html"
 # define ROOT_HTTP_VERSION_NOT_SUPPORTED "/html/error/505.html"
+=======
+# define ROOT_CONTENT_TOO_LARGE "html/error/413.html"
+# define ROOT_URI_TOO_LONG "html/error/414.html"
+# define ROOT_INTERNAL_SERVER_ERROR "html/error/500.html"
+# define ROOT_SERVICE_UNAVAIBLE "html/error/503.html"
+# define ROOT_HTTP_VERSION_NOT_SUPPORTED "html/error/505.html"
+# define AUTOINDEX_FILE "html/autoindex.html"
+>>>>>>> response

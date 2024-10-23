@@ -31,6 +31,7 @@ Response::Response(const Location &location, Request &request){
         this->connection_val = "keep-alive";
     else
         this->connection_val = request.get_headers()["Connection"];
+    total_bytes_read = 0;
 }
 
 Response::Response(const Server &server, Request &request){
@@ -56,6 +57,7 @@ Response::Response(const Server &server, Request &request){
         this->connection_val = "keep-alive";
     else
         this->connection_val = request.get_headers()["Connection"];
+    total_bytes_read = 0;
 }
 
 Response::Response(Request &request)
@@ -93,6 +95,7 @@ Response::Response(Request &request)
         this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
     this->_pos_file_response = -1;
     this->connection_val = "close";
+    total_bytes_read = 0;
 }
 
 Response &Response::operator=(const Response &other){
@@ -115,6 +118,7 @@ Response &Response::operator=(const Response &other){
     this->_pos_file_response = other._pos_file_response;
     this->fileStat = other.fileStat;
     this->connection_val = other.connection_val;
+    this->total_bytes_read = other.total_bytes_read;
     return *this;
 }
 
@@ -213,6 +217,11 @@ std::string Response::getConnectionVal() const
     return (this->connection_val);
 }
 
+size_t  Response::getBytesRead() const
+{
+    return (this->total_bytes_read);
+}
+
 void Response::setListen(struct sockaddr_in listen)
 {
     this->listen = listen;
@@ -288,30 +297,101 @@ void Response::setConnectionVal(std::string connection_val)
     this->connection_val = connection_val;
 }
 
+void    Response::setBytesRead(size_t bytes_read)
+{
+    this->total_bytes_read += bytes_read;
+}
+
 void    Response::err(int error, std::string root_error)
 {
     error_code = error;
     root = root_error;
 }
 
-int Response::open_file(int pos_file_response)
+int    Response::internServerError()
+{
+    int fd_file;
+
+    if ((fd_file = open(ROOT_INTERNAL_SERVER_ERROR, O_CREAT)) == -1)
+        err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
+    if (write(fd_file, "Error 500. Internal server error", 32) == -1)
+        err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
+    error_code = INTERNAL_SERVER_ERROR;
+    return (fd_file);
+}
+
+int Response::make_autoindex_file()
+{
+    int fd_file = -1;
+    std::string html_text;
+    struct dirent *file_list;
+    root.erase((root.size() - index.size()), root.size());
+    DIR *dir = opendir(root.c_str());
+    if (dir == NULL)
+        return (internServerError());
+    else
+    {
+        if ((fd_file = open(AUTOINDEX_FILE, O_CREAT)) == -1)
+            err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
+        while ((file_list = readdir(dir)) != NULL)
+        {   
+            if (std::string(file_list->d_name) != "." && std::string(file_list->d_name) != "..")
+                html_text = html_text + "<li><a href=\"" + root + file_list->d_name + "\">" + file_list->d_name + "</a></li>\n";
+        }
+        if (write(fd_file, html_text.c_str(), html_text.size()) == -1)
+            err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
+        closedir(dir);
+        close(fd_file);
+        return (get_fd(root));
+    }
+    return (internServerError());
+}
+
+int Response::get_fd(std::string root)
 {
     int fd_file = -1;
 
-    _pos_file_response = pos_file_response;
-    if (!redirection.empty() && !error_code)//si existe redireccion y no hay ningun error
-        root = redirection;
-    std::cout << "root : " << root << std::endl;
+    if (stat(root.c_str(), &fileStat) == -1)
+        err(NOT_FOUND, ROOT_NOT_FOUND);
     if (access(root.c_str(), F_OK) == -1)//si achivo no existe
         err(NOT_FOUND, ROOT_NOT_FOUND);
     else if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
         err(FORBIDEN, ROOT_FORBIDEN);
-    if (stat(root.c_str(), &fileStat) == -1)
-        err(NOT_FOUND, ROOT_NOT_FOUND);
-    else if  ((fd_file = open(root.c_str(), O_RDONLY)) == -1)    
+    if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
+    {
         err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
-    std::cout << "fd open : " << fd_file << std::endl;
+        return (internServerError());
+    }
     return (fd_file);
+}
+
+int Response::open_file(int pos_file_response)
+{
+    _pos_file_response = pos_file_response;
+    if (!redirection.empty() && !error_code)//si existe redireccion y no hay ningun error
+        root = redirection;
+    root += uri;
+    std::cout << "\033[33m" << " root " << root <<  "\033[0m" << std::endl;
+    if (stat(root.c_str(), &fileStat) == -1)
+    {
+        err(NOT_FOUND, ROOT_NOT_FOUND);
+        return (get_fd(root));
+    }
+    if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
+        return (get_fd(root));
+    else if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
+    {
+        if (root.rfind("/") != root.size() - 1)
+            root += "/";
+        root += index;
+        std::cout << "\033[33m" << " index " << index <<  "\033[0m" << std::endl;
+        std::cout << "\033[33m" << " root " << root <<  "\033[0m" << std::endl;
+        if (stat(root.c_str(), &fileStat) == -1)
+            return (make_autoindex_file());
+        else
+            return (get_fd(root));
+    }
+    return (internServerError());
 }
 
 //*********************** PRINT RESPONSE ************************//

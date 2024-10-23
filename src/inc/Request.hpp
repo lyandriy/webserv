@@ -76,7 +76,11 @@ private:
 	bool check_uri();
 	bool check_protocol();
 
+<<<<<<< HEAD
 	std::string spaces_trim(std::string &str);
+=======
+	void spaces_trim(std::string &str);
+>>>>>>> response
 	void set_host_and_port(std::string &host_line_value);
 	
 	void split_params(std::string &params_raw);
@@ -150,6 +154,7 @@ public:
 	void	set_current_status(int);
 	Location	getLoc() const;
 	Server	getServ() const;
+	void	reset(void);
 
 
 	// Para debug //
@@ -162,4 +167,3 @@ public:
 	void print_full_info();
 	//void	ok_request();
 };
-
