@@ -238,6 +238,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
 	check_request_line(server);
+
 	if (search_body_length_header() == true)
 	{
 		// esto empieza a crecer lo suficiente como para hacer pasarlo a manage_request_with_body ->NO, manage_request_w_body va a ser para almacenar los sucesivos buffers de la request con body en body  
@@ -266,6 +267,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	}
 	else if (search_chunked_body() == true)
 	{
+		if (debug == true){std::cout << "ENCONTRADO EL HEADER DE CHUNKEDDDDDDDDDDDDDDD\n\n";}
 		if (_status == REQUEST_WITH_BODY)
 		{
 			set_validity(BAD_REQUEST, "Incompatible headers");
@@ -468,10 +470,12 @@ bool Request::read_headers_lines()
 		return _valid;
 	if (_lines.size() <= 1)
 		return _valid;
+	if (debug == true){std::cout << "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY\n" << std::endl;}
 
 	for (size_t i = 1; i < _lines.size(); i++)
 	{
 		colon_position = _lines[i].find(":");
+		if (debug == true){std::cout << "->->->->->->->-> "<<_lines[i] << " <-<-<-<-<-<-<-<-" << std::endl;}
 		if (colon_position == _lines[i].npos || 
 			_lines[i].find(" :") != _lines[i].npos)
 			return set_validity(BAD_REQUEST);

@@ -158,19 +158,9 @@ void    SocketManager::make_response(int client, struct pollfd* pfds)
 
 void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
-<<<<<<< HEAD
-    //std::cout << "\033[33m" << " RECIV REQUEST ... " << "\033[0m" << std::endl;
-    (void)server;
-    (void)buffer;
-    (void)valread;
-    requests[client].set_error_code(200);
-    std::cout << requests[client].join_request(buffer, valread, server) << std::endl;
-    //requests[client].ok_request();
-=======
     std::cout << "\033[34m" << " RECIV REQUEST ... " << "\033[0m" << std::endl;
     std::cout << requests[client].join_request(buffer, valread, server) << std::endl;
     std::cout << requests[client].get_error_code() << std::endl;
->>>>>>> response
     if (requests[client].get_error_code() != 200)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
     {
         std::cout << "\033[33m" << " STATUS CODE " << requests[client].get_error_code() << " \033[0m" << std::endl;
@@ -188,17 +178,6 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
     int     valread;
     char    buffer[BUFFER_SIZE + 1] = {0};
 
-<<<<<<< HEAD
-    // std::cout << "SIZE REQUEST: " << requests.size() << " SIZE RESPONSE: " << response.size() << " SIZE FD " << fd_file.size() << std::endl;
-    // for (int i = 0; i < sock_num; ++i)
-    // {
-    //     std::cout << "  Posicion en pollfd: " << i
-    //               << "  Descriptor fd: " << pfds[i].fd
-    //               << ", Eventos solicitados: " << pfds[i].events
-    //               << ", Eventos retornados: " << pfds[i].revents
-    //               << std::endl;
-    // }
-=======
     //std::cout << "SIZE REQUEST: " << requests.size() << " SIZE RESPONSE: " << response.size() << " SIZE FD " << fd_file.size() << std::endl;
     /*for (int i = 0; i < sock_num; ++i)
     {
@@ -208,7 +187,6 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
                   << ", Eventos retornados: " << pfds[i].revents
                   << std::endl;
     }*/
->>>>>>> response
     for (int client = listen_sockets; client < sock_num; client++)//recorre todos los sockets
     {
         //std::cout << "\033[33m" << " Cliente " << client << " al que vamos a revisar " << "\033[0m" << std::endl;
