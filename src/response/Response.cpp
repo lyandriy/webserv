@@ -27,6 +27,7 @@ Response::Response(const Location &location, Request &request){
     this->help_message = request.get_help_message();
     this->headers = request.get_headers();
     this->_pos_file_response = -1;
+    this->_pos_socket = request.get_pos_socket();
     if (request.get_headers().find("Connection") == request.get_headers().end())
         this->connection_val = "keep-alive";
     else
@@ -53,6 +54,7 @@ Response::Response(const Server &server, Request &request){
     this->help_message = request.get_help_message();
     this->headers = request.get_headers();
     this->_pos_file_response = -1;
+    this->_pos_socket = request.get_pos_socket();
     if (request.get_headers().find("Connection") == request.get_headers().end())
         this->connection_val = "keep-alive";
     else
@@ -72,6 +74,7 @@ Response::Response(Request &request)
     this->host = request.get_host();
     this->help_message = request.get_help_message();
     this->headers = request.get_headers();
+    this->_pos_socket = request.get_pos_socket();
     this->_pos_file_response = -1;
     if (request.get_error_code() == BAD_REQUEST)
         this->root = ROOT_BAD_REQUEST;
@@ -324,25 +327,46 @@ int Response::make_autoindex_file()
 {
     int fd_file = -1;
     std::string html_text;
+    char file_autoindex[14];
     struct dirent *file_list;
     root.erase((root.size() - index.size()), root.size());
     DIR *dir = opendir(root.c_str());
+    std::cout << "\033[35m" << " SOY AUTOINDEX " <<  "\033[0m" << std::endl;
     if (dir == NULL)
         return (internServerError());
     else
     {
-        if ((fd_file = open(AUTOINDEX_FILE, O_CREAT)) == -1)
+        if (uri.rfind("/") != uri.size() - 1)
+            uri += "/";
+        sprintf(file_autoindex, "autoindex%d", _pos_socket);
+        std::cout << file_autoindex << std::endl;
+        if ((fd_file = open(file_autoindex, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR)) == -1)
+        {
+            perror("Error al abrir el archivo");
+            std::cout << "\033[36m" << " SOY ERROR \n"  <<  "\033[0m" << std::endl;
             err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
+        }
+        html_text += "<html><body>";
+        html_text += "<ul>";
         while ((file_list = readdir(dir)) != NULL)
         {   
-            if (std::string(file_list->d_name) != "." && std::string(file_list->d_name) != "..")
-                html_text = html_text + "<li><a href=\"" + root + file_list->d_name + "\">" + file_list->d_name + "</a></li>\n";
+            std::cout << "\033[35m" << " SOY URIIIIIIIIIIIII \n" << uri <<  "\033[0m" << std::endl;
+            html_text += "<li>";
+            //if (std::string(file_list->d_name) != "." && std::string(file_list->d_name) != "..")
+                html_text = html_text + "<a href=\"" + uri + file_list->d_name + "\">" + file_list->d_name + "</a>\n";
+            html_text += "</li>";
         }
+        html_text += "</ul>";
+        html_text += "</html></body>";
         if (write(fd_file, html_text.c_str(), html_text.size()) == -1)
+        {
+            std::cout << "\033[35m" << _pos_socket << " SOY WRITE \n" << html_text <<  "\033[0m" << std::endl;
             err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
+        }
+        std::cout << "\033[35m" << " SOY texto \n" << html_text <<  "\033[0m" << std::endl;
         closedir(dir);
         close(fd_file);
-        return (get_fd(root));
+        return (get_fd(file_autoindex));
     }
     return (internServerError());
 }
@@ -351,6 +375,7 @@ int Response::get_fd(std::string root)
 {
     int fd_file = -1;
 
+    std::cout << "\033[33m" << " roooooooooooooooooooooooooooooooot " << root <<  "\033[0m" << std::endl;
     if (stat(root.c_str(), &fileStat) == -1)
         err(NOT_FOUND, ROOT_NOT_FOUND);
     if (access(root.c_str(), F_OK) == -1)//si achivo no existe
@@ -362,6 +387,7 @@ int Response::get_fd(std::string root)
         err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
         return (internServerError());
     }
+    std::cout << "\033[35m" << " SOY get_fd \n" <<  "\033[0m" << std::endl;
     return (fd_file);
 }
 
@@ -371,23 +397,31 @@ int Response::open_file(int pos_file_response)
     if (!redirection.empty() && !error_code)//si existe redireccion y no hay ningun error
         root = redirection;
     root += uri;
+    std::cout << "\033[33m" << " URI " << uri <<  "\033[0m" << std::endl;
     std::cout << "\033[33m" << " root " << root <<  "\033[0m" << std::endl;
     if (stat(root.c_str(), &fileStat) == -1)
     {
+        std::cout << "\033[33m" << " SOY ARCHIIIIIIIIIIIIIIIIIIIIIIIIIIIVO!!!!!!!!!!!! "  <<  "\033[0m" << std::endl;
         err(NOT_FOUND, ROOT_NOT_FOUND);
         return (get_fd(root));
     }
     if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
+    {
         return (get_fd(root));
+    }
     else if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
     {
         if (root.rfind("/") != root.size() - 1)
             root += "/";
         root += index;
         std::cout << "\033[33m" << " index " << index <<  "\033[0m" << std::endl;
-        std::cout << "\033[33m" << " root " << root <<  "\033[0m" << std::endl;
-        if (stat(root.c_str(), &fileStat) == -1)
+        if (stat(root.c_str(), &fileStat) == -1 && autoindex == 1)
             return (make_autoindex_file());
+        else if (stat(root.c_str(), &fileStat) == -1 && autoindex == 0)
+         {
+            err(NOT_FOUND, ROOT_NOT_FOUND);
+            return (get_fd(root));
+        }
         else
             return (get_fd(root));
     }

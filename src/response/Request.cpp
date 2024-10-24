@@ -794,8 +794,8 @@ int    Request::check_request_line(std::vector<Server> &server)
 
 	for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)//buscar si hay configuracion para este server name
     {
-		if (debug == true){std::cout << "HOOOOOOOOOOOOOOOOOOOOOOOST: " << _host << "\n";}
-		if (debug == true){std::cout << "SERVERRRRR NAMEEEEEEEEEEEE: " << it_serv->getServerName() << "\n";}
+		//if (debug == true){std::cout << "HOOOOOOOOOOOOOOOOOOOOOOOST: " << _host << "\n";}
+		//if (debug == true){std::cout << "SERVERRRRR NAMEEEEEEEEEEEE: " << it_serv->getServerName() << "\n";}
         if (this->_host == it_serv->getServerName())
             break;
     }
