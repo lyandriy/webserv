@@ -355,6 +355,8 @@ bool Request::search_double_CRLF()
 	size_t request_len = _req_accumulator.size();
 	if (request_len < 4)
 	{
+		std::cout << "PUTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
+		print_full_info();
 		_status = INCOMPLETE_REQUEST;
 		return false;
 	}
@@ -369,6 +371,7 @@ bool Request::search_double_CRLF()
 			return true;
 		}
 	}
+	print_full_info();
 	_status = INCOMPLETE_REQUEST;
 	return false;
 }
@@ -470,12 +473,12 @@ bool Request::read_headers_lines()
 		return _valid;
 	if (_lines.size() <= 1)
 		return _valid;
-	if (debug == true){std::cout << "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY\n" << std::endl;}
+	// if (debug == true){std::cout << "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY\n" << std::endl;}
 
 	for (size_t i = 1; i < _lines.size(); i++)
 	{
 		colon_position = _lines[i].find(":");
-		if (debug == true){std::cout << "->->->->->->->-> "<<_lines[i] << " <-<-<-<-<-<-<-<-" << std::endl;}
+		// if (debug == true){std::cout << "->->->->->->->-> "<<_lines[i] << " <-<-<-<-<-<-<-<-" << std::endl;}
 		if (colon_position == _lines[i].npos || 
 			_lines[i].find(" :") != _lines[i].npos)
 			return set_validity(BAD_REQUEST);
@@ -1041,4 +1044,19 @@ void	Request::reset(void)
 	//conf_serv
 	//conf_loc
 	server_body_size = 0;
+}
+
+void Request::print_raw_request()
+{
+	std::cout << "REQUEST EN CRUDO:\n\n";
+	for (size_t i = 0; i < _req_accumulator.size(); i++)
+	{
+		if (_req_accumulator[i] == '\r')
+			std::cout << "\\r";
+		else if (_req_accumulator[i] == '\n')
+			std::cout << "\\n\n";
+		else
+			std::cout << _req_accumulator[i];
+	}
+	std::cout << "\n\nFIN DE LA REQUEST" << std::endl;
 }

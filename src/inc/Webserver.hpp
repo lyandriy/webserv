@@ -3,7 +3,7 @@
 # define WEBSERVER_HPP
 
 # define MAX_CLIENTS 20
-# define BUFFER_SIZE 30
+# define BUFFER_SIZE 1024
 # define BACKLOG 1024
 
 # include <sys/types.h>

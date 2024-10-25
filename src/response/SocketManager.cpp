@@ -162,6 +162,7 @@ void    SocketManager::make_response(int client, struct pollfd* pfds)
 void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
     std::cout << "\033[34m" << " RECIV REQUEST ... " << "\033[0m" << std::endl;
+    requests[client].set_current_status(INCOMPLETE_REQUEST);
     std::cout << requests[client].join_request(buffer, valread, server) << std::endl;
     if (requests[client].get_error_code() != 200)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
     {
