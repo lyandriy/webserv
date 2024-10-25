@@ -126,60 +126,6 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 		break;
 	}
 	return INCOMPLETE_REQUEST;
-
-	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
-
-		/*std::ofstream outfile("request.html");
-    if (!outfile.is_open()) {
-        std::cerr << "Error opening file for writing." << std::endl;
-        return INVALID_REQUEST; // Return an error if the file cannot be opened
-    }
-
-    // Write the contents of the buffer to the file, replacing \r and \n
-    for (int i = 0; i < read_size; ++i) {
-        if (buffer[i] == '\r') {
-            outfile << "\\r"; // Replace \r with its visible representation
-        } else if (buffer[i] == '\n') {
-            outfile << "\\n"; // Replace \n with its visible representation
-        } else {
-            outfile << buffer[i]; // Write other characters as-is
-        }
-    }
-
-    // Check if writing succeeded
-    if (outfile.fail()) {
-        std::cerr << "Error writing to file." << std::endl;
-        outfile.close(); // Close the file before returning
-        return INVALID_REQUEST; // Return an error if writing fails
-    }
-
-    // Close the file after writing
-    outfile.close();*/
-	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
-
-	debug = true;
-	switch (_status)
-	{
-	case INVALID_REQUEST:
-		return INVALID_REQUEST;
-		break;
-	case INCOMPLETE_REQUEST:
-		return manage_incomplete_request(buffer, read_size, server);
-		break;
-	case HEADERS_RECEIVED:
-		return manage_headers_received(server);
-		break;
-	case REQUEST_WITH_BODY:
-		return manage_request_with_body(buffer, read_size);
-		break;
-	case CHUNKED_REQUEST:
-		return manage_chunked_request(buffer, read_size);
-		break;
-	case FULL_COMPLETE_REQUEST:
-		return manage_full_complete_request(buffer, read_size);
-		break;
-	}
-	return INCOMPLETE_REQUEST;
 }
 
 int	Request::manage_incomplete_request(char *buffer, int read_size, std::vector<Server> &server)
@@ -231,9 +177,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	read_request_lines();
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
-	// if (debug == true){std::cout << "VOY A LEER LOS HEADERS\n";}
 	extract_request_line();
-		// función Lyudmyla
 	if (check_request_line() == false)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
@@ -247,7 +191,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		split_at_CRLFx2();
 		if (static_cast<int>(_body.size()) == _body_size) // teóricamente completa, no se deberían recibir más partes de esta request
 		{
-			_status = FULL_COMPLETE_REQUEST; 
+			_status = FULL_COMPLETE_REQUEST;
 		}
 		if (static_cast<int>(_body.size()) > _body_size) // el body es más largo que el indicado en el header
 		{
@@ -263,7 +207,6 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 			return (INVALID_REQUEST);
 		}
 		_status = CHUNKED_REQUEST;
-		split_at_CRLFx2();
 		manage_possible_chunked_beggining();
 	}
 	else
@@ -287,22 +230,17 @@ void Request::split_at_CRLFx2()
 	{
 		std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
 		_body = after_CRLFx2;
+
 	}
 }
 
 int Request::manage_possible_chunked_beggining()
 {
-	if (_req_accumulator.size() - 4 == _CRLFx2_index - 1) // el CRLFx2 justo coincide en el final del vector
-	{
-		_body.clear();
-	}
-	else if (_req_accumulator.size() - 4 > _CRLFx2_index - 1) //hay cosas después del CRLFx2
-	{
-		std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
-		if (debug == true){std::cout << "Esta es la primera parte del sobrante de los headers\n";
-						for (size_t i = 0; i < after_CRLFx2.size(); i++)
-							after_CRLFx2[i];
-						std::cout << std::endl;}
+	split_at_CRLFx2();
+	if (debug == true){std::cout << "índice del doble CRLF: " << _CRLFx2_index << std::endl;}
+	if (debug == true){std::cout << "COMPROBACION DE BODY: " << _body.size() << "\n";}
+	if (debug == true){check_vector(_body);}
+	// 
 		// recorrer todo el after_CRLFx2
 			// buscar CRLFs
 				// si es un número impar guardar el número
@@ -315,7 +253,6 @@ int Request::manage_possible_chunked_beggining()
 
 		//empezar a extraer las chunks, parejas de int + string.
 		// comprobar q int y string size son iguales
-	}
 	return CHUNKED_REQUEST;
 }
 
