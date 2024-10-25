@@ -385,7 +385,7 @@ void Request::read_request_lines()
 		if (*it == '\r' && (it + 1) != _req_accumulator.end() && *(it + 1) == '\n')
 		{
 			std::string line(line_start, it);
-
+			if (debug == true){std::cout << "línea a añadir:\n" << line << std::endl;}
 			_lines.push_back(line);
 			it += 2; 
 			line_start = it;
@@ -397,6 +397,7 @@ void Request::read_request_lines()
 				if (it != _req_accumulator.end())
 				{
 					_body = std::vector<char> (it, _req_accumulator.end());
+					break;
 				}
 			}
 		}
