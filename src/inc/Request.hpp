@@ -133,6 +133,7 @@ public:
 	int get_current_status();
 	int	get_fd_socket();
 	int	get_pos_socket();
+	void split_at_CRLFx2();
 
 
 	// Location    compareUri(const std::vector<Location> &, const std::string &);
