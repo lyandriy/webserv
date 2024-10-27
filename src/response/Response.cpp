@@ -381,8 +381,9 @@ int Response::get_fd(std::string root)
 int Response::open_file(int pos_file_response)
 {
     _pos_file_response = pos_file_response;
-    if (!redirection.empty() && !error_code)//si existe redireccion y no hay ningun error
+    if (!redirection.empty() && error_code == 200)//si existe redireccion y no hay ningun error
         root = redirection;
+    std::cout << "\033[33m" << " root " <<  root << "\033[0m" << std::endl;
     root += uri;
     if (stat(root.c_str(), &fileStat) == -1)
     {

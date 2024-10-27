@@ -11,6 +11,7 @@ class Response
         struct sockaddr_in listen;//el puerto por el que van a comunicarse
         std::string host;//es el server_name
         std::string root;//la ruta donde estan los archivos
+        std::string root_origin;
         std::string uri;//lo que va despues de server_name(host), se una el root y uri y se busca alli
         std::string redirection;//redirecciona una ruta a otra
         std::string index;//de envia este archivo en caso si indican solo la ruta sin el archivo

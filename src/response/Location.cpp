@@ -1,13 +1,13 @@
 # include "../inc/Webserver.hpp"
 
 Location::Location(){
-    error_page[404] = "/error/404.html";
     accept_method.get = -1;
     accept_method.post = -1;
     accept_method.del = -1;
     cgi = -1;
     autoindex = -1;
     client_max_body_size = 0;
+    
 }
 
 Location::~Location(){}
@@ -16,9 +16,7 @@ Location::Location(const Location &other)
 {
     *this = other;
 }
-/*
-HOLA LYUDMYLA <3
-*/
+
 Location &Location::operator=(const Location &other)
 {
     this->listen = other.listen;

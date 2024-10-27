@@ -146,14 +146,16 @@ int SocketManager::is_file(int client)
 void    SocketManager::make_response(int client, struct pollfd* pfds)
 {
     pfds[client].events = POLLOUT;//cambiamos en event de socket al POLLOUT, porque la request ya ha llegado entera y tenemos que responder al cliente
-    //std::cout << "\033[37m" << " make_response " << requests[client].get_error_code() << "\033[0m" << std::endl;
-    //std::cout << "\033[36m" << " pfds[client].events " << pfds[client].events << "\033[0m" << std::endl;
-    //requests[client].set_error_code(OK);
-    //std::cout << "************************  " << requests[client].get_uri() << std::endl;
-    if (requests[client].getLoc().getBodySize() == -1)
+    if (requests[client].getLoc().getCGI() != -1)
+    {
+        std::cout << requests[client].getLoc().getBodySize() << std::endl;
         response[client] = Response(requests[client].getLoc(), requests[client]);//crear la response de error
+    }
     else
+    {
+        std::cout << requests[client].getServ().getBodySize() << std::endl;
         response[client] = Response(requests[client].getServ(), requests[client]);
+    }
     pfds[sock_num].fd = response[client].open_file(sock_num);
     pfds[sock_num].events = POLLIN;
     //std::cout << "\033[35m" << sock_num << " pfds[sock_num].fd es pipe " << pfds[sock_num].fd << "\033[0m" << std::endl;
@@ -166,7 +168,7 @@ void    SocketManager::check_join(int client, struct pollfd* pfds, std::vector<S
 {
     //std::cout << "\033[34m" << " RECIV REQUEST ... " << "\033[0m" << std::endl;
     requests[client].set_current_status(INCOMPLETE_REQUEST);
-    std::cout << requests[client].join_request(buffer, valread, server) << std::endl;
+    requests[client].join_request(buffer, valread, server);
     if (requests[client].get_error_code() != 200)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
     {
         //std::cout << "\033[33m" << " STATUS CODE " << requests[client].get_error_code() << " \033[0m" << std::endl;

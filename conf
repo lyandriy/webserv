@@ -4,8 +4,11 @@ server
     server_name localhost;
     root html/test;
     accept_method GET;
-    index prueba.html;
-    autoindex on;
+    index index.html;
+    location /hola
+    {
+        index hola2;
+    }
 }
 
 server

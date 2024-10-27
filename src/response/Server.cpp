@@ -1,7 +1,6 @@
 # include "../inc/Webserver.hpp"
 
 Server::Server(){
-    error_page[404] = "/error/404.html";
     accept_method.get = 1;
     accept_method.post = 1;
     accept_method.del = 1;
@@ -30,9 +29,7 @@ Server &Server::operator=(const Server &other)
     this->client_max_body_size = other.client_max_body_size;
     this->autoindex = other.autoindex;
     this->cgi = other.cgi;
-    for (std::vector<Location>::iterator it = other.getLocation().begin();
-        it != other.getLocation().end(); ++it)
-        this->location.push_back((*it).clone());
+    this->location = other.location;
     return *this;
 }
 

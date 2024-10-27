@@ -768,6 +768,7 @@ Location    Request::compareUri(const std::vector<Location> &location)
 
     for (size_t i = 0; i < location.size(); i++)
     {
+		std::cout << location[i].getUri() << std::endl;
         uri_location = location[i].getUri();
         found = _uri.find(location[i].getUri());
         if (found == 0)
@@ -794,21 +795,21 @@ int    Request::check_request_line(std::vector<Server> &server)
 
 	for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)//buscar si hay configuracion para este server name
     {
-		//if (debug == true){std::cout << "HOOOOOOOOOOOOOOOOOOOOOOOST: " << _host << "\n";}
-		//if (debug == true){std::cout << "SERVERRRRR NAMEEEEEEEEEEEE: " << it_serv->getServerName() << "\n";}
-        if (this->_host == it_serv->getServerName())
+		if (this->_host == it_serv->getServerName())
             break;
     }
 	if (it_serv != server.end())///si hay este server name
 	{
 		if (compareMethod(*it_serv))//comprobar em metodo y si el puerto por el que habla el cliente y el puerto de conf coinciden
         {
+			std::cout << it_serv->getBodySize() << std::endl;
 			if (!it_serv->getLocation().empty())//si el server no tiene location comprobamos la uri con root
+			{
+				std::cout << "HOLA\n";
 				conf_loc = compareUri(it_serv->getLocation());//buscamos si hay uri que esta pidiendo el cliente
-			// if (debug == true){std::cout << "\t\t\tESTADO DE ERROR:   " << _error_code << "\n\n";}
+			}
 			if (conf_loc.getAutoindex() == -1)//no existe la location
 			{
-				// if (debug == true){std::cout << "\t\t\tNO EXISTE LA LOCATION" << _error_code << "\n\n";}
 				if (!compareListen(it_serv->getListen()) && _body_size > it_serv->getBodySize())
 				{
 					this->_error_code = NOT_FOUND;
@@ -823,7 +824,6 @@ int    Request::check_request_line(std::vector<Server> &server)
 			}
 			else
 			{
-				// if (debug == true){std::cout << "\t\t\tSI HAY LOCATION LOCATION" << _error_code << "\n\n";}
 				if (!compareListen(conf_loc.getListen()) && _body_size > conf_loc.getBodySize())
 				{
 					this->_error_code = NOT_FOUND;

@@ -54,7 +54,7 @@ int    Parser::listen(){
 int    Parser::server_name(){
     for (size_t i = 0; i < words[1].size(); i++)
     {
-        if (!std::isalnum(words[1][i]) && words[1][i] != '.' && words[1][i] != '-')
+        if (!std::isprint(words[1][i]))
             throw std::runtime_error("server name is invalid.");
     }
     return(1);
@@ -78,8 +78,7 @@ bool    Parser::valid_path(std::string word)
 {
     for (size_t i = 0; i < word.size(); i++)
     {
-        if (!(std::isalnum(word[i]) || word[i] == '/' 
-            || word[i] == '-' || word[i] == '_' || word[i] == '.'))
+        if (!(std::isprint(word[i])))
             return (false);
     }
     return (true);
@@ -88,7 +87,7 @@ bool    Parser::valid_path(std::string word)
 int    Parser::index(){
     for (size_t i = 0; i < words[1].size(); i++)
     {
-        if (!isprint(words[1][i]) || words[1][i] == '/' || words[1][i] == '*' || words[1][i] == '$')
+        if (!isprint(words[1][i]))
             throw std::runtime_error("index is invalid.");
     }
     return (1);
