@@ -46,7 +46,8 @@ private:
 	int					_body_size;//del header
 
 	// Auxiliares //
-	std::vector<char> 			_request;
+	std::vector<char> 			_chunks;
+	int							_chunk_size;
 	std::vector<std::string> 	_accept_method;
 	std::string 				_request_line;
 	std::vector<std::string>	_lines;

@@ -3,7 +3,7 @@
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
 											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
-											_params(), _request(), _accept_method(), _request_line(""), _lines(),
+											_params(), _chunks(), _accept_method(), _request_line(""), _lines(),
 											_type(0), _status(1)
 {
 	debug = true;
@@ -12,14 +12,14 @@ Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket
 Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 					_body(), _help_message(), _valid(true), _error_code(200),
 					_headers(), _params(),
-					_request(), _accept_method(), _request_line(""), _lines()
+					_chunks(), _accept_method(), _request_line(""), _lines()
 {}
 
 Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
 						  _req_accumulator(request_accumulator), 
 						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 						  _body(), _help_message(), _valid(true), _error_code(200), _headers(),
-						  _params(), _request(), _accept_method(), _request_line(""), _lines()
+						  _params(), _chunks(), _accept_method(), _request_line(""), _lines()
 {
 	/*std::cout << "Constructor con índice, fd y acumulador llamado. Valor de i: " << i
 				<<" valor de fd: " << fd << "\n";
@@ -33,7 +33,7 @@ Request::Request(int i, int fd, std::vector<char> request_accumulator, int type)
 Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 								_body(), _help_message(), _valid(true), _error_code(200),
 								_headers(), _params(),
-								_request(), _accept_method(), _request_line(""), _lines() 
+								_chunks(), _accept_method(), _request_line(""), _lines() 
 {
 	debug = true;
 	if (debug == true)
@@ -43,8 +43,8 @@ Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host("")
 		// _accept_metod.push_back("POST");
 		_accept_method.push_back("DELETE");
 	}
-	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
-	// std::string aux(_request.begin(), _request.end());
+	this->_chunks.insert(_chunks.end(), buffer, buffer + std::strlen(buffer));
+	// std::string aux(_chunks.begin(), _chunks.end());
 	// _request_str = aux;
 	read_request_lines();
 	check_any_valid_line();
@@ -82,7 +82,7 @@ Request& Request::operator=(Request const & other)
 		this->_headers = other._headers;
 		this->_params = other._params;
 		this->_body_size = other._body_size;
-		this->_request = other._request;
+		this->_chunks = other._chunks;
 		this->_accept_method = other._accept_method;
 		this->_request_line = other._request_line;
 		this->_lines = other._lines;
@@ -222,6 +222,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 
 void Request::split_at_CRLFx2()
 {
+
 	if (_req_accumulator.size() - 4 == _CRLFx2_index - 1) // el CRLFx2 justo coincide en el final del vector
 	{
 		_body.clear();
@@ -229,14 +230,48 @@ void Request::split_at_CRLFx2()
 	else if (_req_accumulator.size() - 4 > _CRLFx2_index - 1) //hay cosas después del CRLFx2
 	{
 		std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
-		_body = after_CRLFx2;
-
+		if (_status == REQUEST_WITH_BODY)
+			_body = after_CRLFx2;
+		else if (_status == CHUNKED_REQUEST)
+			_chunks = after_CRLFx2;
+		else
+			_body = after_CRLFx2;
 	}
 }
 
 int Request::manage_possible_chunked_beggining()
 {
 	split_at_CRLFx2();
+	std::pair<int, std::vector<char> > aux;
+	std::vector<char>::iterator it = _chunks.begin();
+	size_t start = 0;
+	size_t end = 0;
+	size_t CRLF_count;
+
+	for (it; it != _chunks.end(); it++)
+	{
+		if (*it == '\r' && it + 1 != _chunks.end() && *(it + 1) == '\r')
+		{
+			CRLF_count++;
+			end++;
+			if (CRLF_count % 2 == 1)
+			{
+				aux.first = atoi(std::string(_chunks.begin() + start, _chunks.begin() + end).c_str());  // end+1?
+				start = end + 2;
+			}
+			else
+			{
+				// SEGUIR AQUÍ!!!!
+				// _body.insert(_body.end(), )
+				// es la segunda parte del 
+			}
+		}
+	}
+	
+	
+	
+	
+	
 	if (debug == true){std::cout << "índice del doble CRLF: " << _CRLFx2_index << std::endl;}
 	if (debug == true){std::cout << "COMPROBACION DE BODY: " << _body.size() << "\n";}
 	if (debug == true){check_vector(_body);}
@@ -603,7 +638,7 @@ bool Request::check_and_set_params(std::vector<std::string> params_unchecked)
 // --------------------  GETTERS  -------------------- //
 std::vector<char> Request::get_full_request()
 {
-	return (this->_request);
+	return (this->_chunks);
 }
 std::vector<char> Request::get_body()
 {
@@ -926,7 +961,7 @@ void Request::print_full_info() {
     std::cout << "Body Size: " << _body_size << std::endl;
 
     // Auxiliares
-    std::string request_str(_request.begin(), _request.end());
+    std::string request_str(_chunks.begin(), _chunks.end());
     std::cout << "Request (as string): " << request_str << std::endl;
 
     std::vector<std::string>::const_iterator vec_it;
@@ -972,7 +1007,7 @@ void	Request::reset(void)
 	_headers.clear();
 	_params.clear();
 	_body_size = 0;
-	_request.clear();
+	_chunks.clear();
 	_accept_method.clear();
 	_request_line.clear();
 	_lines.clear();
