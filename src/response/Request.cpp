@@ -200,7 +200,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	}
 	else if (search_chunked_body() == true)
 	{
-		if (debug == true){std::cout << "ENCONTRADO EL HEADER DE CHUNKEDDDDDDDDDDDDDDD\n\n";}
+		// if (debug == true){std::cout << "ENCONTRADO EL HEADER DE CHUNKEDDDDDDDDDDDDDDD\n\n";}
 		if (_status == REQUEST_WITH_BODY)
 		{
 			set_validity(BAD_REQUEST, "Incompatible headers");
@@ -243,38 +243,70 @@ int Request::manage_possible_chunked_beggining()
 {
 	split_at_CRLFx2();
 	std::pair<int, std::vector<char> > aux;
-	std::vector<char>::iterator it = _chunks.begin();
+	std::vector<char>::iterator  it = _chunks.begin();
 	size_t start = 0;
 	size_t end = 0;
-	size_t CRLF_count;
+	size_t CRLF_count = 0;
 
-	for (it; it != _chunks.end(); it++)
+	while (it != _chunks.end())
 	{
-		if (*it == '\r' && it + 1 != _chunks.end() && *(it + 1) == '\r')
+		if (*it == '\r' && (it + 1) != _chunks.end() && *(it + 1) == '\n')
 		{
+				if (debug == true){std::cout << "SU PUTA MADREEEEEEEEEEEEEE\n";}
 			CRLF_count++;
-			end++;
 			if (CRLF_count % 2 == 1)
 			{
-				aux.first = atoi(std::string(_chunks.begin() + start, _chunks.begin() + end).c_str());  // end+1?
+				aux.first = atoi(std::string(_chunks.begin() + start, _chunks.begin() + end + 1).c_str());  // end+1?
+				if (debug == true){std::cout << "Encontrado CRLF: " << aux.first << "\n";}				
 				start = end + 2;
 			}
-			else
+			else if (CRLF_count % 2 == 0)
 			{
+				aux.second.insert(aux.second.end(), _chunks.begin() + start, _chunks.begin() + end + 1);
+				for (size_t i = 0; i < aux.second.size(); i++){std::cout << aux.second[i];}std::cout<<std::endl;
+
+				if (debug == true){std::cout << "Encontrado CRLF par" << CRLF_count << "\n";}				
 				// SEGUIR AQUÍ!!!!
 				// _body.insert(_body.end(), )
 				// es la segunda parte del 
 			}
 		}
+		it++;
+		// std::advance(it, 1);
 	}
+		
+	// for (it = _chunks.begin(); it != _chunks.end(); ++it)
+	// {
+	// 	if (debug == true){std::cout << *it;}				
+
+	// 	if (*it == '\r' && (it + 1) != _chunks.end() && *(it + 1) == '\r')
+	// 	{
+	// 		CRLF_count++;
+	// 		end++;
+	// 		if (CRLF_count % 2 == 1)
+	// 		{
+	// 			aux.first = atoi(std::string(_chunks.begin() + start, _chunks.begin() + end + 1).c_str());  // end+1?
+	// 			if (debug == true){std::cout << "Encontrado CRLF: " << aux.first << "\n";}				
+	// 			start = end + 2;
+	// 		}
+	// 		else if (CRLF_count % 2 == 0)
+	// 		{
+	// 			aux.second.insert(aux.second.end(), _chunks.begin() + start, _chunks.begin() + end + 1);
+	// 			if (debug == true){std::cout << "Encontrado CRLF par" << CRLF_count << "\n";}				
+	// 			// SEGUIR AQUÍ!!!!
+	// 			// _body.insert(_body.end(), )
+	// 			// es la segunda parte del 
+	// 		}
+	// 	}
+	// }
 	
 	
 	
 	
 	
-	if (debug == true){std::cout << "índice del doble CRLF: " << _CRLFx2_index << std::endl;}
-	if (debug == true){std::cout << "COMPROBACION DE BODY: " << _body.size() << "\n";}
-	if (debug == true){check_vector(_body);}
+	// if (debug == true){std::cout << "índice del doble CRLF: " << _CRLFx2_index << std::endl;}
+	// if (debug == true){std::cout << "COMPROBACION DE BODY: " << _body.size() << "\n";}
+	// if (debug == true){check_vector(_body);}
 	// 
 		// recorrer todo el after_CRLFx2
 			// buscar CRLFs
@@ -327,8 +359,6 @@ bool Request::search_double_CRLF()
 	size_t request_len = _req_accumulator.size();
 	if (request_len < 4)
 	{
-		std::cout << "PUTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
-		print_full_info();
 		_status = INCOMPLETE_REQUEST;
 		return false;
 	}
@@ -357,7 +387,7 @@ void Request::read_request_lines()
 		if (*it == '\r' && (it + 1) != _req_accumulator.end() && *(it + 1) == '\n')
 		{
 			std::string line(line_start, it);
-			if (debug == true){std::cout << "línea a añadir:\n" << line << std::endl;}
+			// if (debug == true){std::cout << "línea a añadir:\n" << line << std::endl;}
 			_lines.push_back(line);
 			it += 2; 
 			line_start = it;
