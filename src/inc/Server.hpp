@@ -28,9 +28,9 @@ class Server
         void    setRedirection(std::string);
         void    setErrorPage(std::vector<std::string> &);
         void    setBodySize(std::vector<std::string> &);
-        void    setAutoindex(std::string);
         void    setCGI(std::string);
         
+        void    setAutoindex(std::string);
         void    setUri(std::string, int);
         void    setLocation(std::vector<std::string> &);
         void    fillLocation();
@@ -41,6 +41,7 @@ class Server
         Server();
         ~Server();
         Server(const Server &);
+        Server(int);
         Server &operator=(const Server &);
 
         std::vector<struct sockaddr_in>    getListen() const;

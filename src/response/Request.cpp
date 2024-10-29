@@ -6,6 +6,8 @@ Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket
 											_params(), _request(), _accept_method(), _request_line(""), _lines(),
 											_type(0), _status(1)
 {
+	conf_loc = Location();
+	conf_serv = Server(-1);
 	debug = true;
 }
 
@@ -791,7 +793,6 @@ bool     Request::compareMethod(Server &server)
 int    Request::check_request_line(std::vector<Server> &server)
 {
 	std::vector<Server>::iterator it_serv;
-	conf_loc = Location();
 
 	for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)//buscar si hay configuracion para este server name
     {
@@ -804,15 +805,12 @@ int    Request::check_request_line(std::vector<Server> &server)
         {
 			std::cout << it_serv->getBodySize() << std::endl;
 			if (!it_serv->getLocation().empty())//si el server no tiene location comprobamos la uri con root
-			{
-				std::cout << "HOLA\n";
 				conf_loc = compareUri(it_serv->getLocation());//buscamos si hay uri que esta pidiendo el cliente
-			}
 			if (conf_loc.getAutoindex() == -1)//no existe la location
 			{
 				if (!compareListen(it_serv->getListen()) && _body_size > it_serv->getBodySize())
 				{
-					this->_error_code = NOT_FOUND;
+					this->_error_code = NOT_FOUND;//error para cuando no listen
         			return (0);
 				}
 				if (this->_uri.find(it_serv->getRoot()) != 0)
@@ -826,7 +824,7 @@ int    Request::check_request_line(std::vector<Server> &server)
 			{
 				if (!compareListen(conf_loc.getListen()) && _body_size > conf_loc.getBodySize())
 				{
-					this->_error_code = NOT_FOUND;
+					this->_error_code = NOT_FOUND;//error para cuando no listen
         			return (0);
 				}
 				this->server_body_size = conf_loc.getBodySize();
@@ -836,7 +834,7 @@ int    Request::check_request_line(std::vector<Server> &server)
 		}
     }
 	if (debug == true){std::cout << "\t\t\tESTADO DE ERROR " << _error_code << "\n" << std::endl;}
-	this->_error_code = NOT_FOUND;
+	this->_error_code = NOT_FOUND;//error para cuando no encuentra el server
 	return (0);
 }
 

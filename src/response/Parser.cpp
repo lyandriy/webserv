@@ -151,7 +151,7 @@ int    Parser::error_page()
         {
             for (size_t i = 0; i < words[a].size(); i++)
             {
-                if (!isprint(words[a][i]) || words[a][i] == '*' || words[a][i] == '$')
+                if (!isprint(words[a][i]))
                     throw std::runtime_error("error page is invalid.");
             }
             return (1);

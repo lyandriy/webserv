@@ -5,9 +5,11 @@ server
     root html/test;
     accept_method GET;
     index index.html;
+    error_page 404 /hola/hola1;
     location /hola
     {
         index hola2;
+        error_page 404 error/400.html;
     }
 }
 
@@ -17,5 +19,4 @@ server
     server_name localhost;
     root html/test;
     accept_method GET;
-
 }

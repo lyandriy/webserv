@@ -1,0 +1,42 @@
+[31mServer Name: localhost
+[0mAccept Method: GET 1 POST 0 DELETE 0
+Client Max Body Size: 1048576
+Root: html/test
+Autoindex: 0
+Index: index.html
+CGI: 0
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8080
+Error Pages: 
+  Error Code: 404, Page: /hola/hola1
+Locations (1): 
+[33mLocation 1:
+[0mURI: /hola
+Server Name: localhost
+Accept Method: GET 1 POST 0 DELETE 0
+Client Max Body Size: 1048576
+Root: html/test
+Autoindex: 0
+Index: hola2
+CGI: 0
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8080
+Error Pages: 
+  Error Code: 404, Page: error/400.html
+[31mServer Name: localhost
+[0mAccept Method: GET 1 POST 0 DELETE 0
+Client Max Body Size: 1048576
+Root: html/test
+Autoindex: 0
+Index: index.html
+CGI: 0
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8081
+Error Pages: 
+Locations (0): 
+SIZE REQUEST: 0 SIZE RESPONSE: 0 SIZE FD 0
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0

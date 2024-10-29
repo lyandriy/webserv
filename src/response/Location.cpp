@@ -7,7 +7,6 @@ Location::Location(){
     cgi = -1;
     autoindex = -1;
     client_max_body_size = 0;
-    
 }
 
 Location::~Location(){}

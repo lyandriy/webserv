@@ -11,7 +11,6 @@ class Response
         struct sockaddr_in listen;//el puerto por el que van a comunicarse
         std::string host;//es el server_name
         std::string root;//la ruta donde estan los archivos
-        std::string root_origin;
         std::string uri;//lo que va despues de server_name(host), se una el root y uri y se busca alli
         std::string redirection;//redirecciona una ruta a otra
         std::string index;//de envia este archivo en caso si indican solo la ruta sin el archivo
@@ -30,6 +29,7 @@ class Response
         struct stat fileStat;//informacion sobre el archivo
         std::string connection_val;
         size_t total_bytes_read;
+        std::string root_origin;
     public:
         Response();
         ~Response();
@@ -37,7 +37,6 @@ class Response
         Response(const Response &);
         Response(const Location &, Request &);
         Response(const Server &, Request &);
-        Response(Request &);
 
 
         struct sockaddr_in getListen() const;
@@ -79,10 +78,12 @@ class Response
         void setBytesRead(size_t);
 
         int     open_file(int);
-        void    err(int, std::string);
+        int    open_error_file();
         int     get_fd(std::string);
         int     make_autoindex_file();
         int     internServerError();
+        void    error_response();
+        void    join_with_slash(std::string &, std::string &);
 
         void print_full_info();
 };

@@ -10,6 +10,10 @@ Server::Server(){
     index = "index.html";
 }
 
+Server::Server(int i){
+   autoindex = i;
+}
+
 Server::~Server(){}
 
 Server::Server(const Server &other)

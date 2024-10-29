@@ -31,7 +31,7 @@ class SocketManager
         void    make_response(int, struct pollfd*);
         void    check_join(int, struct pollfd*, std::vector<Server> &, char *, int);
         void    close_move_pfd(struct pollfd*, int);
-        void    sendErrorResponse(struct pollfd*, int, int);
+        void    sendErrorResponse(struct pollfd*, int);
         std::string make_response_str(std::string, int, std::string, struct stat);
         int is_file(int);
 };

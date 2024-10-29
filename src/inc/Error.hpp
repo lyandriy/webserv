@@ -22,7 +22,6 @@
 # define ROOT_INTERNAL_SERVER_ERROR "html/error/500.html"
 # define ROOT_SERVICE_UNAVAIBLE "html/error/503.html"
 # define ROOT_HTTP_VERSION_NOT_SUPPORTED "html/error/505.html"
-# define AUTOINDEX_FILE "html/autoindex.html"
 
 # define HTML_AUTOINDEX_BEGIN "<!DOCTYPE html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Índice del Directorio</title></head>\n<body>\n    <h1>Índice del Directorio</h1>\n    <ul>\n"
 # define HTML_AUTOINDEX_END "    </ul>\n</body>\n</html>\r\n\r\n"

@@ -4,14 +4,49 @@ Response::Response(){}
 
 Response::~Response(){}
 
-Response::Response(const Response &other){
+Response::Response(const Response &other)
+{
     *this = other;
+}
+
+void    Response::error_response()
+{
+    std::cout << "\033[34m" << " make error_response " <<  "\033[0m" << std::endl;
+    this->connection_val = "close";
+    if (!error_page[error_code].empty())
+        uri = error_page[error_code];
+    else
+    {
+        if (error_code == BAD_REQUEST)
+            this->root = ROOT_BAD_REQUEST;
+        else if (error_code == FORBIDEN)
+            this->root = ROOT_FORBIDEN;
+        else if (error_code == NOT_FOUND)
+            this->root = ROOT_NOT_FOUND;
+        else if (error_code == METHOD_NOT_ALLOWED)
+            this->root = ROOT_METHOD_NOT_ALLOWED;
+        else if (error_code == REQUEST_TIMEOUT)
+            this->root = ROOT_REQUEST_TIMEOUT;
+        else if (error_code == CONTENT_TOO_LARGE)
+            this->root = ROOT_CONTENT_TOO_LARGE;
+        else if (error_code == URI_TOO_LONG)
+            this->root = ROOT_URI_TOO_LONG;
+        else if (error_code == INTERNAL_SERVER_ERROR)
+            this->root = ROOT_INTERNAL_SERVER_ERROR;
+        else if (error_code == SERVICE_UNAVAIBLE)
+            this->root = ROOT_SERVICE_UNAVAIBLE;
+        else if (error_code == HTTP_VERSION_NOT_SUPPORTED)
+            this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
+        uri.clear();
+    }
 }
 
 Response::Response(const Location &location, Request &request){
     this->root = location.getRoot();
     this->index = location.getIndex();
     this->redirection = location.getRedirection();
+    if (!redirection.empty())
+        root = redirection;
     this->error_page = location.getErrorPage();
     this->cgi = location.getCGI();
     this->autoindex = location.getAutoindex();
@@ -32,6 +67,8 @@ Response::Response(const Location &location, Request &request){
         this->connection_val = "keep-alive";
     else
         this->connection_val = request.get_headers()["Connection"];
+    if (this->error_code != 200)
+        error_response();
     total_bytes_read = 0;
 }
 
@@ -56,55 +93,11 @@ Response::Response(const Server &server, Request &request){
     this->_pos_file_response = -1;
     this->_pos_socket = request.get_pos_socket();
     if (request.get_headers().find("Connection")->second.empty())
-    {
-        printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
         this->connection_val = "keep-alive";
-    }
     else
-    {
-            printf("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n");
-            std::cout << "request.get_headers()[Connection] " << request.get_headers()["Connection"] << std::endl;
         this->connection_val = request.get_headers()["Connection"];
-    }
-    total_bytes_read = 0;
-}
-
-Response::Response(Request &request)
-{
-    this->listen.sin_family = AF_INET;
-    this->listen.sin_port = htons(request.get_port());
-    this->listen.sin_addr.s_addr = INADDR_ANY;
-    this->help_message = request.get_help_message();
-    this->error_code = request.get_error_code();
-    this->uri = request.get_uri();
-    this->protocol = request.get_protocol();
-    this->host = request.get_host();
-    this->help_message = request.get_help_message();
-    this->headers = request.get_headers();
-    this->_pos_socket = request.get_pos_socket();
-    this->_pos_file_response = -1;
-    if (request.get_error_code() == BAD_REQUEST)
-        this->root = ROOT_BAD_REQUEST;
-    else if (request.get_error_code() == FORBIDEN)
-        this->root = ROOT_FORBIDEN;
-    else if (request.get_error_code() == NOT_FOUND)
-        this->root = ROOT_NOT_FOUND;
-    else if (request.get_error_code() == METHOD_NOT_ALLOWED)
-        this->root = ROOT_METHOD_NOT_ALLOWED;
-    else if (request.get_error_code() == REQUEST_TIMEOUT)
-        this->root = ROOT_REQUEST_TIMEOUT;
-    else if (request.get_error_code() == CONTENT_TOO_LARGE)
-        this->root = ROOT_CONTENT_TOO_LARGE;
-    else if (request.get_error_code() == URI_TOO_LONG)
-        this->root = ROOT_URI_TOO_LONG;
-    else if (request.get_error_code() == INTERNAL_SERVER_ERROR)
-        this->root = ROOT_INTERNAL_SERVER_ERROR;
-    else if (request.get_error_code() == SERVICE_UNAVAIBLE)
-        this->root = ROOT_SERVICE_UNAVAIBLE;
-    else if (request.get_error_code() == HTTP_VERSION_NOT_SUPPORTED)
-        this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
-    this->_pos_file_response = -1;
-    this->connection_val = "close";
+    if (this->error_code != 200)
+        error_response();
     total_bytes_read = 0;
 }
 
@@ -311,11 +304,18 @@ void    Response::setBytesRead(size_t bytes_read)
 {
     this->total_bytes_read += bytes_read;
 }
+// ***************** ANTIGUO OPEN FD ********************* //
 
-void    Response::err(int error, std::string root_error)
+/*void    Response::err(int error, std::string root_error)
 {
+    if (uri.rfind("/") != uri.size() - 1)
+            uri += "/";
+    if (!error_page[error].empty())
+        root = root_origin + error_page[error];
+    else
+        root = root_error;
     error_code = error;
-    root = root_error;
+    std::cout << "\033[32m" << " root + err " <<  root << "\033[0m" << std::endl;
 }
 
 int    Response::internServerError()
@@ -363,7 +363,12 @@ int Response::make_autoindex_file()
 int Response::get_fd(std::string root)
 {
     int fd_file = -1;
-
+    if (error_code != 200 && !error_page[error_code].empty())
+    {
+        std::cout << error_page[error_code] << " y root " << root << std::endl;
+        root.erase((root.size() - index.size()), root.size()) += error_page[error_code];
+        std::cout << root << std::endl;
+    }
     if (stat(root.c_str(), &fileStat) == -1)
         err(NOT_FOUND, ROOT_NOT_FOUND);
     if (access(root.c_str(), F_OK) == -1)//si achivo no existe
@@ -381,12 +386,13 @@ int Response::get_fd(std::string root)
 int Response::open_file(int pos_file_response)
 {
     _pos_file_response = pos_file_response;
-    if (!redirection.empty() && error_code == 200)//si existe redireccion y no hay ningun error
-        root = redirection;
     std::cout << "\033[33m" << " root " <<  root << "\033[0m" << std::endl;
+    root_origin = root;
     root += uri;
+    std::cout << "\033[32m" << " root + uri " <<  root << "\033[0m" << std::endl;
     if (stat(root.c_str(), &fileStat) == -1)
     {
+        std::cout << "\033[32m" << " stat error " << "\033[0m" << std::endl;
         err(NOT_FOUND, ROOT_NOT_FOUND);
         return (get_fd(root));
     }
@@ -410,6 +416,105 @@ int Response::open_file(int pos_file_response)
             return (get_fd(root));
     }
     return (internServerError());
+}*/
+
+// **********************NEW OPEN FD *************************** //
+
+int    Response::open_error_file()
+{
+    int fd = -1;
+
+    if (!error_page[error_code].empty())//si el archivo de error esta configurado
+    {
+        root = root_origin;
+        join_with_slash(root, error_page[error_code]);
+        stat(root.c_str(), &fileStat);
+        fd = open(root.c_str(), O_RDONLY);
+    }
+    if (fd == -1)
+    {
+        std::ostringstream oss;
+        oss << error_code;
+        root = "html/error/" + oss.str() + ".html";//si el archivo de error no esta configurado se retorna el de server
+        stat(root.c_str(), &fileStat);
+        fd = open(root.c_str(), O_RDONLY);
+    }
+    return (fd);
+}
+
+int Response::get_fd(std::string root)
+{
+    int fd_file = -1;
+    if (stat(root.c_str(), &fileStat) == -1)
+        error_code = NOT_FOUND;
+    if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
+    {
+        if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
+            error_code = FORBIDEN;
+        if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
+            error_code = INTERNAL_SERVER_ERROR;
+    }
+    return (fd_file);
+}
+
+void    Response::join_with_slash(std::string &root, std::string &uri)
+{
+    if (root[root.size() - 1] != '/' && uri[0] != '/')//si ninguno tiene /, añadimos una
+        root += "/";
+    if (root[root.size() - 1] == '/' && uri[0] == '/')//si los dos tienen /, eliminamos una
+        root.erase(root.size() - 1);
+    root += uri;//unimos dos strings
+}
+
+int Response::make_autoindex_file()
+{
+    std::string html_text;
+    int fd[2];
+    struct dirent *file_list;
+
+    root = root_origin;
+    join_with_slash(root, uri);//recupero la ruta sin el autoindex
+    DIR *dir = opendir(root.c_str());//abro el dir
+    if (dir != NULL)//reviso si se puede habrir
+    {
+        if (uri.rfind("/") != uri.size() - 1)//compribar que la uri termina con /
+            uri += "/";
+        if (pipe(fd) != -1)//abrimos pipe
+        {
+            html_text = HTML_AUTOINDEX_BEGIN;//metemos el texto de inicio
+            while ((file_list = readdir(dir)) != NULL)
+                html_text += "      <li><a href=\"" + uri + file_list->d_name + "\">" + file_list->d_name + "</a></li>\n";
+            html_text += HTML_AUTOINDEX_END;//metemos el texto de final
+            if (write(fd[1], html_text.c_str(), html_text.size()) != -1)//escribimos en pipe
+            {
+                closedir(dir);//cerramos el directorio
+                close(fd[1]);//cerramos el pipe de escritura
+                error_code = OK;
+                fileStat.st_size = html_text.size();
+                return (fd[0]);
+            }
+        }
+    }
+    error_code = INTERNAL_SERVER_ERROR;
+    return (-1);
+}
+
+int Response::open_file(int pos_file_response)
+{
+    int fd;
+    _pos_file_response = pos_file_response;//posicion del fd en pollfd del archivo que se v a enviar al cliente
+    root_origin = root;//copiamos rota original
+    join_with_slash(root, uri);//ruta + uri
+    fd = get_fd(root);//stat + abrimos ruta + uri
+    if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
+    {
+        join_with_slash(root, index);//root + index
+        if ((fd = get_fd(root)) == -1 && autoindex)//probamos root + index, si no existe y autoindex es on
+            fd = make_autoindex_file();//hacemos el archivo de autoindex
+    }
+    if (fd == -1)
+        fd = open_error_file();//funcion que abre archivo de error
+    return (fd);
 }
 
 //*********************** PRINT RESPONSE ************************//
