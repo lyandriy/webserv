@@ -243,29 +243,72 @@ int Request::manage_possible_chunked_beggining()
 {
 	split_at_CRLFx2();
 	std::pair<int, std::vector<char> > aux;
-	std::vector<char>::iterator  it = _chunks.begin();
+	// std::vector<char>::iterator  it = _chunks.begin();
 	size_t start = 0;
 	size_t end = 0;
 	size_t CRLF_count = 0;
 
-	while (it != _chunks.end())
+	(void)start;
+	(void)end;
+	(void)CRLF_count;
+
+
+	for (size_t i = 0; i < _chunks.size(); i++)
 	{
+		if (_chunks[i] == '\r' && i + 1 <= _chunks.size() && _chunks[i + 1] == '\n')
+		{
+			end = i - 1;
+			// if (_chunks[end] == '\r'){std::cout << "\\r";}
+			// else if (_chunks[end] == '\n'){std::cout << "\\n";}
+			// else {std::cout << _chunks[end];}
+			// std::cout << std::endl;
+			// start = end + 2;
+		for (size_t j = start; j <= end; j++)
+		{
+			if (debug == true){std::cout << "\033[31mEste es el CRLF:\033[0m\n";}
+			if (_chunks[j] == '\r'){std::cout << "\\r";}
+			else if (_chunks[j] == '\n'){std::cout << "\\n";}
+			else {std::cout << _chunks[j];}
+			std::cout << std::endl;
+		}
+		start = end + 2;
+		
+		}
+		
+	}
+	
+	/* while (it != _chunks.end())
+	{
+		if (*it == '\r'){std::cout << "\\r";}
+		else if (*it == '\n'){std::cout << "\\n";}
+		else {std::cout << *it;}
+		std::cout.flush();
+
+
 		if (*it == '\r' && (it + 1) != _chunks.end() && *(it + 1) == '\n')
 		{
 				if (debug == true){std::cout << "SU PUTA MADREEEEEEEEEEEEEE\n";}
 			CRLF_count++;
 			if (CRLF_count % 2 == 1)
 			{
+				if (debug == true)
+				{
+					std::cout << "\033[31mEste es el primer caracter encontrado:\033[0m\n";
+					if (*(_chunks.begin() + start) == '\r'){std::cout << "\\r\n";}
+					else if (*(_chunks.begin() + start)){std::cout << "\\n\n";}
+					else {std::cout << *(_chunks.begin() + start) << "\n";}
+
+				}
 				aux.first = atoi(std::string(_chunks.begin() + start, _chunks.begin() + end + 1).c_str());  // end+1?
-				if (debug == true){std::cout << "Encontrado CRLF: " << aux.first << "\n";}				
+				// if (debug == true){std::cout << "Encontrado CRLF: " << aux.first << "\n";}				
 				start = end + 2;
 			}
 			else if (CRLF_count % 2 == 0)
 			{
-				aux.second.insert(aux.second.end(), _chunks.begin() + start, _chunks.begin() + end + 1);
-				for (size_t i = 0; i < aux.second.size(); i++){std::cout << aux.second[i];}std::cout<<std::endl;
+				// aux.second.insert(aux.second.end(), _chunks.begin() + start, _chunks.begin() + end + 1);
+				// for (size_t i = 0; i < aux.second.size(); i++){std::cout << aux.second[i];}std::cout<<std::endl;
 
-				if (debug == true){std::cout << "Encontrado CRLF par" << CRLF_count << "\n";}				
+				// if (debug == true){std::cout << "Encontrado CRLF par" << CRLF_count << "\n";}				
 				// SEGUIR AQUÍ!!!!
 				// _body.insert(_body.end(), )
 				// es la segunda parte del 
@@ -273,40 +316,9 @@ int Request::manage_possible_chunked_beggining()
 		}
 		it++;
 		// std::advance(it, 1);
-	}
+	} */
+	if (debug == true){std::cout << "\033[31mBUCLE TERMINADO\033[0m\n" << std::endl;}
 		
-	// for (it = _chunks.begin(); it != _chunks.end(); ++it)
-	// {
-	// 	if (debug == true){std::cout << *it;}				
-
-	// 	if (*it == '\r' && (it + 1) != _chunks.end() && *(it + 1) == '\r')
-	// 	{
-	// 		CRLF_count++;
-	// 		end++;
-	// 		if (CRLF_count % 2 == 1)
-	// 		{
-	// 			aux.first = atoi(std::string(_chunks.begin() + start, _chunks.begin() + end + 1).c_str());  // end+1?
-	// 			if (debug == true){std::cout << "Encontrado CRLF: " << aux.first << "\n";}				
-	// 			start = end + 2;
-	// 		}
-	// 		else if (CRLF_count % 2 == 0)
-	// 		{
-	// 			aux.second.insert(aux.second.end(), _chunks.begin() + start, _chunks.begin() + end + 1);
-	// 			if (debug == true){std::cout << "Encontrado CRLF par" << CRLF_count << "\n";}				
-	// 			// SEGUIR AQUÍ!!!!
-	// 			// _body.insert(_body.end(), )
-	// 			// es la segunda parte del 
-	// 		}
-	// 	}
-	// }
-	
-	
-	
-	
-	
-	// if (debug == true){std::cout << "índice del doble CRLF: " << _CRLFx2_index << std::endl;}
-	// if (debug == true){std::cout << "COMPROBACION DE BODY: " << _body.size() << "\n";}
-	// if (debug == true){check_vector(_body);}
 	// 
 		// recorrer todo el after_CRLFx2
 			// buscar CRLFs
