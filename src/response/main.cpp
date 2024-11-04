@@ -30,10 +30,19 @@ int main(int argc, char **argv)
     while (true)
     {
         //std::cout << "\033[33m" << " MAIN " <<  "\033[0m" << std::endl;
+        socketManager.acceptClient(pfds);//comprueba si hay un cliente y lo acepta
         if ((ready = poll(pfds, socketManager.getSockNum(), 1000)) == -1)//monitorear si hay algun cliente
              std::cerr << "Error: poll error." << std::endl;
-        socketManager.acceptClient(pfds);//comprueba si hay un cliente y lo acepta
-        socketManager.recvRequest(pfds, server);//recibe mensajes de request
+           for (int i = 0; i < 10; ++i)
+    {
+        std::cout << "  Posicion en pollfd: " << i
+                  << "  Descriptor fd: " << pfds[i].fd
+                  << ", Eventos solicitados: " << pfds[i].events
+                  << ", Eventos retornados: " << pfds[i].revents
+                  << std::endl;
+    }
+        
+        socketManager.reventPOLLIN(pfds, server);//recibe mensajes de request
         socketManager.sendResponse(pfds);//responder al cliente
     }
 }

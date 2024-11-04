@@ -965,7 +965,5 @@ void	Request::reset(void)
 	_type = 0;
 	_status = EMPTY_REQUEST;
 	_CRLFx2_index = 0;
-	//conf_serv
-	//conf_loc
 	server_body_size = 0;
 }

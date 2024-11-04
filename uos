@@ -1,0 +1,326 @@
+[31mServer Name: localhost
+[0mAccept Method: GET 1 POST 0 DELETE 0
+Client Max Body Size: 1048576
+Root: html/test
+Autoindex: 0
+Index: index.html
+CGI: 0
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8080
+Error Pages: 
+Locations (0): 
+[31mServer Name: localhost
+[0mAccept Method: GET 1 POST 0 DELETE 0
+Client Max Body Size: 1048576
+Root: html/test
+Autoindex: 0
+Index: index.html
+CGI: 0
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8081
+Error Pages: 
+Locations (0): 
+[33m MAIN [0m
+SIZE REQUEST: 0 SIZE RESPONSE: 0 SIZE FD 0
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0
+[33m MAIN [0m
+SIZE REQUEST: 0 SIZE RESPONSE: 0 SIZE FD 0
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0
+[33m MAIN [0m
+[38mrecvRequest 2[0m
+SIZE REQUEST: 1 SIZE RESPONSE: 0 SIZE FD 0
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 1
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 2  Descriptor fd: 5, Eventos solicitados: 1, Eventos retornados: 0
+[35msendResponse 2[0m
+[33m MAIN [0m
+[38mrecvRequest 2[0m
+[37mHAY POLLIN EN 2[0m
+[31m5 Valread 22100 Buffer
+[0m
+[34mSOY SOCKET [0m
+[35mcheck_join [0m
+1048576
+5
+[36mmake_response [0m
+[32mfile pollin 2[0m
+[38mrecvRequest 3[0m
+SIZE REQUEST: 1 SIZE RESPONSE: 1 SIZE FD 1
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 2  Descriptor fd: 5, Eventos solicitados: 4, Eventos retornados: 1
+  Posicion en pollfd: 3  Descriptor fd: 6, Eventos solicitados: 1, Eventos retornados: 0
+[35msendResponse 2[0m
+[35msendResponse 3[0m
+[33m MAIN [0m
+[38mrecvRequest 2[0m
+[38mrecvRequest 3[0m
+[37mHAY POLLIN EN 3[0m
+[31m6 Valread 78 Buffer
+[0m
+[32m SOY ARCHIVO <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Basic Web Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background: #35424a;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #35424a;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            padding: 20px;
+        }
+        footer {
+            background: #35424a;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: absolute;
+            bottom: 0;
+            width:[0m
+HTTP/1.1 200 OK
+
+SIZE REQUEST: 1 SIZE RESPONSE: 1 SIZE FD 1
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 2  Descriptor fd: 5, Eventos solicitados: 4, Eventos retornados: 4
+  Posicion en pollfd: 3  Descriptor fd: 6, Eventos solicitados: 1, Eventos retornados: 1
+[35msendResponse 2[0m
+[37mHAY POLLOUT EN 2[0m
+[32m<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Basic Web Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background: #35424a;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #35424a;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            padding: 20px;
+        }
+        footer {
+            background: #35424a;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: absolute;
+            bottom: 0;
+            width:HTTP/1.1 200 OK
+Connection: 
+Date: Fri, 31 Oct 2024 18:44:25 GMT
+Content-Length: 2001
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Basic Web Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background: #35424a;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #35424a;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            padding: 20px;
+        }
+        footer {
+            background: #35424a;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: absolute;
+            bottom: 0;
+            width:[0m
+
+[33m[0m
+2140 send size y st_size 2001
+[35msendResponse 3[0m
+[33m MAIN [0m
+[38mrecvRequest 2[0m
+[38mrecvRequest 3[0m
+[37mHAY POLLIN EN 3[0m
+[31m6 Valread 1024 Buffer
+[0m
+[32m SOY ARCHIVO  100%;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Welcome to My Website</h1>
+    </header>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="prueba.html">Services</a>
+        <a href="#">Contact</a>
+    </nav>
+
+    <main>
+        <h2>Home</h2>
+        <p>This is a simple webpage created to demonstrate the basic structure of an HTML document. You can add more content here as needed.</p>
+
+        <h2>About</h2>
+        <p>This section can include information about yourself or your business. Feel free to customize it with your content.</p>
+
+        <h2>Services</h2>
+        <p>List the services you offer or what you can provide to your visitors. This is a great way to showcase what you do.</p>
+
+        <h2>Contact</h2>
+        <p>Provide contact details or a contact form so visitors can reach you easily.</p>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 My Basic Web Page</p>
+    </footer>
+
+</body>
+</html>
+[0m
+SIZE REQUEST: 1 SIZE RESPONSE: 1 SIZE FD 1
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 2  Descriptor fd: 5, Eventos solicitados: 4, Eventos retornados: 4
+  Posicion en pollfd: 3  Descriptor fd: 6, Eventos solicitados: 1, Eventos retornados: 1
+[35msendResponse 2[0m
+[37mHAY POLLOUT EN 2[0m
+[32m 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Welcome to My Website</h1>
+    </header>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="prueba.html">Services</a>
+        <a href="#">Contact</a>
+    </nav>
+
+    <main>
+        <h2>Home</h2>
+        <p>This is a simple webpage created to demonstrate the basic structure of an HTML document. You can add more content here as needed.</p>
+
+        <h2>About</h2>
+        <p>This section can include information about yourself or your business. Feel free to customize it with your content.</p>
+
+        <h2>Services</h2>
+        <p>List the services you offer or what you can provide to your visitors. This is a great way to showcase what you do.</p>
+
+        <h2>Contact</h2>
+        <p>Provide contact details or a contact form so visitors can reach you easily.</p>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 My Basic Web Page</p>
+    </footer>
+
+</body>
+</html>
+[0m
+
+[33m[0m
+3117 send size y st_size 2001
+[35msendResponse 3[0m
+[33m MAIN [0m
+[38mrecvRequest 2[0m
+Cierre inesperado del cliente 2.
+SIZE REQUEST: 1 SIZE RESPONSE: 1 SIZE FD 1
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 2  Descriptor fd: 6, Eventos solicitados: 1, Eventos retornados: 1
+[35msendResponse 2[0m
+[33m MAIN [0m
+[38mrecvRequest 2[0m
+[37mHAY POLLIN EN 2[0m
+[31m6 Valread 977 Buffer
+[0m
+[32m SOY ARCHIVO [0m
+SIZE REQUEST: 1 SIZE RESPONSE: 1 SIZE FD 0
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0
+[33m MAIN [0m
+SIZE REQUEST: 1 SIZE RESPONSE: 1 SIZE FD 0
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0
+[33m MAIN [0m
+SIZE REQUEST: 1 SIZE RESPONSE: 1 SIZE FD 0
+  Posicion en pollfd: 0  Descriptor fd: 3, Eventos solicitados: 1, Eventos retornados: 0
+  Posicion en pollfd: 1  Descriptor fd: 4, Eventos solicitados: 1, Eventos retornados: 0
+[33m MAIN [0m

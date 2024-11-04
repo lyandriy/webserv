@@ -23,17 +23,19 @@ class SocketManager
         int     getSockNum() const;
 
         void    acceptClient(struct pollfd*);
-        void    recvRequest(struct pollfd*, std::vector<Server> &);
+        void    recvRequest(struct pollfd*, std::vector<Server> &, int);
+        void    readFile(struct pollfd*, int, int);
+        void    reventPOLLIN(struct pollfd*, std::vector<Server> &);
         void    sendResponse(struct pollfd*);
 
-        int     free_pfds_fd(struct pollfd*, std::map<int, Response> &, int);
         int     connect_socket(struct pollfd*, struct sockaddr_in &);
         void    make_response(int, struct pollfd*);
         void    check_join(int, struct pollfd*, std::vector<Server> &, char *, int);
         void    close_move_pfd(struct pollfd*, int);
-        void    sendErrorResponse(struct pollfd*, int);
-        std::string make_response_str(std::string, int, std::string, struct stat);
+        std::string    ErrorResponse();
+        std::string make_response_str(Response &, std::string);
         int is_file(int);
+        void    check_revent(struct pollfd*, int);
 };
 
 # endif

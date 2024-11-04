@@ -5,6 +5,7 @@
 # define MAX_CLIENTS 20
 # define BUFFER_SIZE 1024
 # define BACKLOG 1024
+# define CLOSE "close"
 
 # include <sys/types.h>
 # include <sys/socket.h>

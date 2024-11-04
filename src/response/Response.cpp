@@ -11,8 +11,7 @@ Response::Response(const Response &other)
 
 void    Response::error_response()
 {
-    std::cout << "\033[34m" << " make error_response " <<  "\033[0m" << std::endl;
-    this->connection_val = "close";
+    this->connection_val = CLOSE;
     if (!error_page[error_code].empty())
         uri = error_page[error_code];
     else
@@ -47,6 +46,7 @@ Response::Response(const Location &location, Request &request){
     this->redirection = location.getRedirection();
     if (!redirection.empty())
         root = redirection;
+    this->root_origin = root;
     this->error_page = location.getErrorPage();
     this->cgi = location.getCGI();
     this->autoindex = location.getAutoindex();
@@ -70,12 +70,16 @@ Response::Response(const Location &location, Request &request){
     if (this->error_code != 200)
         error_response();
     total_bytes_read = 0;
+    send_size = 0;
 }
 
 Response::Response(const Server &server, Request &request){
     this->root = server.getRoot();
     this->index = server.getIndex();
     this->redirection = server.getRedirection();
+    if (!redirection.empty())
+        root = redirection;
+    this->root_origin = root;
     this->error_page = server.getErrorPage();
     this->autoindex = server.getAutoindex();
     this->cgi = server.getCGI();
@@ -99,6 +103,7 @@ Response::Response(const Server &server, Request &request){
     if (this->error_code != 200)
         error_response();
     total_bytes_read = 0;
+    send_size = 0;
 }
 
 Response &Response::operator=(const Response &other){
@@ -225,6 +230,16 @@ size_t  Response::getBytesRead() const
     return (this->total_bytes_read);
 }
 
+std::string Response::getStringBuffer() const
+{
+    return (this->string_buffer);
+}
+
+int Response::getSendSize() const
+{
+    return (static_cast<int>(this->send_size));
+}
+
 void Response::setListen(struct sockaddr_in listen)
 {
     this->listen = listen;
@@ -304,121 +319,21 @@ void    Response::setBytesRead(size_t bytes_read)
 {
     this->total_bytes_read += bytes_read;
 }
-// ***************** ANTIGUO OPEN FD ********************* //
 
-/*void    Response::err(int error, std::string root_error)
+void    Response::setStringBuffer(std::string buffer)
 {
-    if (uri.rfind("/") != uri.size() - 1)
-            uri += "/";
-    if (!error_page[error].empty())
-        root = root_origin + error_page[error];
-    else
-        root = root_error;
-    error_code = error;
-    std::cout << "\033[32m" << " root + err " <<  root << "\033[0m" << std::endl;
+    this->string_buffer += buffer;
 }
 
-int    Response::internServerError()
+void    Response::setSendSize(ssize_t size)
 {
-    int fd_file;
-
-    if ((fd_file = open(ROOT_INTERNAL_SERVER_ERROR, O_CREAT)) == -1)
-        err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
-    if (write(fd_file, "Error 500. Internal server error", 32) == -1)
-        err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
-    error_code = INTERNAL_SERVER_ERROR;
-    return (fd_file);
+    this->send_size += size;
 }
 
-int Response::make_autoindex_file()
+void    Response::remove_sent_data(ssize_t send_size)
 {
-    std::string html_text;
-    int fd[2];
-    struct dirent *file_list;
-    root.erase((root.size() - index.size()), root.size());
-    DIR *dir = opendir(root.c_str());
-    if (dir == NULL)
-        return (internServerError());
-    else
-    {
-        if (uri.rfind("/") != uri.size() - 1)
-            uri += "/";
-        if (pipe(fd) == -1)
-            return (internServerError());
-        html_text = HTML_AUTOINDEX_BEGIN;
-        while ((file_list = readdir(dir)) != NULL)
-            html_text += "      <li><a href=\"" + uri + file_list->d_name + "\">" + file_list->d_name + "</a></li>\n";
-        html_text += HTML_AUTOINDEX_END;
-        if (write(fd[1], html_text.c_str(), html_text.size()) == -1)
-            err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
-        closedir(dir);
-        close(fd[1]);
-        error_code = OK;
-        fileStat.st_size = html_text.size();
-        return (fd[0]);
-    }
-    return (internServerError());
+    this->string_buffer.erase(0, send_size);
 }
-
-int Response::get_fd(std::string root)
-{
-    int fd_file = -1;
-    if (error_code != 200 && !error_page[error_code].empty())
-    {
-        std::cout << error_page[error_code] << " y root " << root << std::endl;
-        root.erase((root.size() - index.size()), root.size()) += error_page[error_code];
-        std::cout << root << std::endl;
-    }
-    if (stat(root.c_str(), &fileStat) == -1)
-        err(NOT_FOUND, ROOT_NOT_FOUND);
-    if (access(root.c_str(), F_OK) == -1)//si achivo no existe
-        err(NOT_FOUND, ROOT_NOT_FOUND);
-    else if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
-        err(FORBIDEN, ROOT_FORBIDEN);
-    if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
-    {
-        err(INTERNAL_SERVER_ERROR, ROOT_INTERNAL_SERVER_ERROR);
-        return (internServerError());
-    }
-    return (fd_file);
-}
-
-int Response::open_file(int pos_file_response)
-{
-    _pos_file_response = pos_file_response;
-    std::cout << "\033[33m" << " root " <<  root << "\033[0m" << std::endl;
-    root_origin = root;
-    root += uri;
-    std::cout << "\033[32m" << " root + uri " <<  root << "\033[0m" << std::endl;
-    if (stat(root.c_str(), &fileStat) == -1)
-    {
-        std::cout << "\033[32m" << " stat error " << "\033[0m" << std::endl;
-        err(NOT_FOUND, ROOT_NOT_FOUND);
-        return (get_fd(root));
-    }
-    if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
-    {
-        return (get_fd(root));
-    }
-    else if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
-    {
-        if (root.rfind("/") != root.size() - 1)
-            root += "/";
-        root += index;
-        if (stat(root.c_str(), &fileStat) == -1 && autoindex == 1)
-            return (make_autoindex_file());
-        else if (stat(root.c_str(), &fileStat) == -1 && autoindex == 0)
-        {
-            err(NOT_FOUND, ROOT_NOT_FOUND);
-            return (get_fd(root));
-        }
-        else
-            return (get_fd(root));
-    }
-    return (internServerError());
-}*/
-
-// **********************NEW OPEN FD *************************** //
 
 int    Response::open_error_file()
 {

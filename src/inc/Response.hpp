@@ -30,6 +30,8 @@ class Response
         std::string connection_val;
         size_t total_bytes_read;
         std::string root_origin;
+        std::string string_buffer;
+        ssize_t send_size;
     public:
         Response();
         ~Response();
@@ -59,6 +61,8 @@ class Response
         struct stat get_fileStat() const;
         std::string    getConnectionVal() const;
         size_t  getBytesRead() const;
+        std::string getStringBuffer() const;
+        int getSendSize() const;
 
         void setListen(struct sockaddr_in);
         void setHost(std::string);
@@ -76,6 +80,8 @@ class Response
         void setHeaders(std::map<std::string, std::string>);
         void setConnectionVal(std::string);
         void setBytesRead(size_t);
+        void setStringBuffer(std::string);
+        void setSendSize(ssize_t);
 
         int     open_file(int);
         int    open_error_file();
@@ -84,6 +90,7 @@ class Response
         int     internServerError();
         void    error_response();
         void    join_with_slash(std::string &, std::string &);
+        void    remove_sent_data(ssize_t);
 
         void print_full_info();
 };
