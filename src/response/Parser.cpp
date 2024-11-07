@@ -16,8 +16,23 @@ Parser::Parser(const std::string file) : in_file(file.c_str())
     inServerBlock = false;
     this->server_size = 0;
     this->location_size = -1;
-    if (!in_file.is_open())
+    std::ifstream archivo(file.c_str(), std::ios::in);
+    if (!in_file.is_open() || (archivo.peek() == EOF))
         throw std::runtime_error("Error: Invalid file.");
+}
+
+int check_string(std::string line)
+{
+    int flag = 0;
+
+    for (size_t i = 0; i < line.length(); ++i)
+    {
+        if (line[i] != ' ' && line[i] != '\t' && line[i] != '\n' && line[i] != '\r')
+            flag++;
+    }
+    if (flag == 0)
+        return (0);
+    return (1);
 }
 
 void    Parser::split(std::string &line)
@@ -25,8 +40,12 @@ void    Parser::split(std::string &line)
     std::istringstream  iss(line);
     std::string         line_;
 
+    if (!check_string(line))
+        throw std::runtime_error("Error: Invalid file.");
     while (iss >> line_)
+    {
         words.push_back(line_);
+    }
     iss.clear();
 }
 
@@ -334,6 +353,7 @@ std::vector<Server> Parser::conf_file()
     {
         if (!line.empty())
         {
+            std::cout << "\033[33m" << "line: \n" << line <<  "\033[0m" << std::endl;
             split(line);
             if (words[0] == "server" && words.size() == 1)
                 IaMServer();

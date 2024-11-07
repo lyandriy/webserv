@@ -12,6 +12,7 @@ class SocketManager
         std::map<int, Response> response;//posicion del cliente en pfds y su correspondiente response
         std::map<int, int>      fd_file;//posicion del cliente en pfds y su correspondiente fd de archivo responder
         std::map<int, std::string> status_code;///codigo de respuesta y el texto que va en el response line
+        std::vector<struct sockaddr_in> open_addr;
 
         SocketManager();
     public:
@@ -36,6 +37,7 @@ class SocketManager
         std::string make_response_str(Response &, std::string);
         int is_file(int);
         void    check_revent(struct pollfd*, int);
+        int its_open(struct sockaddr_in &);
 };
 
 # endif

@@ -51,6 +51,16 @@ int SocketManager::connect_socket(struct pollfd* pfds, struct sockaddr_in &addr_
     return (0);
 }
 
+int SocketManager::its_open(struct sockaddr_in &addr_vect)
+{
+    for (size_t a = 0; a < open_addr.size(); ++a)
+    {
+        if (open_addr[a].sin_port == addr_vect.sin_port && open_addr[a].sin_addr.s_addr == addr_vect.sin_addr.s_addr)
+            return (0);
+    }
+    return (1);
+}
+
 SocketManager::SocketManager(struct pollfd* pfds, std::vector<Server> &server)
 {
     this->sock_num = 0;
@@ -73,13 +83,17 @@ SocketManager::SocketManager(struct pollfd* pfds, std::vector<Server> &server)
         std::vector<struct sockaddr_in> addr_vect = server[i].getListen();
         for (size_t a = 0; a < addr_vect.size(); ++a)// recorre los sockaddr_in (los puertos que tiene un servidor)
         {
-            if (!connect_socket(pfds, addr_vect[a]))//si ha fallado algo al conectar el socket
-                std::cerr << "Error: Can't connect socket " << server[i].getServerName() << " to port." << std::endl;
-            if (sock_num == BACKLOG - 1)//si hay demasiados puertos conectados
+            if (its_open(addr_vect[a]))
             {
-                std::cerr << "Can't connect all ports" << std::endl;
-                flag = 1;
-                break;
+                if (!connect_socket(pfds, addr_vect[a]))//si ha fallado algo al conectar el socket
+                    std::cerr << "Error: Can't connect socket " << server[i].getServerName() << " to port." << std::endl;
+                if (sock_num == BACKLOG - 3)//si hay demasiados puertos conectados
+                {
+                    std::cerr << "Can't connect all ports" << std::endl;
+                    flag = 1;
+                    break;
+                }
+                open_addr.push_back(addr_vect[a]);
             }
         }
         if (flag == 1)
@@ -139,7 +153,10 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
         response[sock] = Response(requests[sock].getLoc(), requests[sock]);//crear la response de error
     else
         response[sock] = Response(requests[sock].getServ(), requests[sock]);
-    pfds[sock_num].fd = response[sock].open_file(sock_num);
+    /*if (response[sock].getCGI())
+        pfds[sock_num].fd = ;
+    else*/
+        pfds[sock_num].fd = response[sock].open_file(sock_num);
     if (pfds[sock_num].fd == -1)
     {
         fd_file[sock] = -1;
