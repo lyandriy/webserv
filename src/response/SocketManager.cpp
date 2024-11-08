@@ -159,12 +159,14 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
         pfds[sock_num].fd = response[sock].open_file(sock_num);
     if (pfds[sock_num].fd == -1)
     {
+        std::cout << pfds[sock_num].fd << std::endl;
         fd_file[sock] = -1;
         response[sock].setStringBuffer(ErrorResponse());
         response[sock].setBytesRead(response[sock].getStringBuffer().size());
     }
     else
     {
+        std::cout << pfds[sock_num].fd << std::endl;
         pfds[sock_num].events = POLLIN;
         fd_file[sock] = sock_num;
         sock_num++;
@@ -181,7 +183,7 @@ void    SocketManager::check_join(int sock, struct pollfd* pfds, std::vector<Ser
 
 void    SocketManager::check_revent(struct pollfd* pfds, int client)
 {
-    printf("check_revent %d\n", client);
+    printf("check_revent %d\n", client);//cambiar esta funcion
     if (pfds[client].revents & POLLERR) {
         printf("POLLERR %d\n", client);
         //close_move_pfd(pfds, client);

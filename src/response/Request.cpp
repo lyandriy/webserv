@@ -789,15 +789,18 @@ bool     Request::compareMethod(Server &server)
             return (false);
     return (true);
 }
+
 //esta funcion va despues de parsear la request line
 int    Request::check_request_line(std::vector<Server> &server)
 {
 	std::vector<Server>::iterator it_serv;
-
+	int i = 0;
 	for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)//buscar si hay configuracion para este server name
     {
+		std::cout << "es la i " << i << std::endl;
 		if (this->_host == it_serv->getServerName())
             break;
+		i++;
     }
 	if (it_serv != server.end())///si hay este server name
 	{
