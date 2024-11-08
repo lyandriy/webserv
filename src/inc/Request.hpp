@@ -165,4 +165,5 @@ public:
 	void print_full_info();
 	//void	ok_request();
 	void print_raw_request();
+	void print_body();
 };
