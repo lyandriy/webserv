@@ -1,21 +1,18 @@
 server
 {
     listen 8080;
+    listen 8081;
     server_name localhost;
     root html/test;
     accept_method GET;
     index index.html;
     autoindex on;
+    location /hola
+    {
+        accept_method GET;
+    }
 }
 
-server
-{
-    listen 8081;
-    server_name prueba;
-    root html/test;
-    index index.html;
-    accept_method GET;
-}
 
 server
 {
@@ -23,19 +20,16 @@ server
     server_name localhost;
     root html/test;
     index index.html;
-    accept_method GET;
 }
 server
 {
     listen 8081;
     server_name localhost;
     root html/test;
-    accept_method GET;
 }
 server
 {
     listen 8081;
     server_name localhost;
     root html/test;
-    accept_method GET;
 }

@@ -159,14 +159,12 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
         pfds[sock_num].fd = response[sock].open_file(sock_num);
     if (pfds[sock_num].fd == -1)
     {
-        std::cout << pfds[sock_num].fd << std::endl;
-        fd_file[sock] = -1;
+       fd_file[sock] = -1;
         response[sock].setStringBuffer(ErrorResponse());
         response[sock].setBytesRead(response[sock].getStringBuffer().size());
     }
     else
     {
-        std::cout << pfds[sock_num].fd << std::endl;
         pfds[sock_num].events = POLLIN;
         fd_file[sock] = sock_num;
         sock_num++;
@@ -230,6 +228,7 @@ void    SocketManager::readFile(struct pollfd* pfds, int sock, int file)
     char    buffer[BUFFER_SIZE + 1] = {0};
     
     valread = read(pfds[sock].fd, buffer, BUFFER_SIZE);
+    std::cout << "\033[33m" << pfds[sock].fd << " valread " << valread <<  "\033[0m" << std::endl;
     if (valread == -1)
         close_move_pfd(pfds, sock);
     if (response[file].getBytesRead() == 0)

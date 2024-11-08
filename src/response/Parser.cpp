@@ -13,26 +13,37 @@ Parser::~Parser(){
 
 Parser::Parser(const std::string file) : in_file(file.c_str())
 {
+    int fd_file;
+    int read_val;
+    char buffer[1];
+
     inServerBlock = false;
     this->server_size = 0;
     this->location_size = -1;
     std::ifstream archivo(file.c_str(), std::ios::in);
     if (!in_file.is_open() || (archivo.peek() == EOF))
         throw std::runtime_error("Error: Invalid file.");
-}
-
-int check_string(std::string line)
-{
-    int flag = 0;
-
-    for (size_t i = 0; i < line.length(); ++i)
+    else
     {
-        if (line[i] != ' ' && line[i] != '\t' && line[i] != '\n' && line[i] != '\r')
-            flag++;
+        fd_file = open(file.c_str(), O_RDONLY);
+        while ((read_val = read(fd_file, buffer, 1)) > 0)
+        {
+            if (buffer[0] != ' ' && buffer[0] != '\t' && buffer[0] != '\n' && buffer[0] != '\r')
+            {
+                close(fd_file);
+                break;
+            }
+            
+            std::cout << "aqui " << buffer[0] << std::endl;
+        }
+        if (read_val <= 0)
+        {
+            close(fd_file);
+            throw std::runtime_error("Error: Invalid file.");
+        }
+
     }
-    if (flag == 0)
-        return (0);
-    return (1);
+    
 }
 
 void    Parser::split(std::string &line)
@@ -40,8 +51,6 @@ void    Parser::split(std::string &line)
     std::istringstream  iss(line);
     std::string         line_;
 
-    if (!check_string(line))
-        throw std::runtime_error("Error: Invalid file.");
     while (iss >> line_)
     {
         words.push_back(line_);
@@ -228,7 +237,7 @@ void    Parser::key_words_location()
     else if (words[0] == "accept_method" && accept_method() == 1)
         this->server[server_size].setLocation(words);
     else
-        throw std::runtime_error("Error: Invalid keyword" + words[0] + "!");
+        throw std::runtime_error("Error: Invalid keyword " + words[0] + "!");
 }
 
 void    Parser::location_pars()
@@ -347,13 +356,48 @@ void    Parser::IaMServer()
         throw std::runtime_error("Error: Unrecognized keyword " + words[0] + ".");
 }
 
+//esta funcion esta mal
+bool    Parser::comparePort(std::vector<Server>::iterator &it_serv_front, std::vector<Server>::iterator &it_serv_after)
+{
+    std::vector<struct sockaddr_in>::iterator it_listen_front;
+    std::vector<struct sockaddr_in>::iterator it_listen_after;
+
+    for (it_listen_front = it_serv_front->getListen().begin(); it_listen_front != it_serv_front->getListen().end(); ++it_listen_front)
+    {
+        for (it_listen_after = it_serv_after->getListen().begin(); it_listen_after != it_serv_after->getListen().end(); ++it_listen_after)
+        {
+            if (ntohs(it_listen_after->sin_port) == (ntohs(it_listen_front->sin_port)))
+                return (true);
+        }
+    }
+    return (false);
+}
+
+void Parser::compareServer()
+{
+    std::vector<Server>::iterator it_serv_front;
+    std::vector<Server>::iterator it_serv_after;
+
+    for (it_serv_front = server.begin(); it_serv_front != server.end(); ++it_serv_front)
+    {
+        it_serv_after = it_serv_front + 1;
+
+        while (it_serv_after != server.end())
+        {
+            if (it_serv_front->getServerName() == it_serv_after->getServerName() || comparePort(it_serv_front, it_serv_after))
+                it_serv_after = server.erase(it_serv_after);
+            else
+                ++it_serv_after;
+        }
+    }
+}
+
 std::vector<Server> Parser::conf_file()
 {
     while (std::getline(in_file, line, '{'))
     {
         if (!line.empty())
         {
-            std::cout << "\033[33m" << "line: \n" << line <<  "\033[0m" << std::endl;
             split(line);
             if (words[0] == "server" && words.size() == 1)
                 IaMServer();
@@ -366,6 +410,10 @@ std::vector<Server> Parser::conf_file()
         else
             throw std::runtime_error("Error file.");
     }
+    compareServer();
+    server_size = server.size();
+    //SI HAY DOS SERVER CON EL MISMO HOST SE GUARDA SOLO EL PRIMERO. 
+    //SI HAY DOS SERVER CON EL MISMO PUERTO SE GUARDA SOLO EL PRIMERO.
     for (int i = 0; i < server_size; i++)
         this->server[i].printValuesServer();
     return (server);

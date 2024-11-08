@@ -3,7 +3,7 @@
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
 											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
-											_params(), _request(), _accept_method(), _request_line(""), _lines(),
+											_params(), _body_size(0), _request(), _accept_method(), _request_line(""), _lines(),
 											_type(0), _status(1)
 {
 	conf_loc = Location();
@@ -203,7 +203,6 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
-	check_request_line(server);
 	if (search_body_length_header() == true)
 	{
 		// esto empieza a crecer lo suficiente como para hacer pasarlo a manage_request_with_body ->NO, manage_request_w_body va a ser para almacenar los sucesivos buffers de la request con body en body  
@@ -246,6 +245,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	{
 		_status = FULL_COMPLETE_REQUEST;
 	}
+	check_request_line(server);
 	// if (debug == true){print_full_info();}
 	// if (debug == true){std::cout << "Se han leído las líneas de los header\n" << std::endl;}
 	// if (debug == true){std::cout << "El estado es: " << _status << "\n" << std::endl;}
@@ -756,7 +756,7 @@ bool    Request::compareListen(std::vector<struct sockaddr_in> listen)
     {
         for (size_t i = 0; i < listen.size(); i++)
         {
-            if (ntohs(listen[i].sin_port) == _port)
+			if (ntohs(listen[i].sin_port) == _port)
                 return (true);
         }
     }
@@ -794,30 +794,31 @@ bool     Request::compareMethod(Server &server)
 int    Request::check_request_line(std::vector<Server> &server)
 {
 	std::vector<Server>::iterator it_serv;
-	int i = 0;
+
 	for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)//buscar si hay configuracion para este server name
     {
-		std::cout << "es la i " << i << std::endl;
-		if (this->_host == it_serv->getServerName())
-            break;
-		i++;
+		if (this->_host == it_serv->getServerName())//comparar el listen y servernamme, no solo el server name
+		    break;
     }
 	if (it_serv != server.end())///si hay este server name
 	{
 		if (compareMethod(*it_serv))//comprobar em metodo y si el puerto por el que habla el cliente y el puerto de conf coinciden
         {
-			std::cout << it_serv->getBodySize() << std::endl;
 			if (!it_serv->getLocation().empty())//si el server no tiene location comprobamos la uri con root
 				conf_loc = compareUri(it_serv->getLocation());//buscamos si hay uri que esta pidiendo el cliente
 			if (conf_loc.getAutoindex() == -1)//no existe la location
 			{
-				if (!compareListen(it_serv->getListen()) && _body_size > it_serv->getBodySize())
+				std::cout << "\033[33m" << "accept_mettod " << it_serv->getAcceptMethod().post <<  "\033[0m" << std::endl;
+				std::cout << "\033[33m" << _body_size << " aaaaaaaaaaaaa " <<  it_serv->getBodySize() << "\033[0m" << std::endl;
+				if (!compareListen(it_serv->getListen()) || _body_size > it_serv->getBodySize())//comprobar el metodo!!!!!!!!!
 				{
+					std::cout << "\033[33m" << _body_size << " NOT_FOUND1 " <<  it_serv->getBodySize() << "\033[0m" << std::endl;
 					this->_error_code = NOT_FOUND;//error para cuando no listen
         			return (0);
 				}
 				if (this->_uri.find(it_serv->getRoot()) != 0)
 				{
+					std::cout << "no entiendo por que estoy aqui\n";
 					this->server_body_size = it_serv->getBodySize();
 					conf_serv = *it_serv;
 					return (1);
@@ -825,8 +826,9 @@ int    Request::check_request_line(std::vector<Server> &server)
 			}
 			else
 			{
-				if (!compareListen(conf_loc.getListen()) && _body_size > conf_loc.getBodySize())
+				if (!compareListen(conf_loc.getListen()) || _body_size > conf_loc.getBodySize())
 				{
+					std::cout << "\033[33m" << " NOT_FOUND2 " <<  "\033[0m" << std::endl;
 					this->_error_code = NOT_FOUND;//error para cuando no listen
         			return (0);
 				}
@@ -836,7 +838,6 @@ int    Request::check_request_line(std::vector<Server> &server)
 			}
 		}
     }
-	if (debug == true){std::cout << "\t\t\tESTADO DE ERROR " << _error_code << "\n" << std::endl;}
 	this->_error_code = NOT_FOUND;//error para cuando no encuentra el server
 	return (0);
 }

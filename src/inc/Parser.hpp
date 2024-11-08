@@ -44,6 +44,8 @@ class Parser
         void    server_pars();
 
         void    IaMServer();
+        void    compareServer();
+        bool    comparePort(std::vector<Server>::iterator &, std::vector<Server>::iterator &);
     public:
         Parser(const std::string);
         ~Parser();
