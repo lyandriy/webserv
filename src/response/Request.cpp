@@ -207,6 +207,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 			return (INVALID_REQUEST);
 		}
 		_status = CHUNKED_REQUEST;
+		_body.clear(); //esto es una guarrada de narices, aquí no debería haber _body...
 		manage_possible_chunked_beggining();
 	}
 	else
@@ -232,8 +233,14 @@ void Request::split_at_CRLFx2()
 		std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
 		if (_status == REQUEST_WITH_BODY)
 			_body = after_CRLFx2;
-		else if (_status == CHUNKED_REQUEST)
+		else if (_status == CHUNKED_REQUEST){
 			_chunks = after_CRLFx2;
+			std::cout << "Este es el body cuando se divide en el doble CRLF";for (size_t j = 0; j < _body.size(); j++)
+				{
+					std::cout << _body[j];
+					std::cout.flush();
+				}
+				std::cout << std::endl;}
 		else
 			_body = after_CRLFx2;
 	}
@@ -243,7 +250,7 @@ int Request::manage_possible_chunked_beggining()
 {
 	split_at_CRLFx2();
 	std::pair<int, std::vector<char> > aux;
-	// std::vector<char>::iterator  it = _chunks.begin();
+	std::vector<char>::iterator  it = _chunks.begin();
 	size_t start = 0;
 	size_t end = 0;
 	size_t CRLF_count = 0;
@@ -257,22 +264,34 @@ int Request::manage_possible_chunked_beggining()
 	{
 		if (_chunks[i] == '\r' && i + 1 <= _chunks.size() && _chunks[i + 1] == '\n')
 		{
-			end = i - 1;
-			// if (_chunks[end] == '\r'){std::cout << "\\r";}
-			// else if (_chunks[end] == '\n'){std::cout << "\\n";}
-			// else {std::cout << _chunks[end];}
-			// std::cout << std::endl;
-			// start = end + 2;
-		for (size_t j = start; j <= end; j++)
-		{
-			if (debug == true){std::cout << "\033[31mEste es el CRLF:\033[0m\n";}
-			if (_chunks[j] == '\r'){std::cout << "\\r";}
-			else if (_chunks[j] == '\n'){std::cout << "\\n";}
-			else {std::cout << _chunks[j];}
-			std::cout << std::endl;
-		}
-		start = end + 2;
-		
+			CRLF_count++;
+			end = i;
+			if (CRLF_count % 2 == 1)
+			{
+				std::string number_str(it + start, it + end);
+				aux.first = std::atoi(number_str.c_str());
+				std::cout << "\033[31mNúmero obtenido: " << aux.first << "\033[0m" << std::endl;
+				start = i + 2;
+				// almacenar en pair first
+			}
+			if (CRLF_count % 2 == 0)
+			{
+				std::string text_str(it + start, it + end);
+				std::cout << "\033[31mTexto obtenido: " << text_str << " -> " << text_str.size() << "\033[0m" << std::endl;
+				_body.insert(_body.end(), it + start, it + end);
+				std::cout << "Body acumulado: ";
+				for (size_t j = 0; j < _body.size(); j++)
+				{
+					std::cout << _body[j];
+					std::cout.flush();
+				}
+				std::cout << std::endl;
+				
+				start = i + 2;
+				// texto
+				// almacenar en pair second
+				// comparar longitud con pair first
+			}
 		}
 		
 	}
