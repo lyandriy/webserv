@@ -40,7 +40,8 @@ void    Response::error_response()
     }
 }
 
-Response::Response(const Location &location, Request &request){
+Response::Response(const Location &location, Request &request)
+{
     this->root = location.getRoot();
     this->index = location.getIndex();
     this->redirection = location.getRedirection();
@@ -96,7 +97,7 @@ Response::Response(const Server &server, Request &request){
     this->headers = request.get_headers();
     this->_pos_file_response = -1;
     this->_pos_socket = request.get_pos_socket();
-    if (request.get_headers().find("Connection")->second.empty())
+    if (request.get_headers().find("Connection")->second.empty())//revisar esta parte
         this->connection_val = "keep-alive";
     else
         this->connection_val = request.get_headers()["Connection"];
@@ -127,6 +128,7 @@ Response &Response::operator=(const Response &other){
     this->fileStat = other.fileStat;
     this->connection_val = other.connection_val;
     this->total_bytes_read = other.total_bytes_read;
+    this->send_size = other.send_size;
     return *this;
 }
 
@@ -240,6 +242,16 @@ int Response::getSendSize() const
     return (static_cast<int>(this->send_size));
 }
 
+std::map<std::string, std::string>  Response::getParams() const
+{
+    return (this->params);
+}
+
+std::vector<char>   Response::getBody() const
+{
+    return (this->body);
+}
+
 void Response::setListen(struct sockaddr_in listen)
 {
     this->listen = listen;
@@ -330,6 +342,16 @@ void    Response::setSendSize(ssize_t size)
     this->send_size += size;
 }
 
+void Response::setParams(std::map<std::string, std::string> params)
+{
+    this->params = params;
+}
+
+void Response::setBody(std::vector<char> body)
+{
+    this->body = body;
+}
+
 void    Response::remove_sent_data(ssize_t send_size)
 {
     this->string_buffer.erase(0, send_size);
@@ -342,7 +364,7 @@ int    Response::open_error_file()
     if (!error_page[error_code].empty())//si el archivo de error esta configurado
     {
         root = root_origin;
-        join_with_slash(root, error_page[error_code]);
+        join_with_uri(root, error_page[error_code]);
         stat(root.c_str(), &fileStat);
         fd = open(root.c_str(), O_RDONLY);
     }
@@ -360,25 +382,38 @@ int    Response::open_error_file()
 int Response::get_fd(std::string root)
 {
     int fd_file = -1;
-    if (stat(root.c_str(), &fileStat) == -1)
-        error_code = NOT_FOUND;
-    if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
+    
+    if (fd_file == -1)
     {
-        if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
-            error_code = FORBIDEN;
-        if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
-            error_code = INTERNAL_SERVER_ERROR;
+        std::cout << root << std::endl;
+        if (stat(root.c_str(), &fileStat) == -1)
+            error_code = NOT_FOUND;
+        if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
+        {
+            if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
+                error_code = FORBIDEN;
+            else if (cgi && error_code == 200)
+            {
+                //poner flag de que es cgi
+                //CGI cgi_obj(*this);
+                //fd_file = cgi_obj.make_cgi();
+            }
+            else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
+                error_code = INTERNAL_SERVER_ERROR;
+        }
     }
     return (fd_file);
 }
 
-void    Response::join_with_slash(std::string &root, std::string &uri)
+void    Response::join_with_uri(std::string &root, std::string &uri)
 {
-    if (root[root.size() - 1] != '/' && uri[0] != '/')//si ninguno tiene /, añadimos una
-        root += "/";
-    if (root[root.size() - 1] == '/' && uri[0] == '/')//si los dos tienen /, eliminamos una
+    if (root[root.size() - 1] == '/' && uri[0] == '/')
         root.erase(root.size() - 1);
+    else if (root[root.size() - 1] != '/' && uri[0] != '/')
+        root += '/';
     root += uri;//unimos dos strings
+    if (root[root.size() - 1] == '/')//si  tiene /, eliminamos
+        root.erase(root.size() - 1);
 }
 
 int Response::make_autoindex_file()
@@ -388,7 +423,7 @@ int Response::make_autoindex_file()
     struct dirent *file_list;
 
     root = root_origin;
-    join_with_slash(root, uri);//recupero la ruta sin el autoindex
+    join_with_uri(root, uri);//recupero la ruta sin el autoindex
     DIR *dir = opendir(root.c_str());//abro el dir
     if (dir != NULL)//reviso si se puede habrir
     {
@@ -405,7 +440,7 @@ int Response::make_autoindex_file()
                 closedir(dir);//cerramos el directorio
                 close(fd[1]);//cerramos el pipe de escritura
                 error_code = OK;
-                fileStat.st_size = html_text.size();
+                fileStat.st_size = html_text.size();//poner una fcntl
                 return (fd[0]);
             }
         }
@@ -419,14 +454,15 @@ int Response::open_file(int pos_file_response)
     int fd;
     _pos_file_response = pos_file_response;//posicion del fd en pollfd del archivo que se v a enviar al cliente
     root_origin = root;//copiamos rota original
+    join_with_uri(root, uri);
     fd = get_fd(root);//stat + abrimos ruta + uri
     if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
     {
-        join_with_slash(root, index);//root + index
+        join_with_uri(root, index);//root + index
         if ((fd = get_fd(root)) == -1 && autoindex)//probamos root + index, si no existe y autoindex es on
             fd = make_autoindex_file();//hacemos el archivo de autoindex
     }
-    if (fd == -1)
+    if (fd < 0)
         fd = open_error_file();//funcion que abre archivo de error
     return (fd);
 }

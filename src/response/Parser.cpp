@@ -33,8 +33,6 @@ Parser::Parser(const std::string file) : in_file(file.c_str())
                 close(fd_file);
                 break;
             }
-            
-            std::cout << "aqui " << buffer[0] << std::endl;
         }
         if (read_val <= 0)
         {
@@ -356,23 +354,6 @@ void    Parser::IaMServer()
         throw std::runtime_error("Error: Unrecognized keyword " + words[0] + ".");
 }
 
-//esta funcion esta mal
-bool    Parser::comparePort(std::vector<Server>::iterator &it_serv_front, std::vector<Server>::iterator &it_serv_after)
-{
-    std::vector<struct sockaddr_in>::iterator it_listen_front;
-    std::vector<struct sockaddr_in>::iterator it_listen_after;
-
-    for (it_listen_front = it_serv_front->getListen().begin(); it_listen_front != it_serv_front->getListen().end(); ++it_listen_front)
-    {
-        for (it_listen_after = it_serv_after->getListen().begin(); it_listen_after != it_serv_after->getListen().end(); ++it_listen_after)
-        {
-            if (ntohs(it_listen_after->sin_port) == (ntohs(it_listen_front->sin_port)))
-                return (true);
-        }
-    }
-    return (false);
-}
-
 void Parser::compareServer()
 {
     std::vector<Server>::iterator it_serv_front;
@@ -384,7 +365,7 @@ void Parser::compareServer()
 
         while (it_serv_after != server.end())
         {
-            if (it_serv_front->getServerName() == it_serv_after->getServerName() || comparePort(it_serv_front, it_serv_after))
+            if (it_serv_front->getServerName() == it_serv_after->getServerName())
                 it_serv_after = server.erase(it_serv_after);
             else
                 ++it_serv_after;

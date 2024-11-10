@@ -770,7 +770,6 @@ Location    Request::compareUri(const std::vector<Location> &location)
 
     for (size_t i = 0; i < location.size(); i++)
     {
-		std::cout << location[i].getUri() << std::endl;
         uri_location = location[i].getUri();
         found = _uri.find(location[i].getUri());
         if (found == 0)
@@ -797,8 +796,16 @@ int    Request::check_request_line(std::vector<Server> &server)
 
 	for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)//buscar si hay configuracion para este server name
     {
-		if (this->_host == it_serv->getServerName())//comparar el listen y servernamme, no solo el server name
-		    break;
+		if (compareListen(it_serv->getListen()))//compara el puerto, si exite un server con este puerto
+		{
+			if (this->_host == it_serv->getServerName())//comparar servername, si coinciden paramos si no, mandamos error
+			    break;
+			else
+			{
+				this->_error_code = NOT_FOUND;
+        		return (0);
+			}
+		}
     }
 	if (it_serv != server.end())///si hay este server name
 	{
@@ -808,17 +815,13 @@ int    Request::check_request_line(std::vector<Server> &server)
 				conf_loc = compareUri(it_serv->getLocation());//buscamos si hay uri que esta pidiendo el cliente
 			if (conf_loc.getAutoindex() == -1)//no existe la location
 			{
-				std::cout << "\033[33m" << "accept_mettod " << it_serv->getAcceptMethod().post <<  "\033[0m" << std::endl;
-				std::cout << "\033[33m" << _body_size << " aaaaaaaaaaaaa " <<  it_serv->getBodySize() << "\033[0m" << std::endl;
-				if (!compareListen(it_serv->getListen()) || _body_size > it_serv->getBodySize())//comprobar el metodo!!!!!!!!!
+				if (_body_size > it_serv->getBodySize())
 				{
-					std::cout << "\033[33m" << _body_size << " NOT_FOUND1 " <<  it_serv->getBodySize() << "\033[0m" << std::endl;
-					this->_error_code = NOT_FOUND;//error para cuando no listen
+					this->_error_code = NOT_FOUND;
         			return (0);
 				}
 				if (this->_uri.find(it_serv->getRoot()) != 0)
 				{
-					std::cout << "no entiendo por que estoy aqui\n";
 					this->server_body_size = it_serv->getBodySize();
 					conf_serv = *it_serv;
 					return (1);
@@ -826,9 +829,8 @@ int    Request::check_request_line(std::vector<Server> &server)
 			}
 			else
 			{
-				if (!compareListen(conf_loc.getListen()) || _body_size > conf_loc.getBodySize())
+				if (_body_size > conf_loc.getBodySize())
 				{
-					std::cout << "\033[33m" << " NOT_FOUND2 " <<  "\033[0m" << std::endl;
 					this->_error_code = NOT_FOUND;//error para cuando no listen
         			return (0);
 				}

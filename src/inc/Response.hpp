@@ -4,6 +4,7 @@
 #include "Webserver.hpp"
 
 class Request;
+//class CGI;
 
 class Response
 {
@@ -23,6 +24,8 @@ class Response
         std::string protocol;
         std::string help_message;
         std::map<std::string, std::string>  headers;
+        std::map<std::string, std::string> params;
+        std::vector<char>	body;
         int _fd_socket;
 	    int _pos_socket;//posicion del socket en pfds
         int _pos_file_response;//posicion del archivo que se va a responder en pfds
@@ -63,6 +66,8 @@ class Response
         size_t  getBytesRead() const;
         std::string getStringBuffer() const;
         int getSendSize() const;
+        std::map<std::string, std::string>  getParams() const;
+        std::vector<char>   getBody() const;
 
         void setListen(struct sockaddr_in);
         void setHost(std::string);
@@ -82,14 +87,15 @@ class Response
         void setBytesRead(size_t);
         void setStringBuffer(std::string);
         void setSendSize(ssize_t);
+        void setParams(std::map<std::string, std::string>);
+        void setBody(std::vector<char>);
 
         int     open_file(int);
         int    open_error_file();
         int     get_fd(std::string);
         int     make_autoindex_file();
-        int     internServerError();
         void    error_response();
-        void    join_with_slash(std::string &, std::string &);
+        void    join_with_uri(std::string &, std::string &);
         void    remove_sent_data(ssize_t);
 
         void print_full_info();

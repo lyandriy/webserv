@@ -1,6 +1,5 @@
 server
 {
-    listen 8080;
     listen 8081;
     server_name localhost;
     root html/test;
@@ -13,23 +12,22 @@ server
     }
 }
 
-
 server
 {
     listen 8081;
-    server_name localhost;
-    root html/test;
+    server_name loca;
+    root html/loca;
     index index.html;
 }
 server
 {
-    listen 8081;
-    server_name localhost;
-    root html/test;
+    listen 8080;
+    server_name local;
+    root html/local;
 }
 server
 {
-    listen 8081;
+    listen 8080;
     server_name localhost;
-    root html/test;
+    root html/localhost2;
 }

@@ -40,5 +40,6 @@
 # include "SocketManager.hpp"
 # include "Parser.hpp"
 # include "Error.hpp"
+# include "CGI.hpp"
 
 # endif

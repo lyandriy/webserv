@@ -153,13 +153,11 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
         response[sock] = Response(requests[sock].getLoc(), requests[sock]);//crear la response de error
     else
         response[sock] = Response(requests[sock].getServ(), requests[sock]);
-    /*if (response[sock].getCGI())
-        pfds[sock_num].fd = ;
-    else*/
-        pfds[sock_num].fd = response[sock].open_file(sock_num);
+    pfds[sock_num].fd = response[sock].open_file(sock_num);
+    //comprobar que hay flaf de cgi, si hay, no hacer nada
     if (pfds[sock_num].fd == -1)
     {
-       fd_file[sock] = -1;
+        fd_file[sock] = -1;
         response[sock].setStringBuffer(ErrorResponse());
         response[sock].setBytesRead(response[sock].getStringBuffer().size());
     }
@@ -223,12 +221,10 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
 
 void    SocketManager::readFile(struct pollfd* pfds, int sock, int file)
 {
-    std::cout << "\033[32m" << " readFile " <<  "\033[0m" << std::endl;
     int     valread;
     char    buffer[BUFFER_SIZE + 1] = {0};
     
     valread = read(pfds[sock].fd, buffer, BUFFER_SIZE);
-    std::cout << "\033[33m" << pfds[sock].fd << " valread " << valread <<  "\033[0m" << std::endl;
     if (valread == -1)
         close_move_pfd(pfds, sock);
     if (response[file].getBytesRead() == 0)
@@ -254,6 +250,7 @@ void    SocketManager::reventPOLLIN(struct pollfd* pfds, std::vector<Server> &se
         }
         if (!is_file(sock) && difftime(time(NULL), requests[sock].get_time()) > 65)//si no hay evento y el tiempo es mayoa a 65, desconectamos al socke
         {
+            //hay que mandar señal al hijo para que se cierre
             if (requests[sock].get_current_status() == EMPTY_REQUEST)//si no se ha reecibido ninguna request solo cierra la conexion
                 close_move_pfd(pfds, sock);
             else if (response.find(sock) == response.end())

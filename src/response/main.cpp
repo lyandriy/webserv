@@ -66,6 +66,7 @@ int main(int argc, char **argv)
                 {
                     socketManager.acceptClient(pfds);//comprueba si hay un cliente y lo acepta
                     socketManager.reventPOLLIN(pfds, server);//recibe mensajes de request
+                    //comprobar si hay flag de cgi en cada response, si hay hacer el proceso hijo, revisar cuando termina, al terminar el hijo crear fd_file ppara este response 
                     socketManager.sendResponse(pfds);//responder al cliente
                 }
                 if (first_poll == 0)
