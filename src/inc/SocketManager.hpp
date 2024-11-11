@@ -13,6 +13,10 @@ class SocketManager
         std::map<int, int>      fd_file;//posicion del cliente en pfds y su correspondiente fd de archivo responder
         std::map<int, std::string> status_code;///codigo de respuesta y el texto que va en el response line
         std::vector<struct sockaddr_in> open_addr;
+        
+        //nuevo
+        std::vector<int> cgiClient;
+        std::map<int, pid_t> cgiProces;
 
         SocketManager();
     public:
@@ -28,6 +32,7 @@ class SocketManager
         void    readFile(struct pollfd*, int, int);
         void    reventPOLLIN(struct pollfd*, std::vector<Server> &);
         void    sendResponse(struct pollfd*);
+        void    CommonGatewayInterface(struct pollfd*, CGI &);
 
         int     connect_socket(struct pollfd*, struct sockaddr_in &);
         void    make_response(int, struct pollfd*);

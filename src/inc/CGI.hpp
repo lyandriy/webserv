@@ -13,7 +13,7 @@ class CGI
         std::vector<char>	body;
 
         //variables de cgi
-        int fd_file = -1;
+        std::map<int, int>  fd_file;
         int fd_pipe[2];
         pid_t pid;
         char    **envp;//should contain the filename  associated  with the  file  being  executed. The argv array must be terminated by a NULL pointer.

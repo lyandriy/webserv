@@ -154,8 +154,11 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
     else
         response[sock] = Response(requests[sock].getServ(), requests[sock]);
     pfds[sock_num].fd = response[sock].open_file(sock_num);
+    pfds[sock_num].fd = -1;
     //comprobar que hay flaf de cgi, si hay, no hacer nada
-    if (pfds[sock_num].fd == -1)
+    if (response[sock].getCGIstate() == 1)
+        cgiClient.push(sock);   
+    else if (pfds[sock_num].fd == -1)
     {
         fd_file[sock] = -1;
         response[sock].setStringBuffer(ErrorResponse());
@@ -275,6 +278,7 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
             response[client].setSendSize(send_size);
             if (static_cast<int>(response[client].getBytesRead()) == response[client].get_fileStat().st_size || response[client].getStringBuffer().empty())//significa que hemos llegado hasta el final del archivo
             {
+                
                 if (response[client].getConnectionVal() == CLOSE)
                     close_move_pfd(pfds, client);//cerrar conexion con el cliente
                 else
@@ -284,9 +288,41 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
                     requests[client].reset();
                     requests[client].last_conection_time();//guardar el tiempo de ultima conexion
                 }
-                close_move_pfd(pfds, fd_file[client]);//cerrar el fd de archivo
+                std::cout << client << " y " << fd_file[client] << std::endl;
+                if (fd_file[client] != -1)
+                    close_move_pfd(pfds, fd_file[client]);//cerrar el fd de archivo
             }
             response[client].remove_sent_data(send_size);
+        }
+    }
+}
+
+void    SocketManager::CommonGatewayInterface(struct pollfd* pfds, CGI &CGIObj)
+{
+    for (std::vector::iterator it = cgiClient.begin(); it != cgiClient.end();)
+    {
+        cgiProces[*it] = CGIObj.makeProces(response[*it]);//devuelve el pid del proceso
+        it = cgiClient.erase(it);
+    }
+    for (std::map<int, pid_t>::iterator it = cgiProces.begin(); it != cgiProces.end(); ++it)
+    {
+        pid_t pid_ret;
+        pid_ret = weitpid(it->second, &wstatus, WNOHANG);
+        if (pid_ret == -1)
+        {
+            fd_file[it->first] = -1;
+            response[it->first].set_error_code(INTERNAL_SERVER_ERROR);
+            response[it->first].setStringBuffer(ErrorResponse());
+            response[it->first].setBytesRead(response[it->first].getStringBuffer().size());
+            it = cgiProces.erase(it);
+        }
+        else if (pid_ret > 0)
+        {
+            pfds[sock_num].fd = CGIObj.getFD(it->first);
+            pfds[sock_num].events = POLLIN;
+            fd_file[sock] = sock_num;
+            sock_num++;
+            it = cgiProces.erase(it);
         }
     }
 }
@@ -299,12 +335,13 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
     close(pfds[pfd_free].fd);
     if (pfd_free == (sock_num - 1))//si el pfd que hay que eliminar esta en la ultima pos, lo borramos y ya
     {
+        std::cout << sock_num - 1 << " antes y " << fd_file[pfd_free] << std::endl;
         pfds[sock_num - 1].fd = -1;
         pfds[sock_num - 1].events = 0;
         pfds[sock_num - 1].revents = 0;
         requests.erase(sock_num - 1);
         response.erase(sock_num - 1);
-        fd_file.erase(sock_num - 1);
+        //fd_file.erase(sock_num - 1);
         for (std::map<int, int>::iterator it = fd_file.begin(); it != fd_file.end(); ++it)
         {
             if (it->second == sock_num - 1)

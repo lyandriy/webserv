@@ -7,13 +7,26 @@ Index: index.html
 CGI: 0
 Redirection: 
 Listen Addresses: 
-  IP: 0.0.0.0, Port: 8080
+  IP: 0.0.0.0, Port: 8081
 Error Pages: 
-Locations (0): 
-[31mServer Name: localhost
-[0mAccept Method: GET 1 POST 0 DELETE 0
+Locations (1): 
+[33mLocation 1:
+[0mURI: /hola
+Server Name: localhost
+Accept Method: GET 1 POST 0 DELETE 0
 Client Max Body Size: 1048576
 Root: html/test
+Autoindex: 1
+Index: index.html
+CGI: 0
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8081
+Error Pages: 
+[31mServer Name: loca
+[0mAccept Method: GET 1 POST 1 DELETE 1
+Client Max Body Size: 1048576
+Root: html/loca
 Autoindex: 0
 Index: index.html
 CGI: 0
@@ -22,5 +35,27 @@ Listen Addresses:
   IP: 0.0.0.0, Port: 8081
 Error Pages: 
 Locations (0): 
-1048576
-[33m pfds[sock_num].fd 7[0m
+[31mServer Name: local
+[0mAccept Method: GET 1 POST 1 DELETE 1
+Client Max Body Size: 1048576
+Root: html/local
+Autoindex: 0
+Index: index.html
+CGI: 0
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8080
+Error Pages: 
+Locations (0): 
+[32m sendResponse [0m
+[32m recvRequest [0m
+check_revent 2
+2 y -1
+[32m sendResponse [0m
+[32m sendResponse [0m
+[32m sendResponse [0m
+2 CLOSEEEEEEE
+2 antes y -1
+2 y 0
+0 CLOSEEEEEEE
+[32m sendResponse [0m

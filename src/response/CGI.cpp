@@ -1,6 +1,10 @@
 # include "../inc/Webserver.hpp"
 
-CGI::CGI(){}
+CGI::CGI()
+{
+    this->root = "";
+    this->uri = "";
+}
 
 CGI::~CGI(){}
 
@@ -24,34 +28,7 @@ CGI &CGI::operator=(const CGI &other)
     return (*this);
 }
 
-CGI::CGI(const Response &response)
-{
-    this->root = response.getRoot();
-    this->uri = response.getURI();
-    this->params = response.getParams();
-    this->body = response.getBody();
-}
-
-void    CGI::make_execve()
-{
-    if (dup2(fd_pipe[1], STDOUT_FILENO) == -1 || dup2(fd_pipe[0], STDIN_FILENO) == -1)
-    {
-        std::cerr << "dup2 error." << std::endl;
-        close(fd_pipe[1]);
-        close(fd_pipe[0]);
-        exit (-2);
-    }
-    close(fd_pipe[1]);
-    close(fd_pipe[0]);
-    
-    if (execve(uri.c_str(), envp, argv) == -1)
-	{
-		std::cerr << "Execve error." << std::endl;
-        exit (-2);
-	}
-}
-
-int CGI::make_cgi()
+pid_t   CGI::makeProces(Response &response)
 {
     std::map<std::string, std::string>::iterator it;
     int     count = 0;
@@ -85,4 +62,23 @@ int CGI::make_cgi()
     //cuando termina el hijo,hacer delete
     fd_file = fd_pipe[0];//luego hay que sacaer lo que mide el pipe!!!!!!!!!!!!!!!
     return (fd_file);
+}
+
+void    CGI::make_execve()
+{
+    if (dup2(fd_pipe[1], STDOUT_FILENO) == -1 || dup2(fd_pipe[0], STDIN_FILENO) == -1)
+    {
+        std::cerr << "dup2 error." << std::endl;
+        close(fd_pipe[1]);
+        close(fd_pipe[0]);
+        exit (-2);
+    }
+    close(fd_pipe[1]);
+    close(fd_pipe[0]);
+    
+    if (execve(uri.c_str(), envp, argv) == -1)
+	{
+		std::cerr << "Execve error." << std::endl;
+        exit (-2);
+	}
 }

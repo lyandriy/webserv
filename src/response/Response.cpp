@@ -383,24 +383,16 @@ int Response::get_fd(std::string root)
 {
     int fd_file = -1;
     
-    if (fd_file == -1)
+    if (stat(root.c_str(), &fileStat) == -1)
+        error_code = NOT_FOUND;
+    if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
     {
-        std::cout << root << std::endl;
-        if (stat(root.c_str(), &fileStat) == -1)
-            error_code = NOT_FOUND;
-        if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
-        {
-            if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
-                error_code = FORBIDEN;
-            else if (cgi && error_code == 200)
-            {
-                //poner flag de que es cgi
-                //CGI cgi_obj(*this);
-                //fd_file = cgi_obj.make_cgi();
-            }
-            else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
-                error_code = INTERNAL_SERVER_ERROR;
-        }
+        if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
+            error_code = FORBIDEN;
+        else if (cgi && error_code == 200)
+            cgi_state = 1;//
+        else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
+            error_code = INTERNAL_SERVER_ERROR;
     }
     return (fd_file);
 }
@@ -462,7 +454,7 @@ int Response::open_file(int pos_file_response)
         if ((fd = get_fd(root)) == -1 && autoindex)//probamos root + index, si no existe y autoindex es on
             fd = make_autoindex_file();//hacemos el archivo de autoindex
     }
-    if (fd < 0)
+    if (fd == -1 && cgi_state == 0)
         fd = open_error_file();//funcion que abre archivo de error
     return (fd);
 }

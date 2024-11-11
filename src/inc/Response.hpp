@@ -35,6 +35,8 @@ class Response
         std::string root_origin;
         std::string string_buffer;
         ssize_t send_size;
+        //cosas nuevas
+        int cgi_state;
     public:
         Response();
         ~Response();
