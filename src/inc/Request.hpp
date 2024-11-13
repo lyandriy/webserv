@@ -167,4 +167,5 @@ public:
 	void print_raw_request();
 	void print_body();
 	void print_raw_vector(std::vector<char> loquesea);
+	void print_raw_vector(std::vector<char>& loquesea, size_t start, size_t end);
 };

@@ -174,7 +174,9 @@ bool Request::search_chunked_body()
 int	Request::manage_headers_received(std::vector<Server> &server)
 {
 	// print_raw_request();
-	print_body();
+	// print_body();
+	// std::cout << "CONTENIDO DE REQUEST ACCUMULATOR:\n";
+	// print_raw_vector(_req_accumulator);
 	read_request_lines();
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
@@ -260,7 +262,7 @@ int Request::manage_possible_chunked_beggining()
 			{
 				std::string number_str(it + start, it + end);
 				aux.first = std::strtol(number_str.c_str(), NULL, 16);
-				// std::cout << "\033[31mNúmero obtenido: " << aux.first << "\033[0m" << std::endl;
+				std::cout << "\033[31mNúmero obtenido: " << aux.first << "\033[0m" << std::endl;
 				start = i + 2;
 				// almacenar en pair first
 			}
@@ -276,13 +278,15 @@ int Request::manage_possible_chunked_beggining()
 				}
 				// std::cout << "\033[31mTexto obtenido: " << text_str << " -> " << text_str.size() << "\033[0m" << std::endl;
 				_body.insert(_body.end(), it + start, it + end);
-				if (aux.first == 0)
-				{
-					// std::cout << "Esta request está terminada" << std::endl;
-					_status = FULL_COMPLETE_REQUEST;
-					break;
-				}
 				start = i + 2;
+			}
+			if (aux.first == 0)
+			{
+				// std::cout << "Esta request está terminada" << std::endl;
+				_status = FULL_COMPLETE_REQUEST;
+				std::cout << "That's all forks!" << std::endl;
+				return _status;
+				// break;
 			}
 		}
 	}
@@ -343,6 +347,20 @@ int Request::manage_possible_chunked_beggining()
 
 		//empezar a extraer las chunks, parejas de int + string.
 		// comprobar q int y string size son iguales
+	std::cout << "LA REQUEST EN CACHITOS NO ESTÁ TERMINADA\n";
+	std::cout << _chunks[start - 5] << " ";
+	std::cout << _chunks[start - 4] << " ";
+	std::cout << _chunks[start - 3] << " ";
+	std::cout << _chunks[start - 2] << " ";
+	std::cout << _chunks[start - 1] << " ";
+	std::cout << _chunks[start] << " ";
+	std::cout << _chunks[start + 1] << " ";
+	std::cout << _chunks[start + 2] << " ";
+	std::cout << _chunks[start + 3] << " ";
+	std::cout << _chunks[start + 4] << " ";
+	std::cout << _chunks[start + 5] << "\n";
+	std::cout.flush();
+	// _req_accumulator.clear();
 	return CHUNKED_REQUEST;
 }
 
@@ -850,41 +868,41 @@ void Request::print_request_complete_info()
 //va despues de recibir el header (listen es siempre de server)
 bool    Request::compareListen(std::vector<struct sockaddr_in> listen)
 {
-    if (!listen.empty())
-    {
-        for (size_t i = 0; i < listen.size(); i++)
-        {
-            if (ntohs(listen[i].sin_port) == _port)
-                return (true);
-        }
-    }
-    return (false);
+	if (!listen.empty())
+	{
+		for (size_t i = 0; i < listen.size(); i++)
+		{
+			if (ntohs(listen[i].sin_port) == _port)
+				return (true);
+		}
+	}
+	return (false);
 }
 
 Location    Request::compareUri(const std::vector<Location> &location)
 {
-    std::string uri_location;
-    std::size_t found;
+	std::string uri_location;
+	std::size_t found;
 
-    for (size_t i = 0; i < location.size(); i++)
-    {
-        uri_location = location[i].getUri();
-        found = _uri.find(location[i].getUri());
-        if (found == 0)
-            return (location[i]);
-    }
-    return Location();
+	for (size_t i = 0; i < location.size(); i++)
+	{
+		uri_location = location[i].getUri();
+		found = _uri.find(location[i].getUri());
+		if (found == 0)
+			return (location[i]);
+	}
+	return Location();
 }
 
 bool     Request::compareMethod(Server &server)
 {
-    if (this->_method == "GET" && server.getAcceptMethod().get == 0)
-            return (false);
-    if (this->_method == "POST" && server.getAcceptMethod().post == 0)
-            return (false);
-    if (this->_method == "DELETE" && server.getAcceptMethod().del == 0)
-            return (false);
-    return (true);
+	if (this->_method == "GET" && server.getAcceptMethod().get == 0)
+			return (false);
+	if (this->_method == "POST" && server.getAcceptMethod().post == 0)
+			return (false);
+	if (this->_method == "DELETE" && server.getAcceptMethod().del == 0)
+			return (false);
+	return (true);
 }
 //esta funcion va despues de parsear la request line
 int    Request::check_request_line(std::vector<Server> &server)
@@ -893,16 +911,16 @@ int    Request::check_request_line(std::vector<Server> &server)
 	conf_loc = Location();
 
 	for (it_serv = server.begin(); it_serv != server.end(); ++it_serv)//buscar si hay configuracion para este server name
-    {
+	{
 		//if (debug == true){std::cout << "HOOOOOOOOOOOOOOOOOOOOOOOST: " << _host << "\n";}
 		//if (debug == true){std::cout << "SERVERRRRR NAMEEEEEEEEEEEE: " << it_serv->getServerName() << "\n";}
-        if (this->_host == it_serv->getServerName())
-            break;
-    }
+		if (this->_host == it_serv->getServerName())
+			break;
+	}
 	if (it_serv != server.end())///si hay este server name
 	{
 		if (compareMethod(*it_serv))//comprobar em metodo y si el puerto por el que habla el cliente y el puerto de conf coinciden
-        {
+		{
 			if (!it_serv->getLocation().empty())//si el server no tiene location comprobamos la uri con root
 				conf_loc = compareUri(it_serv->getLocation());//buscamos si hay uri que esta pidiendo el cliente
 			// if (debug == true){std::cout << "\t\t\tESTADO DE ERROR:   " << _error_code << "\n\n";}
@@ -912,7 +930,7 @@ int    Request::check_request_line(std::vector<Server> &server)
 				if (!compareListen(it_serv->getListen()) && _body_size > it_serv->getBodySize())
 				{
 					this->_error_code = NOT_FOUND;
-        			return (0);
+					return (0);
 				}
 				if (this->_uri.find(it_serv->getRoot()) != 0)
 				{
@@ -927,14 +945,14 @@ int    Request::check_request_line(std::vector<Server> &server)
 				if (!compareListen(conf_loc.getListen()) && _body_size > conf_loc.getBodySize())
 				{
 					this->_error_code = NOT_FOUND;
-        			return (0);
+					return (0);
 				}
 				this->server_body_size = conf_loc.getBodySize();
 				conf_serv = *it_serv;
 				return (1);
 			}
 		}
-    }
+	}
 	if (debug == true){std::cout << "\t\t\tESTADO DE ERROR " << _error_code << "\n" << std::endl;}
 	this->_error_code = NOT_FOUND;
 	return (0);
@@ -942,17 +960,17 @@ int    Request::check_request_line(std::vector<Server> &server)
 
 void  Request::last_conection_time()
 {
-      conecction_time = time(NULL);
+	  conecction_time = time(NULL);
 }
 
 time_t        Request::get_time()
 {
-      return (conecction_time);
+	  return (conecction_time);
 }
 
 void  Request::set_error_code(int error_code)
 {
-      this->_error_code = error_code;
+	  this->_error_code = error_code;
 }
 
 Location	Request::getLoc() const
@@ -974,75 +992,75 @@ void	Request::set_current_status(int status)
 //--------------------PRINT REQUEST---------------------//
 
 void Request::print_full_info() {
-    std::cout << "-------- Request Info --------" << std::endl;
+	std::cout << "-------- Request Info --------" << std::endl;
 
-    // Información importante
-    std::cout << "Socket FD: " << _fd_socket << std::endl;
-    std::cout << "Socket Position: " << _pos_socket << std::endl;
+	// Información importante
+	std::cout << "Socket FD: " << _fd_socket << std::endl;
+	std::cout << "Socket Position: " << _pos_socket << std::endl;
 
-    // Convertir el vector de chars a string para imprimir
-    std::string req_accumulator_str(_req_accumulator.begin(), _req_accumulator.end());
-    std::cout << "Request Accumulator: " << req_accumulator_str << std::endl;
+	// Convertir el vector de chars a string para imprimir
+	std::string req_accumulator_str(_req_accumulator.begin(), _req_accumulator.end());
+	std::cout << "Request Accumulator: " << req_accumulator_str << std::endl;
 
-    std::cout << "Method: " << get_method() << std::endl;
-    std::cout << "URI: " << get_uri() << std::endl;
-    std::cout << "Protocol: " << get_protocol() << std::endl;
-    std::cout << "Host: " << get_host() << std::endl;
-    std::cout << "Port: " << get_port() << std::endl;
+	std::cout << "Method: " << get_method() << std::endl;
+	std::cout << "URI: " << get_uri() << std::endl;
+	std::cout << "Protocol: " << get_protocol() << std::endl;
+	std::cout << "Host: " << get_host() << std::endl;
+	std::cout << "Port: " << get_port() << std::endl;
 
-    // Convertir el cuerpo de la request (vector de chars) a string para imprimir
-    std::string body_str(_body.begin(), _body.end());
-    std::cout << "Body: " << body_str << std::endl;
+	// Convertir el cuerpo de la request (vector de chars) a string para imprimir
+	std::string body_str(_body.begin(), _body.end());
+	std::cout << "Body: " << body_str << std::endl;
 
-    std::cout << "Help Message: " << get_help_message() << std::endl;
-    std::cout << "Valid: " << (get_validity() ? "true" : "false") << std::endl;
-    std::cout << "Error Code: " << get_error_code() << std::endl;
+	std::cout << "Help Message: " << get_help_message() << std::endl;
+	std::cout << "Valid: " << (get_validity() ? "true" : "false") << std::endl;
+	std::cout << "Error Code: " << get_error_code() << std::endl;
 
-    // Headers y parámetros
-    std::cout << "Headers: " << std::endl;
-    std::map<std::string, std::string>::const_iterator it;
-    for (it = _headers.begin(); it != _headers.end(); ++it) {
-        std::cout << "  " << it->first << ": " << it->second << std::endl;
-    }
+	// Headers y parámetros
+	std::cout << "Headers: " << std::endl;
+	std::map<std::string, std::string>::const_iterator it;
+	for (it = _headers.begin(); it != _headers.end(); ++it) {
+		std::cout << "  " << it->first << ": " << it->second << std::endl;
+	}
 
-    std::cout << "Params: " << std::endl;
-    for (it = _params.begin(); it != _params.end(); ++it) {
-        std::cout << "  " << it->first << ": " << it->second << std::endl;
-    }
+	std::cout << "Params: " << std::endl;
+	for (it = _params.begin(); it != _params.end(); ++it) {
+		std::cout << "  " << it->first << ": " << it->second << std::endl;
+	}
 
-    // Información sobre el cuerpo de la request
-    std::cout << "Body Size: " << _body_size << std::endl;
+	// Información sobre el cuerpo de la request
+	std::cout << "Body Size: " << _body_size << std::endl;
 
-    // Auxiliares
-    std::string request_str(_chunks.begin(), _chunks.end());
-    std::cout << "Request (as string): " << request_str << std::endl;
+	// Auxiliares
+	std::string request_str(_chunks.begin(), _chunks.end());
+	std::cout << "Request (as string): " << request_str << std::endl;
 
-    std::vector<std::string>::const_iterator vec_it;
-    std::cout << "Accepted Methods: ";
-    std::vector<std::string> accept_methods = get_accept_method();
-    for (vec_it = accept_methods.begin(); vec_it != accept_methods.end(); ++vec_it) {
-        std::cout << *vec_it << " ";
-    }
-    std::cout << std::endl;
+	std::vector<std::string>::const_iterator vec_it;
+	std::cout << "Accepted Methods: ";
+	std::vector<std::string> accept_methods = get_accept_method();
+	for (vec_it = accept_methods.begin(); vec_it != accept_methods.end(); ++vec_it) {
+		std::cout << *vec_it << " ";
+	}
+	std::cout << std::endl;
 
-    std::cout << "Request Line: " << get_request_line() << std::endl;
+	std::cout << "Request Line: " << get_request_line() << std::endl;
 
-    std::cout << "Lines: " << std::endl;
-    for (vec_it = _lines.begin(); vec_it != _lines.end(); ++vec_it) {
-        std::cout << "  " << *vec_it << std::endl;
-    }
+	std::cout << "Lines: " << std::endl;
+	for (vec_it = _lines.begin(); vec_it != _lines.end(); ++vec_it) {
+		std::cout << "  " << *vec_it << std::endl;
+	}
 
-    std::cout << "Type: " << _type << std::endl;
-    std::cout << "Status: " << _status << std::endl;
-    std::cout << "CRLFx2 Index: " << _CRLFx2_index << std::endl;
+	std::cout << "Type: " << _type << std::endl;
+	std::cout << "Status: " << _status << std::endl;
+	std::cout << "CRLFx2 Index: " << _CRLFx2_index << std::endl;
 
-    // Datos adicionales añadidos por Lyudmyla
-    std::cout << "Server Config: " << std::endl;
-    // Aquí puedes implementar la lógica para imprimir la configuración de `Server` y `Location` si tienes getters adecuados para ellos.
-    std::cout << "Server Body Size: " << server_body_size << std::endl;
-    std::cout << "Connection Time: " << conecction_time << std::endl;
+	// Datos adicionales añadidos por Lyudmyla
+	std::cout << "Server Config: " << std::endl;
+	// Aquí puedes implementar la lógica para imprimir la configuración de `Server` y `Location` si tienes getters adecuados para ellos.
+	std::cout << "Server Body Size: " << server_body_size << std::endl;
+	std::cout << "Connection Time: " << conecction_time << std::endl;
 
-    std::cout << "--------------------------------" << std::endl;
+	std::cout << "--------------------------------" << std::endl;
 }
 
 void	Request::reset(void)
@@ -1112,5 +1130,19 @@ void Request::print_raw_vector(std::vector<char> loquesea)
 		std::cout.flush();
 	}
 	std::cout << std::endl;
-	
+}
+
+void Request::print_raw_vector(std::vector<char>& loquesea, size_t start, size_t end)
+{
+	for (size_t i = start; i <= end; ++i) 
+	{
+		if (loquesea[i] == '\r')
+			std::cout << "\\r";
+		else if (loquesea[i] == '\n')
+			std::cout << "\\n";
+		else
+			std::cout << loquesea[i];
+		std::cout.flush();
+	}
+	std::cout << std::endl;
 }
