@@ -10,7 +10,7 @@ requests.append(																	# Esta es válida, simula una petición hecha c
 	"Transfer-Encoding: chunked\r\n"
 	"Content-Type: text/plain\r\n"
 	"\r\n"
-	"14\r\nMozillaFirefox\r\n"
+	"E\r\nMozillaFirefox\r\n"
 	"10\r\nDeveloper\r\n"
 	"7\r\nNetwork\r\n"
 	"0\r\n\r\n"

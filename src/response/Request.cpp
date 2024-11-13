@@ -244,7 +244,7 @@ void Request::split_at_CRLFx2()
 int Request::manage_possible_chunked_beggining()
 {
 	split_at_CRLFx2();
-	std::pair<int, std::vector<char> > aux;
+	std::pair<long, std::vector<char> > aux;
 	std::vector<char>::iterator  it = _chunks.begin();
 	size_t start = 0;
 	size_t end = 0;
@@ -259,7 +259,7 @@ int Request::manage_possible_chunked_beggining()
 			if (CRLF_count % 2 == 1)
 			{
 				std::string number_str(it + start, it + end);
-				aux.first = std::atoi(number_str.c_str());
+				aux.first = std::strtol(number_str.c_str(), NULL, 16);
 				// std::cout << "\033[31mNúmero obtenido: " << aux.first << "\033[0m" << std::endl;
 				start = i + 2;
 				// almacenar en pair first
@@ -267,9 +267,10 @@ int Request::manage_possible_chunked_beggining()
 			if (CRLF_count % 2 == 0)
 			{
 				std::string text_str(it + start, it + end);
-				if (aux.first != static_cast<int>(text_str.size()))
+				if (aux.first != static_cast<long>(text_str.size()))
 				{
 					_status = INVALID_REQUEST;
+					std::cerr << "SE HA PRODUCIDO UN ERROR" << std::endl; 
 					return (set_validity(BAD_REQUEST, "Chunk lentgh doesn't match"));
 					// break;
 				}
@@ -284,8 +285,8 @@ int Request::manage_possible_chunked_beggining()
 				start = i + 2;
 			}
 		}
-		
 	}
+		print_raw_vector(_req_accumulator);
 	
 	/* while (it != _chunks.end())
 	{
@@ -1092,6 +1093,22 @@ void Request::print_body()
 	for (size_t i = 0; i < _body.size(); i++)
 	{
 		std::cout << _body[i];
+		std::cout.flush();
+	}
+	std::cout << std::endl;
+	
+}
+
+void Request::print_raw_vector(std::vector<char> loquesea)
+{
+	for (size_t i = 0; i < loquesea.size(); i++)
+	{
+		if (loquesea[i] == '\r')
+			std::cout << "\\r";
+		else if (loquesea[i] == '\n')
+			std::cout << "\\n";
+		else
+			std::cout << loquesea[i];
 		std::cout.flush();
 	}
 	std::cout << std::endl;

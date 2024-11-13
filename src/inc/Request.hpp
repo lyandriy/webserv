@@ -166,4 +166,5 @@ public:
 	//void	ok_request();
 	void print_raw_request();
 	void print_body();
+	void print_raw_vector(std::vector<char> loquesea);
 };
