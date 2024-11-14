@@ -6,7 +6,9 @@ Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket
 											_params(), _chunks(), _accept_method(), _request_line(""), _lines(),
 											_type(0), _status(1)
 {
+	std::cout << "Me voya  construir una request a ver que pasa\n";
 	debug = true;
+	_last_chunk_size = -1;
 }
 
 Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
@@ -104,6 +106,8 @@ Request::~Request()
 int Request::join_request(char *buffer, int read_size, std::vector<Server> &server)
 {
 	debug = true;
+	std::cout << "la lluvia en sevilla es una maravillaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n";
+	std::cout << _status << std::endl;
 	switch (_status)
 	{
 	case INVALID_REQUEST:
@@ -291,7 +295,7 @@ int Request::manage_possible_chunked_beggining()
 		}
 	}
 		print_raw_vector(_req_accumulator);
-	
+		_last_chunk_size = (CRLF_count % 2 == 1) ? aux.first : -1;
 	/* while (it != _chunks.end())
 	{
 		if (*it == '\r'){std::cout << "\\r";}
@@ -348,18 +352,8 @@ int Request::manage_possible_chunked_beggining()
 		//empezar a extraer las chunks, parejas de int + string.
 		// comprobar q int y string size son iguales
 	std::cout << "LA REQUEST EN CACHITOS NO ESTÁ TERMINADA\n";
-	std::cout << _chunks[start - 5] << " ";
-	std::cout << _chunks[start - 4] << " ";
-	std::cout << _chunks[start - 3] << " ";
-	std::cout << _chunks[start - 2] << " ";
-	std::cout << _chunks[start - 1] << " ";
-	std::cout << _chunks[start] << " ";
-	std::cout << _chunks[start + 1] << " ";
-	std::cout << _chunks[start + 2] << " ";
-	std::cout << _chunks[start + 3] << " ";
-	std::cout << _chunks[start + 4] << " ";
-	std::cout << _chunks[start + 5] << "\n";
-	std::cout.flush();
+	_chunks.erase(_chunks.begin(), _chunks.begin() + start);
+	print_raw_vector(_chunks, 0, _chunks.size() - 1);
 	// _req_accumulator.clear();
 	return CHUNKED_REQUEST;
 }
@@ -382,6 +376,61 @@ int	Request::manage_request_with_body(char *buffer, int read_size)
 
 int	Request::manage_chunked_request(char *buffer, int read_size)
 {
+	std::cout << "Aquí va el resto de la gestion de los chunks que no caben en el buffer\n";
+	std::cout.flush();
+	std::cout << buffer;
+	std::cout.flush();
+	print_raw_vector(_chunks);
+	_chunks.insert(_chunks.end(), buffer, buffer + std::strlen(buffer));
+	print_raw_vector(_chunks);
+
+	std::pair<long, std::vector<char> > aux;
+	std::vector<char>::iterator  it = _chunks.begin();
+	size_t start = 0;
+	size_t end = 0;
+	size_t CRLF_count;
+
+	CRLF_count =  (_last_chunk_size != -1) ? _last_chunk_size : 0;
+	for (size_t i = 0; i < _chunks.size(); i++)
+	{
+		if (_chunks[i] == '\r' && i + 1 <= _chunks.size() && _chunks[i + 1] == '\n')
+		{
+			CRLF_count++;
+			end = i;
+			if (CRLF_count % 2 == 1)
+			{
+				std::string number_str(it + start, it + end);
+				aux.first = std::strtol(number_str.c_str(), NULL, 16);
+				std::cout << "\033[31mNúmero obtenido: " << aux.first << "\033[0m" << std::endl;
+				start = i + 2;
+				// almacenar en pair first
+			}
+			if (CRLF_count % 2 == 0)
+			{
+				std::string text_str(it + start, it + end);
+				if (aux.first != static_cast<long>(text_str.size()))
+				{
+					_status = INVALID_REQUEST;
+					std::cerr << "SE HA PRODUCIDO UN ERROR" << std::endl; 
+					return (set_validity(BAD_REQUEST, "Chunk lentgh doesn't match"));
+					// break;
+				}
+				// std::cout << "\033[31mTexto obtenido: " << text_str << " -> " << text_str.size() << "\033[0m" << std::endl;
+				_body.insert(_body.end(), it + start, it + end);
+				start = i + 2;
+			}
+			if (aux.first == 0)
+			{
+				// std::cout << "Esta request está terminada" << std::endl;
+				_status = FULL_COMPLETE_REQUEST;
+				std::cout << "That's all forks!" << std::endl;
+				return _status;
+				// break;
+			}
+		}
+	}
+
+	exit(44);
 	(void)buffer;
 	(void)read_size;
 	return INVALID_REQUEST;
@@ -1134,7 +1183,7 @@ void Request::print_raw_vector(std::vector<char> loquesea)
 
 void Request::print_raw_vector(std::vector<char>& loquesea, size_t start, size_t end)
 {
-	for (size_t i = start; i <= end; ++i) 
+	for (size_t i = start; i <= end; i++) 
 	{
 		if (loquesea[i] == '\r')
 			std::cout << "\\r";
