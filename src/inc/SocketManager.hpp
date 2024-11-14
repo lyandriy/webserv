@@ -3,6 +3,8 @@
 # define SOCKET_MANAGER_HPP
 # include "../inc/Webserver.hpp"
 
+class CGI;
+
 class SocketManager
 {
     private:
@@ -15,8 +17,7 @@ class SocketManager
         std::vector<struct sockaddr_in> open_addr;
         
         //nuevo
-        std::vector<int> cgiClient;
-        std::map<int, pid_t> cgiProces;
+        std::map<int, CGI> cgiClients;//son los que tienen una request con cgi
 
         SocketManager();
     public:
@@ -32,13 +33,13 @@ class SocketManager
         void    readFile(struct pollfd*, int, int);
         void    reventPOLLIN(struct pollfd*, std::vector<Server> &);
         void    sendResponse(struct pollfd*);
-        void    CommonGatewayInterface(struct pollfd*, CGI &);
+        void    CommonGatewayInterface(struct pollfd*);
 
         int     connect_socket(struct pollfd*, struct sockaddr_in &);
         void    make_response(int, struct pollfd*);
         void    check_join(int, struct pollfd*, std::vector<Server> &, char *, int);
         void    close_move_pfd(struct pollfd*, int);
-        std::string    ErrorResponse();
+        void    ErrorResponse(Response &, int &);
         std::string make_response_str(Response &, std::string);
         int is_file(int);
         void    check_revent(struct pollfd*, int);

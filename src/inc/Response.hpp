@@ -35,7 +35,7 @@ class Response
         std::string root_origin;
         std::string string_buffer;
         ssize_t send_size;
-        //cosas nuevas
+        //nuevo
         int cgi_state;
     public:
         Response();
@@ -70,6 +70,7 @@ class Response
         int getSendSize() const;
         std::map<std::string, std::string>  getParams() const;
         std::vector<char>   getBody() const;
+        int getCGIState() const;
 
         void setListen(struct sockaddr_in);
         void setHost(std::string);
@@ -91,6 +92,7 @@ class Response
         void setSendSize(ssize_t);
         void setParams(std::map<std::string, std::string>);
         void setBody(std::vector<char>);
+        void setCGIState(int);
 
         int     open_file(int);
         int    open_error_file();

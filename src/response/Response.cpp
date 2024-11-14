@@ -252,6 +252,11 @@ std::vector<char>   Response::getBody() const
     return (this->body);
 }
 
+int Response::getCGIState() const
+{
+    return (this->cgi_state);
+}
+
 void Response::setListen(struct sockaddr_in listen)
 {
     this->listen = listen;
@@ -350,6 +355,11 @@ void Response::setParams(std::map<std::string, std::string> params)
 void Response::setBody(std::vector<char> body)
 {
     this->body = body;
+}
+
+void    Response::setCGIState(int cgi_state)
+{
+    this->cgi_state = cgi_state;
 }
 
 void    Response::remove_sent_data(ssize_t send_size)

@@ -13,20 +13,34 @@ class CGI
         std::vector<char>	body;
 
         //variables de cgi
-        std::map<int, int>  fd_file;
         int fd_pipe[2];
         pid_t pid;
-        char    **envp;//should contain the filename  associated  with the  file  being  executed. The argv array must be terminated by a NULL pointer.
-        char    **argv;//conventionally of the form key=value, which are  passed  as the environment of the new program.  The envp array must be terminated by a NULL pointer.
+        char    **envp;
+        char    **argv;
 
-        CGI();
     public:
+        CGI();
         ~CGI();
+        CGI(const CGI &other);
         CGI &operator=(const CGI &);
         CGI(const Response &);
 
-        int make_cgi();
+        void    setRoot(std::string);
+        void    setURI(std::string);
+        void    setParams(std::map<std::string, std::string>);
+        void    setBody(std::vector<char>);
+
+        std::string getRoot() const;
+        std::string getURI() const;
+        std::map<std::string, std::string>  getParams() const;
+        std::vector<char>   getBody() const;
+        int getFd() const;
+        pid_t   getPid() const;
+
+        int    makeProcess();
         void    make_execve();
+        void    deleteArray();
+        void printArgumentsAndEnvironment();
 };
 
 #endif

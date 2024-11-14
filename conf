@@ -6,6 +6,7 @@ server
     accept_method GET;
     index index.html;
     autoindex on;
+    cgi on;
     location /hola
     {
         accept_method GET;

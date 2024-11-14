@@ -48,14 +48,35 @@ Listen Addresses:
 Error Pages: 
 Locations (0): 
 [32m sendResponse [0m
+[32m sendResponse [0m
+[32m sendResponse [0m
 [32m recvRequest [0m
 check_revent 2
-2 y -1
+[32m valread 739[0m
+GET /pruebacgi.c?user=rocky&age=30&answer=yes HTTP/1.1
+Host: localhost:8081
+Connection: keep-alive
+Cache-Control: max-age=0
+sec-ch-ua: "Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8,es;q=0.7
+
+
 [32m sendResponse [0m
+[32m make_response_str [0m
 [32m sendResponse [0m
-[32m sendResponse [0m
-2 CLOSEEEEEEE
-2 antes y -1
+[34maqui estoy[0m
+3 CLOSEEEEEEE
+3 antes y 0
 2 y 0
-0 CLOSEEEEEEE
+[32m sendResponse [0m
 [32m sendResponse [0m

@@ -146,6 +146,17 @@ int SocketManager::is_file(int sock)
     return (0);
 }
 
+void   SocketManager::ErrorResponse(Response &response, int &fd_file)
+{
+    fd_file = -1;
+    response.setStringBuffer("HTTP/1.1 500 Internal Server Error\r\n"
+                                    "Content-Type: text/html\r\n"
+                                    "Content-Length: 25\r\n"
+                                    "\r\n"
+                                    "500 Internal Server Error");
+    response.setBytesRead(response.getStringBuffer().size());
+}
+
 void    SocketManager::make_response(int sock, struct pollfd* pfds)
 {
     pfds[sock].events = POLLOUT;//cambiamos en event de socket al POLLOUT, porque la request ya ha llegado entera y tenemos que responder al socke
@@ -154,16 +165,10 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
     else
         response[sock] = Response(requests[sock].getServ(), requests[sock]);
     pfds[sock_num].fd = response[sock].open_file(sock_num);
-    pfds[sock_num].fd = -1;
-    //comprobar que hay flaf de cgi, si hay, no hacer nada
-    if (response[sock].getCGIstate() == 1)
-        cgiClient.push(sock);   
+    if (response[sock].getCGIState() == 1)
+        cgiClients[sock] = CGI(response[sock]);
     else if (pfds[sock_num].fd == -1)
-    {
-        fd_file[sock] = -1;
-        response[sock].setStringBuffer(ErrorResponse());
-        response[sock].setBytesRead(response[sock].getStringBuffer().size());
-    }
+        ErrorResponse(response[sock], fd_file[sock]);
     else
     {
         pfds[sock_num].events = POLLIN;
@@ -212,6 +217,8 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
     else
     {
         valread = recv(pfds[sock].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de socke
+        std::cout << "\033[32m" << " valread "  << valread <<  "\033[0m" << std::endl;
+        std::cout << buffer << std::endl;
         if (requests[sock].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0)
             make_response(sock, pfds);//ha terminado de recibir el mensaje
         else if (valread == 0 || valread == -1)
@@ -244,6 +251,7 @@ void    SocketManager::reventPOLLIN(struct pollfd* pfds, std::vector<Server> &se
 
     for (int sock = listen_sockets; sock < sock_num; sock++)//recorre todos los sockets
     {  
+            std::cout << "\033[35m" << " pollin" <<  "\033[0m" << std::endl;
         if ((pfds[sock].revents & POLLIN))//si algun socket tiene un revent de POLLIN
         {
             if ((file = is_file(sock)))
@@ -272,13 +280,15 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
 
     for (int client = listen_sockets; client < sock_num; client++)//recorre todos los sockets
     {
-        if ((pfds[client].revents & POLLOUT) && !is_file(client))//si algun socket tiene un revent de POLLOUT
+        std::cout << "\033[34m" << "aqui estoy" <<  "\033[0m" << std::endl;
+        if ((pfds[client].revents & POLLOUT) && !is_file(client) && fd_file.find(client) != fd_file.end())//si algun socket tiene un revent de POLLOUT
         {
             send_size = send(pfds[client].fd, response[client].getStringBuffer().c_str(), response[client].getStringBuffer().size(), 0);//enviar el buffer leido de archivo
             response[client].setSendSize(send_size);
             if (static_cast<int>(response[client].getBytesRead()) == response[client].get_fileStat().st_size || response[client].getStringBuffer().empty())//significa que hemos llegado hasta el final del archivo
             {
-                
+                if (fd_file[client] != -1)
+                    close_move_pfd(pfds, fd_file[client]);//cerrar el fd de archivo
                 if (response[client].getConnectionVal() == CLOSE)
                     close_move_pfd(pfds, client);//cerrar conexion con el cliente
                 else
@@ -289,40 +299,49 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
                     requests[client].last_conection_time();//guardar el tiempo de ultima conexion
                 }
                 std::cout << client << " y " << fd_file[client] << std::endl;
-                if (fd_file[client] != -1)
-                    close_move_pfd(pfds, fd_file[client]);//cerrar el fd de archivo
             }
             response[client].remove_sent_data(send_size);
         }
     }
 }
 
-void    SocketManager::CommonGatewayInterface(struct pollfd* pfds, CGI &CGIObj)
+void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
 {
-    for (std::vector::iterator it = cgiClient.begin(); it != cgiClient.end();)
+    pid_t pid_ret;
+    int wstatus;
+
+    for (std::map<int, CGI>::iterator it = cgiClients.begin(); it != cgiClients.end(); ++it)
     {
-        cgiProces[*it] = CGIObj.makeProces(response[*it]);//devuelve el pid del proceso
-        it = cgiClient.erase(it);
-    }
-    for (std::map<int, pid_t>::iterator it = cgiProces.begin(); it != cgiProces.end(); ++it)
-    {
-        pid_t pid_ret;
-        pid_ret = weitpid(it->second, &wstatus, WNOHANG);
-        if (pid_ret == -1)
+        if (it->second.getPid() == -2)//si aun no se ha creado el proceso, solo se ha construido el objeto
         {
-            fd_file[it->first] = -1;
-            response[it->first].set_error_code(INTERNAL_SERVER_ERROR);
-            response[it->first].setStringBuffer(ErrorResponse());
-            response[it->first].setBytesRead(response[it->first].getStringBuffer().size());
-            it = cgiProces.erase(it);
+            if (!it->second.makeProcess())//cambia el pid del proceso al pid del proceso hijo
+            {
+                response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
+                ErrorResponse(response[it->first], fd_file[it->first]);
+                cgiClients.erase(it);
+            }
         }
-        else if (pid_ret > 0)
+        else
         {
-            pfds[sock_num].fd = CGIObj.getFD(it->first);
-            pfds[sock_num].events = POLLIN;
-            fd_file[sock] = sock_num;
-            sock_num++;
-            it = cgiProces.erase(it);
+            std::cout << "\033[34m" << "y aqui1" <<  "\033[0m" << std::endl;
+            pid_ret = waitpid(it->second.getPid(), &wstatus, WNOHANG);
+            if (pid_ret == -1 || WIFSIGNALED(wstatus)/* el proceso hijo ha terminado con un error*/)//si hay error, devolver error 500
+            {
+                std::cout << "\033[35m" << "y aqui2" <<  "\033[0m" << std::endl;
+                response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
+                ErrorResponse(response[it->first], fd_file[it->first]);
+                cgiClients.erase(it);
+                std::cout << "\033[35m" << "y aqui4" <<  "\033[0m" << std::endl;
+            }
+            else if (pid_ret > 0)//si el hijo ha  terminado
+            {
+                std::cout << "\033[36m" << "y aqui3" <<  "\033[0m" << std::endl;
+                pfds[sock_num].fd = it->second.getFd();
+                pfds[sock_num].events = POLLIN;
+                fd_file[it->first] = sock_num;
+                sock_num++;
+                cgiClients.erase(it);
+            }
         }
     }
 }
@@ -395,14 +414,6 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
     sock_num--;
 }
 
-std::string    SocketManager::ErrorResponse()
-{
-    return ("HTTP/1.1 500 Internal Server Error\r\n"
-            "Content-Type: text/html\r\n"
-            "Content-Length: 25\r\n"
-            "\r\n"
-            "500 Internal Server Error");
-}
 std::string SocketManager::make_response_str(Response &response, std::string buffer)
 {
     std::cout << "\033[32m" << " make_response_str " <<  "\033[0m" << std::endl;

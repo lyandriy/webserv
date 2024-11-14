@@ -16,7 +16,6 @@ int main(int argc, char **argv)
         {
             Parser  parser(argv[1]);
             server = parser.conf_file();
-            CGI CGIObj();//creo que seria mejor un objeto para cada cliente
             SocketManager   socketManager = SocketManager(pfds, server);//abre los socket para cada puerto
 
             while (true)
@@ -28,7 +27,7 @@ int main(int argc, char **argv)
                     socketManager.acceptClient(pfds);//comprueba si hay un cliente y lo acepta
                     socketManager.reventPOLLIN(pfds, server);//recibe mensajes de request
                     socketManager.sendResponse(pfds);//responder al cliente
-                    socketManager.CommonGatewayInterface(pfds, CGIObj);
+                    socketManager.CommonGatewayInterface(pfds);
                 }
                 if (first_poll == 0)
                     first_poll++;
@@ -43,3 +42,9 @@ int main(int argc, char **argv)
     return (0);
 }
 
+/*for (int i = 0; i < socketManager.getSockNum(); ++i) {
+    std::cout << "socket " << i << ": ";
+    std::cout << "  fd: " << pfds[i].fd << "; ";
+    std::cout << "  events: " << pfds[i].events << "; ";
+    std::cout << "  revents: " << pfds[i].revents << std::endl;
+}*/

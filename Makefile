@@ -20,6 +20,7 @@ SRCS =	src/response/main.cpp \
 		src/response/Response.cpp \
 		src/response/Request.cpp \
 		src/response/SocketManager.cpp \
+		src/response/CGI.cpp \
 
 # Generar los archivos objeto respetando la estructura de directorios
 OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(BIN_PATH)%.o)
