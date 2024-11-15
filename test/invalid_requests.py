@@ -20,9 +20,9 @@ requests.append(f"GET / HTTP/2.0\r\nHost: localhost:8080\r\nPeticion:{i}\r\n\r\n
 i += 1
 requests.append(f"GET / FTP/1.1\r\nHost: localhost:8080\r\nPeticion:{i}\r\n\r\n") # protocolo inválido
 i += 1
-requests.append(f"GET / HTTP/1.1\r\nHost: localhost:8080\r\nPeticion:{i}\r\n\r\n") # OK
+requests.append(f"GET /index.html HTTP/1.1\r\nHost: localhost:8080\r\nPeticion:{i}\r\n\r\n") # OK
 i += 1
-requests.append(f"GET / HTTP/1.1\r\nHost: localhost:8o8o\r\nPeticion:{i}\r\n\r\n") # protocolo inválido
+requests.append(f"GET / HTTP/1.1\r\nHost: localhost:8o8o\r\nPeticion:{i}\r\n\r\n") # puerto inválido
 i += 1
 requests.append(f"GET / HTTP/1.1\r\nHost: localhost:8080\r\nPeticion:{i}\r\n\r\n") # OK
 i += 1
@@ -45,9 +45,13 @@ requests.append(																	# Esta es válida, simula una petición hecha c
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(('localhost', 8080))
-for request in requests:
-	sock.sendall(request.encode('utf-8'))
-	response = sock.recv(4096)
-	print(response.decode('utf-8'))
-	time.sleep(0.5)	
-sock.close()    
+sock.sendall(requests[8].encode('utf-8'))
+response = sock.recv(4096)
+print(response.decode('utf-8'))
+sock.close()
+# for request in requests:
+# 	sock.sendall(request.encode('utf-8'))
+# 	response = sock.recv(4096)
+# 	print(response.decode('utf-8'))
+# 	time.sleep(0.5)	
+# sock.close()    

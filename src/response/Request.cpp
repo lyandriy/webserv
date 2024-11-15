@@ -3,25 +3,26 @@
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
 											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
-											_params(), _body_size(0), _request(), _accept_method(), _request_line(""), _lines(),
+											_params(), _chunks(), _accept_method(), _request_line(""), _lines(),
 											_type(0), _status(1)
 {
+
 	conf_loc = Location();
-	conf_serv = Server(-1);
-	debug = true;
+	conf_serv = Server(-1);debug = true;
+	_last_chunk_size = -1;
 }
 
 Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 					_body(), _help_message(), _valid(true), _error_code(200),
 					_headers(), _params(),
-					_request(), _accept_method(), _request_line(""), _lines()
+					_chunks(), _accept_method(), _request_line(""), _lines()
 {}
 
 Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
 						  _req_accumulator(request_accumulator), 
 						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 						  _body(), _help_message(), _valid(true), _error_code(200), _headers(),
-						  _params(), _request(), _accept_method(), _request_line(""), _lines()
+						  _params(), _chunks(), _accept_method(), _request_line(""), _lines()
 {
 	/*std::cout << "Constructor con índice, fd y acumulador llamado. Valor de i: " << i
 				<<" valor de fd: " << fd << "\n";
@@ -35,7 +36,7 @@ Request::Request(int i, int fd, std::vector<char> request_accumulator, int type)
 Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 								_body(), _help_message(), _valid(true), _error_code(200),
 								_headers(), _params(),
-								_request(), _accept_method(), _request_line(""), _lines() 
+								_chunks(), _accept_method(), _request_line(""), _lines() 
 {
 	debug = true;
 	if (debug == true)
@@ -45,8 +46,8 @@ Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host("")
 		// _accept_metod.push_back("POST");
 		_accept_method.push_back("DELETE");
 	}
-	this->_request.insert(_request.end(), buffer, buffer + std::strlen(buffer));
-	// std::string aux(_request.begin(), _request.end());
+	this->_chunks.insert(_chunks.end(), buffer, buffer + std::strlen(buffer));
+	// std::string aux(_chunks.begin(), _chunks.end());
 	// _request_str = aux;
 	read_request_lines();
 	check_any_valid_line();
@@ -84,7 +85,7 @@ Request& Request::operator=(Request const & other)
 		this->_headers = other._headers;
 		this->_params = other._params;
 		this->_body_size = other._body_size;
-		this->_request = other._request;
+		this->_chunks = other._chunks;
 		this->_accept_method = other._accept_method;
 		this->_request_line = other._request_line;
 		this->_lines = other._lines;
@@ -105,35 +106,9 @@ Request::~Request()
 
 int Request::join_request(char *buffer, int read_size, std::vector<Server> &server)
 {
-	/*std::ofstream outfile("request.html");
-    if (!outfile.is_open()) {
-        std::cerr << "Error opening file for writing." << std::endl;
-        return INVALID_REQUEST; // Return an error if the file cannot be opened
-    }
-
-    // Write the contents of the buffer to the file, replacing \r and \n
-    for (int i = 0; i < read_size; ++i) {
-        if (buffer[i] == '\r') {
-            outfile << "\\r"; // Replace \r with its visible representation
-        } else if (buffer[i] == '\n') {
-            outfile << "\\n"; // Replace \n with its visible representation
-        } else {
-            outfile << buffer[i]; // Write other characters as-is
-        }
-    }
-
-    // Check if writing succeeded
-    if (outfile.fail()) {
-        std::cerr << "Error writing to file." << std::endl;
-        outfile.close(); // Close the file before returning
-        return INVALID_REQUEST; // Return an error if writing fails
-    }
-
-    // Close the file after writing
-    outfile.close();*/
-	//int server_body_size = 1024; // esto debe de venir de la configuración del server, pendiente pensar cómo hacer llegar este valor hasta aquí
-
 	debug = true;
+	std::cout << "la lluvia en sevilla es una maravillaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n";
+	std::cout << _status << std::endl;
 	switch (_status)
 	{
 	case INVALID_REQUEST:
@@ -188,41 +163,42 @@ bool Request::search_body_length_header()
 
 bool Request::search_chunked_body()
 {
+	std::map<std::string, std::string>::iterator it;
+	std::string chunked = "chunked";
+	for(it = _headers.begin(); it != _headers.end(); it++)
+	{
+		if (it->first == "Transfer-Encoding")
+		{
+			if (spaces_trim(it->second) == chunked)
+				return true;
+		}
+	}
 	return false;
 }
 
 int	Request::manage_headers_received(std::vector<Server> &server)
 {
+	// print_raw_request();
+	// print_body();
+	// std::cout << "CONTENIDO DE REQUEST ACCUMULATOR:\n";
+	// print_raw_vector(_req_accumulator);
 	read_request_lines();
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
-	// if (debug == true){std::cout << "VOY A LEER LOS HEADERS\n";}
 	extract_request_line();
-		// función Lyudmyla
 	if (check_request_line() == false)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
+	check_request_line(server);
 	if (search_body_length_header() == true)
 	{
-		// esto empieza a crecer lo suficiente como para hacer pasarlo a manage_request_with_body ->NO, manage_request_w_body va a ser para almacenar los sucesivos buffers de la request con body en body  
 		_status = REQUEST_WITH_BODY;
 		// separar antes y después de CRLFx2
-		if (_req_accumulator.size() - 4 == _CRLFx2_index - 1) // el CRLFx2 justo coincide en el final del vector
-		{
-			_body.clear();
-		}
-		else if (_req_accumulator.size() - 4 > _CRLFx2_index - 1) //hay cosas después del CRLFx2
-		{
-			std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
-			_body = after_CRLFx2;
-		}
-		// if (debug == true){std::cout << "ESTA ES LA LONGITUD DE BODY:" << _body_size << "\n";}
-		// if (debug == true){std::cout << "ESTA ES LA LONGITUD DE BODY REAL:" << _body.size() << "\n";}
-		//verificar longitud de body
+		split_at_CRLFx2();
 		if (static_cast<int>(_body.size()) == _body_size) // teóricamente completa, no se deberían recibir más partes de esta request
 		{
-			_status = FULL_COMPLETE_REQUEST; 
+			_status = FULL_COMPLETE_REQUEST;
 		}
 		if (static_cast<int>(_body.size()) > _body_size) // el body es más largo que el indicado en el header
 		{
@@ -231,15 +207,15 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	}
 	else if (search_chunked_body() == true)
 	{
+		// if (debug == true){std::cout << "ENCONTRADO EL HEADER DE CHUNKEDDDDDDDDDDDDDDD\n\n";}
 		if (_status == REQUEST_WITH_BODY)
 		{
 			set_validity(BAD_REQUEST, "Incompatible headers");
 			return (INVALID_REQUEST);
 		}
-		else
-		{
-			_status = CHUNKED_REQUEST;
-		}
+		_status = CHUNKED_REQUEST;
+		_body.clear(); //esto es una guarrada de narices, aquí no debería haber _body...
+		manage_possible_chunked_beggining();
 	}
 	else
 	{
@@ -251,6 +227,136 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	// if (debug == true){std::cout << "El estado es: " << _status << "\n" << std::endl;}
 
 	return _status;
+}
+
+void Request::split_at_CRLFx2()
+{
+
+	if (_req_accumulator.size() - 4 == _CRLFx2_index - 1) // el CRLFx2 justo coincide en el final del vector
+	{
+		_body.clear();
+	}
+	else if (_req_accumulator.size() - 4 > _CRLFx2_index - 1) //hay cosas después del CRLFx2
+	{
+		std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
+		if (_status == REQUEST_WITH_BODY)
+			_body = after_CRLFx2;
+		else if (_status == CHUNKED_REQUEST)
+			_chunks = after_CRLFx2;
+		else
+			_body = after_CRLFx2;
+	}
+}
+
+int Request::manage_possible_chunked_beggining()
+{
+	split_at_CRLFx2();
+	std::pair<long, std::vector<char> > aux;
+	std::vector<char>::iterator  it = _chunks.begin();
+	size_t start = 0;
+	size_t end = 0;
+	size_t CRLF_count = 0;
+
+	for (size_t i = 0; i < _chunks.size(); i++)
+	{
+		if (_chunks[i] == '\r' && i + 1 <= _chunks.size() && _chunks[i + 1] == '\n')
+		{
+			CRLF_count++;
+			end = i;
+			if (CRLF_count % 2 == 1)
+			{
+				std::string number_str(it + start, it + end);
+				aux.first = std::strtol(number_str.c_str(), NULL, 16);
+				std::cout << "\033[31mNúmero obtenido: " << aux.first << "\033[0m" << std::endl;
+				start = i + 2;
+				// almacenar en pair first
+			}
+			if (CRLF_count % 2 == 0)
+			{
+				std::string text_str(it + start, it + end);
+				if (aux.first != static_cast<long>(text_str.size()))
+				{
+					_status = INVALID_REQUEST;
+					std::cerr << "SE HA PRODUCIDO UN ERROR" << std::endl; 
+					return (set_validity(BAD_REQUEST, "Chunk lentgh doesn't match"));
+					// break;
+				}
+				// std::cout << "\033[31mTexto obtenido: " << text_str << " -> " << text_str.size() << "\033[0m" << std::endl;
+				_body.insert(_body.end(), it + start, it + end);
+				start = i + 2;
+			}
+			if (aux.first == 0)
+			{
+				// std::cout << "Esta request está terminada" << std::endl;
+				_status = FULL_COMPLETE_REQUEST;
+				std::cout << "That's all forks!" << std::endl;
+				return _status;
+				// break;
+			}
+		}
+	}
+		print_raw_vector(_req_accumulator);
+		_last_chunk_size = (CRLF_count % 2 == 1) ? aux.first : -1;
+	/* while (it != _chunks.end())
+	{
+		if (*it == '\r'){std::cout << "\\r";}
+		else if (*it == '\n'){std::cout << "\\n";}
+		else {std::cout << *it;}
+		std::cout.flush();
+
+
+		if (*it == '\r' && (it + 1) != _chunks.end() && *(it + 1) == '\n')
+		{
+				if (debug == true){std::cout << "SU PUTA MADREEEEEEEEEEEEEE\n";}
+			CRLF_count++;
+			if (CRLF_count % 2 == 1)
+			{
+				if (debug == true)
+				{
+					std::cout << "\033[31mEste es el primer caracter encontrado:\033[0m\n";
+					if (*(_chunks.begin() + start) == '\r'){std::cout << "\\r\n";}
+					else if (*(_chunks.begin() + start)){std::cout << "\\n\n";}
+					else {std::cout << *(_chunks.begin() + start) << "\n";}
+
+				}
+				aux.first = atoi(std::string(_chunks.begin() + start, _chunks.begin() + end + 1).c_str());  // end+1?
+				// if (debug == true){std::cout << "Encontrado CRLF: " << aux.first << "\n";}				
+				start = end + 2;
+			}
+			else if (CRLF_count % 2 == 0)
+			{
+				// aux.second.insert(aux.second.end(), _chunks.begin() + start, _chunks.begin() + end + 1);
+				// for (size_t i = 0; i < aux.second.size(); i++){std::cout << aux.second[i];}std::cout<<std::endl;
+
+				// if (debug == true){std::cout << "Encontrado CRLF par" << CRLF_count << "\n";}				
+				// SEGUIR AQUÍ!!!!
+				// _body.insert(_body.end(), )
+				// es la segunda parte del 
+			}
+		}
+		it++;
+		// std::advance(it, 1);
+	} */
+	if (debug == true){std::cout << "\033[31mBUCLE TERMINADO\033[0m\n" << std::endl;}
+		
+	// 
+		// recorrer todo el after_CRLFx2
+			// buscar CRLFs
+				// si es un número impar guardar el número
+					// si el número es 0 cambiar status a FULL_COMPLETE_REQUEST
+				// si es un número par guardar la string
+					// añadir la string al body
+			// guardar índice del último CRLF para leer entre ese y el encontrado
+				// qué hacer con la parte previa?
+			// dónde guardar si no llega un chunk completo???
+
+		//empezar a extraer las chunks, parejas de int + string.
+		// comprobar q int y string size son iguales
+	std::cout << "LA REQUEST EN CACHITOS NO ESTÁ TERMINADA\n";
+	_chunks.erase(_chunks.begin(), _chunks.begin() + start);
+	print_raw_vector(_chunks, 0, _chunks.size() - 1);
+	// _req_accumulator.clear();
+	return CHUNKED_REQUEST;
 }
 
 int	Request::manage_request_with_body(char *buffer, int read_size)
@@ -271,6 +377,61 @@ int	Request::manage_request_with_body(char *buffer, int read_size)
 
 int	Request::manage_chunked_request(char *buffer, int read_size)
 {
+	std::cout << "Aquí va el resto de la gestion de los chunks que no caben en el buffer\n";
+	std::cout.flush();
+	std::cout << buffer;
+	std::cout.flush();
+	print_raw_vector(_chunks);
+	_chunks.insert(_chunks.end(), buffer, buffer + std::strlen(buffer));
+	print_raw_vector(_chunks);
+
+	std::pair<long, std::vector<char> > aux;
+	std::vector<char>::iterator  it = _chunks.begin();
+	size_t start = 0;
+	size_t end = 0;
+	size_t CRLF_count;
+
+	CRLF_count =  (_last_chunk_size != -1) ? _last_chunk_size : 0;
+	for (size_t i = 0; i < _chunks.size(); i++)
+	{
+		if (_chunks[i] == '\r' && i + 1 <= _chunks.size() && _chunks[i + 1] == '\n')
+		{
+			CRLF_count++;
+			end = i;
+			if (CRLF_count % 2 == 1)
+			{
+				std::string number_str(it + start, it + end);
+				aux.first = std::strtol(number_str.c_str(), NULL, 16);
+				std::cout << "\033[31mNúmero obtenido: " << aux.first << "\033[0m" << std::endl;
+				start = i + 2;
+				// almacenar en pair first
+			}
+			if (CRLF_count % 2 == 0)
+			{
+				std::string text_str(it + start, it + end);
+				if (aux.first != static_cast<long>(text_str.size()))
+				{
+					_status = INVALID_REQUEST;
+					std::cerr << "SE HA PRODUCIDO UN ERROR" << std::endl; 
+					return (set_validity(BAD_REQUEST, "Chunk lentgh doesn't match"));
+					// break;
+				}
+				// std::cout << "\033[31mTexto obtenido: " << text_str << " -> " << text_str.size() << "\033[0m" << std::endl;
+				_body.insert(_body.end(), it + start, it + end);
+				start = i + 2;
+			}
+			if (aux.first == 0)
+			{
+				// std::cout << "Esta request está terminada" << std::endl;
+				_status = FULL_COMPLETE_REQUEST;
+				std::cout << "That's all forks!" << std::endl;
+				return _status;
+				// break;
+			}
+		}
+	}
+
+	exit(44);
 	(void)buffer;
 	(void)read_size;
 	return INVALID_REQUEST;
@@ -303,6 +464,7 @@ bool Request::search_double_CRLF()
 			return true;
 		}
 	}
+	print_full_info();
 	_status = INCOMPLETE_REQUEST;
 	return false;
 }
@@ -316,7 +478,7 @@ void Request::read_request_lines()
 		if (*it == '\r' && (it + 1) != _req_accumulator.end() && *(it + 1) == '\n')
 		{
 			std::string line(line_start, it);
-
+			// if (debug == true){std::cout << "línea a añadir:\n" << line << std::endl;}
 			_lines.push_back(line);
 			it += 2; 
 			line_start = it;
@@ -327,7 +489,8 @@ void Request::read_request_lines()
 				it += 2;
 				if (it != _req_accumulator.end())
 				{
-					_body = std::vector<char> (it, _req_accumulator.end());
+					// _body = std::vector<char> (it, _req_accumulator.end());  //si la request es chunked esto es una cagada enorme, lo lee 2 veces y lo borra entero en los chunks
+					break;
 				}
 			}
 		}
@@ -404,10 +567,12 @@ bool Request::read_headers_lines()
 		return _valid;
 	if (_lines.size() <= 1)
 		return _valid;
+	// if (debug == true){std::cout << "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY\n" << std::endl;}
 
 	for (size_t i = 1; i < _lines.size(); i++)
 	{
 		colon_position = _lines[i].find(":");
+		// if (debug == true){std::cout << "->->->->->->->-> "<<_lines[i] << " <-<-<-<-<-<-<-<-" << std::endl;}
 		if (colon_position == _lines[i].npos || 
 			_lines[i].find(" :") != _lines[i].npos)
 			return set_validity(BAD_REQUEST);
@@ -421,12 +586,13 @@ bool Request::read_headers_lines()
 	return _valid;
 }
 
-void Request::spaces_trim(std::string &str)
+std::string Request::spaces_trim(std::string &str)
 {
 	std::string::iterator it = str.begin();
 	while (it != str.end() && std::isspace(*it))
 		++it;
 	str.erase(str.begin(), it);
+	return str;
 }
 
 bool Request::check_number_elements_request_line(std::vector<std::string> result)
@@ -593,7 +759,7 @@ bool Request::check_and_set_params(std::vector<std::string> params_unchecked)
 // --------------------  GETTERS  -------------------- //
 std::vector<char> Request::get_full_request()
 {
-	return (this->_request);
+	return (this->_chunks);
 }
 std::vector<char> Request::get_body()
 {
@@ -765,28 +931,28 @@ bool    Request::compareListen(std::vector<struct sockaddr_in> listen)
 
 Location    Request::compareUri(const std::vector<Location> &location)
 {
-    std::string uri_location;
-    std::size_t found;
+	std::string uri_location;
+	std::size_t found;
 
-    for (size_t i = 0; i < location.size(); i++)
-    {
-        uri_location = location[i].getUri();
-        found = _uri.find(location[i].getUri());
-        if (found == 0)
-            return (location[i]);
-    }
-    return Location();
+	for (size_t i = 0; i < location.size(); i++)
+	{
+		uri_location = location[i].getUri();
+		found = _uri.find(location[i].getUri());
+		if (found == 0)
+			return (location[i]);
+	}
+	return Location();
 }
 
 bool     Request::compareMethod(Server &server)
 {
-    if (this->_method == "GET" && server.getAcceptMethod().get == 0)
-            return (false);
-    if (this->_method == "POST" && server.getAcceptMethod().post == 0)
-            return (false);
-    if (this->_method == "DELETE" && server.getAcceptMethod().del == 0)
-            return (false);
-    return (true);
+	if (this->_method == "GET" && server.getAcceptMethod().get == 0)
+			return (false);
+	if (this->_method == "POST" && server.getAcceptMethod().post == 0)
+			return (false);
+	if (this->_method == "DELETE" && server.getAcceptMethod().del == 0)
+			return (false);
+	return (true);
 }
 
 //esta funcion va despues de parsear la request line
@@ -810,7 +976,7 @@ int    Request::check_request_line(std::vector<Server> &server)
 	if (it_serv != server.end())///si hay este server name
 	{
 		if (compareMethod(*it_serv))//comprobar em metodo y si el puerto por el que habla el cliente y el puerto de conf coinciden
-        {
+		{
 			if (!it_serv->getLocation().empty())//si el server no tiene location comprobamos la uri con root
 				conf_loc = compareUri(it_serv->getLocation());//buscamos si hay uri que esta pidiendo el cliente
 			if (conf_loc.getAutoindex() == -1)//no existe la location
@@ -818,7 +984,7 @@ int    Request::check_request_line(std::vector<Server> &server)
 				if (_body_size > it_serv->getBodySize())
 				{
 					this->_error_code = NOT_FOUND;
-        			return (0);
+					return (0);
 				}
 				if (this->_uri.find(it_serv->getRoot()) != 0)
 				{
@@ -846,17 +1012,17 @@ int    Request::check_request_line(std::vector<Server> &server)
 
 void  Request::last_conection_time()
 {
-      conecction_time = time(NULL);
+	  conecction_time = time(NULL);
 }
 
 time_t        Request::get_time()
 {
-      return (conecction_time);
+	  return (conecction_time);
 }
 
 void  Request::set_error_code(int error_code)
 {
-      this->_error_code = error_code;
+	  this->_error_code = error_code;
 }
 
 Location	Request::getLoc() const
@@ -878,75 +1044,75 @@ void	Request::set_current_status(int status)
 //--------------------PRINT REQUEST---------------------//
 
 void Request::print_full_info() {
-    std::cout << "-------- Request Info --------" << std::endl;
+	std::cout << "-------- Request Info --------" << std::endl;
 
-    // Información importante
-    std::cout << "Socket FD: " << _fd_socket << std::endl;
-    std::cout << "Socket Position: " << _pos_socket << std::endl;
+	// Información importante
+	std::cout << "Socket FD: " << _fd_socket << std::endl;
+	std::cout << "Socket Position: " << _pos_socket << std::endl;
 
-    // Convertir el vector de chars a string para imprimir
-    std::string req_accumulator_str(_req_accumulator.begin(), _req_accumulator.end());
-    std::cout << "Request Accumulator: " << req_accumulator_str << std::endl;
+	// Convertir el vector de chars a string para imprimir
+	std::string req_accumulator_str(_req_accumulator.begin(), _req_accumulator.end());
+	std::cout << "Request Accumulator: " << req_accumulator_str << std::endl;
 
-    std::cout << "Method: " << get_method() << std::endl;
-    std::cout << "URI: " << get_uri() << std::endl;
-    std::cout << "Protocol: " << get_protocol() << std::endl;
-    std::cout << "Host: " << get_host() << std::endl;
-    std::cout << "Port: " << get_port() << std::endl;
+	std::cout << "Method: " << get_method() << std::endl;
+	std::cout << "URI: " << get_uri() << std::endl;
+	std::cout << "Protocol: " << get_protocol() << std::endl;
+	std::cout << "Host: " << get_host() << std::endl;
+	std::cout << "Port: " << get_port() << std::endl;
 
-    // Convertir el cuerpo de la request (vector de chars) a string para imprimir
-    std::string body_str(_body.begin(), _body.end());
-    std::cout << "Body: " << body_str << std::endl;
+	// Convertir el cuerpo de la request (vector de chars) a string para imprimir
+	std::string body_str(_body.begin(), _body.end());
+	std::cout << "Body: " << body_str << std::endl;
 
-    std::cout << "Help Message: " << get_help_message() << std::endl;
-    std::cout << "Valid: " << (get_validity() ? "true" : "false") << std::endl;
-    std::cout << "Error Code: " << get_error_code() << std::endl;
+	std::cout << "Help Message: " << get_help_message() << std::endl;
+	std::cout << "Valid: " << (get_validity() ? "true" : "false") << std::endl;
+	std::cout << "Error Code: " << get_error_code() << std::endl;
 
-    // Headers y parámetros
-    std::cout << "Headers: " << std::endl;
-    std::map<std::string, std::string>::const_iterator it;
-    for (it = _headers.begin(); it != _headers.end(); ++it) {
-        std::cout << "  " << it->first << ": " << it->second << std::endl;
-    }
+	// Headers y parámetros
+	std::cout << "Headers: " << std::endl;
+	std::map<std::string, std::string>::const_iterator it;
+	for (it = _headers.begin(); it != _headers.end(); ++it) {
+		std::cout << "  " << it->first << ": " << it->second << std::endl;
+	}
 
-    std::cout << "Params: " << std::endl;
-    for (it = _params.begin(); it != _params.end(); ++it) {
-        std::cout << "  " << it->first << ": " << it->second << std::endl;
-    }
+	std::cout << "Params: " << std::endl;
+	for (it = _params.begin(); it != _params.end(); ++it) {
+		std::cout << "  " << it->first << ": " << it->second << std::endl;
+	}
 
-    // Información sobre el cuerpo de la request
-    std::cout << "Body Size: " << _body_size << std::endl;
+	// Información sobre el cuerpo de la request
+	std::cout << "Body Size: " << _body_size << std::endl;
 
-    // Auxiliares
-    std::string request_str(_request.begin(), _request.end());
-    std::cout << "Request (as string): " << request_str << std::endl;
+	// Auxiliares
+	std::string request_str(_chunks.begin(), _chunks.end());
+	std::cout << "Request (as string): " << request_str << std::endl;
 
-    std::vector<std::string>::const_iterator vec_it;
-    std::cout << "Accepted Methods: ";
-    std::vector<std::string> accept_methods = get_accept_method();
-    for (vec_it = accept_methods.begin(); vec_it != accept_methods.end(); ++vec_it) {
-        std::cout << *vec_it << " ";
-    }
-    std::cout << std::endl;
+	std::vector<std::string>::const_iterator vec_it;
+	std::cout << "Accepted Methods: ";
+	std::vector<std::string> accept_methods = get_accept_method();
+	for (vec_it = accept_methods.begin(); vec_it != accept_methods.end(); ++vec_it) {
+		std::cout << *vec_it << " ";
+	}
+	std::cout << std::endl;
 
-    std::cout << "Request Line: " << get_request_line() << std::endl;
+	std::cout << "Request Line: " << get_request_line() << std::endl;
 
-    std::cout << "Lines: " << std::endl;
-    for (vec_it = _lines.begin(); vec_it != _lines.end(); ++vec_it) {
-        std::cout << "  " << *vec_it << std::endl;
-    }
+	std::cout << "Lines: " << std::endl;
+	for (vec_it = _lines.begin(); vec_it != _lines.end(); ++vec_it) {
+		std::cout << "  " << *vec_it << std::endl;
+	}
 
-    std::cout << "Type: " << _type << std::endl;
-    std::cout << "Status: " << _status << std::endl;
-    std::cout << "CRLFx2 Index: " << _CRLFx2_index << std::endl;
+	std::cout << "Type: " << _type << std::endl;
+	std::cout << "Status: " << _status << std::endl;
+	std::cout << "CRLFx2 Index: " << _CRLFx2_index << std::endl;
 
-    // Datos adicionales añadidos por Lyudmyla
-    std::cout << "Server Config: " << std::endl;
-    // Aquí puedes implementar la lógica para imprimir la configuración de `Server` y `Location` si tienes getters adecuados para ellos.
-    std::cout << "Server Body Size: " << server_body_size << std::endl;
-    std::cout << "Connection Time: " << conecction_time << std::endl;
+	// Datos adicionales añadidos por Lyudmyla
+	std::cout << "Server Config: " << std::endl;
+	// Aquí puedes implementar la lógica para imprimir la configuración de `Server` y `Location` si tienes getters adecuados para ellos.
+	std::cout << "Server Body Size: " << server_body_size << std::endl;
+	std::cout << "Connection Time: " << conecction_time << std::endl;
 
-    std::cout << "--------------------------------" << std::endl;
+	std::cout << "--------------------------------" << std::endl;
 }
 
 void	Request::reset(void)
@@ -964,7 +1130,7 @@ void	Request::reset(void)
 	_headers.clear();
 	_params.clear();
 	_body_size = 0;
-	_request.clear();
+	_chunks.clear();
 	_accept_method.clear();
 	_request_line.clear();
 	_lines.clear();
@@ -972,4 +1138,61 @@ void	Request::reset(void)
 	_status = EMPTY_REQUEST;
 	_CRLFx2_index = 0;
 	server_body_size = 0;
+}
+
+void Request::print_raw_request()
+{
+	std::cout << "REQUEST EN CRUDO:\n\n";
+	for (size_t i = 0; i < _req_accumulator.size(); i++)
+	{
+		if (_req_accumulator[i] == '\r')
+			std::cout << "\\r";
+		else if (_req_accumulator[i] == '\n')
+			std::cout << "\\n\n";
+		else
+			std::cout << _req_accumulator[i];
+	}
+	std::cout << "\n\nFIN DE LA REQUEST" << std::endl;
+}
+
+void Request::print_body()
+{
+	std::cout << "BBOODDYYYYYY:\n";
+	for (size_t i = 0; i < _body.size(); i++)
+	{
+		std::cout << _body[i];
+		std::cout.flush();
+	}
+	std::cout << std::endl;
+	
+}
+
+void Request::print_raw_vector(std::vector<char> loquesea)
+{
+	for (size_t i = 0; i < loquesea.size(); i++)
+	{
+		if (loquesea[i] == '\r')
+			std::cout << "\\r";
+		else if (loquesea[i] == '\n')
+			std::cout << "\\n";
+		else
+			std::cout << loquesea[i];
+		std::cout.flush();
+	}
+	std::cout << std::endl;
+}
+
+void Request::print_raw_vector(std::vector<char>& loquesea, size_t start, size_t end)
+{
+	for (size_t i = start; i <= end; i++) 
+	{
+		if (loquesea[i] == '\r')
+			std::cout << "\\r";
+		else if (loquesea[i] == '\n')
+			std::cout << "\\n";
+		else
+			std::cout << loquesea[i];
+		std::cout.flush();
+	}
+	std::cout << std::endl;
 }
