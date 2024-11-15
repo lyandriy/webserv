@@ -328,7 +328,7 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
         }
         else
         {
-            std::cout << "\033[33m" << " pid 2 " << it->second.getPid() <<  "\033[0m" << std::endl;
+            std::cout << "\033[33m" << " pid  " << it->second.getPid() <<  "\033[0m" << std::endl;
             pid_ret = waitpid(it->second.getPid(), &wstatus, WNOHANG);
             std::cout << "\033[35m" << " WIFSIGNALED(wstatus) " << WIFSIGNALED(wstatus) <<  "\033[0m" << std::endl;
             std::cout << "\033[35m" << " pid_ret " << pid_ret <<  "\033[0m" << std::endl;
@@ -343,6 +343,7 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
             else if (pid_ret > 0)//si el hijo ha  terminado
             {
                 pfds[sock_num].fd = it->second.getFd();
+                std::cout << "AQUI " << pfds[sock_num].fd << std::endl;
                 pfds[sock_num].events = POLLIN;
                 fd_file[it->first] = sock_num;
                 sock_num++;
@@ -357,7 +358,7 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
 
 void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
 {
-    std::cout << pfd_free << " CLOSEEEEEEE\n";
+    std::cout << pfd_free << pfds[pfd_free].fd <<" CLOSEEEEEEE\n";
     if (pfds[pfd_free].fd == -1)
         return ;
     close(pfds[pfd_free].fd);
@@ -368,6 +369,7 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
         pfds[sock_num - 1].revents = 0;
         requests.erase(sock_num - 1);
         response.erase(sock_num - 1);
+        cgiClients.erase(sock_num - 1);
         //fd_file.erase(sock_num - 1);
         for (std::map<int, int>::iterator it = fd_file.begin(); it != fd_file.end(); ++it)
         {
@@ -418,6 +420,13 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
         fd_file.erase(sock_num - 1);
         fd_file.erase(pfd_free);
         fd_file[pfd_free] = copy_fd;
+    }
+    if (cgiClients.find(sock_num - 1) != cgiClients.end())
+    {
+        CGI copy_cgi = cgiClients.find(sock_num - 1)->second;;
+        cgiClients.erase(sock_num - 1);
+        cgiClients.erase(pfd_free);
+        cgiClients[pfd_free] = copy_cgi;
     }
     sock_num--;
 }

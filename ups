@@ -1,0 +1,466 @@
+[31mServer Name: localhost
+[0mAccept Method: GET 1 POST 0 DELETE 0
+Client Max Body Size: 1048576
+Root: html/test
+Autoindex: 1
+Index: index.html
+CGI: 1
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8081
+Error Pages: 
+Locations (1): 
+[33mLocation 1:
+[0mURI: /hola
+Server Name: localhost
+Accept Method: GET 1 POST 0 DELETE 0
+Client Max Body Size: 1048576
+Root: html/test
+Autoindex: 1
+Index: index.html
+CGI: 1
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8081
+Error Pages: 
+[31mServer Name: loca
+[0mAccept Method: GET 1 POST 1 DELETE 1
+Client Max Body Size: 1048576
+Root: html/loca
+Autoindex: 0
+Index: index.html
+CGI: 0
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8081
+Error Pages: 
+Locations (0): 
+[31mServer Name: local
+[0mAccept Method: GET 1 POST 1 DELETE 1
+Client Max Body Size: 1048576
+Root: html/local
+Autoindex: 0
+Index: index.html
+CGI: 0
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8080
+Error Pages: 
+Locations (0): 
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 1
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 1;   revents: 0
+[32m recvRequest [0m
+check_revent 2
+GET /prueba HTTP/1.1
+Host: localhost:8081
+Connection: keep-alive
+Cache-Control: max-age=0
+sec-ch-ua: "Chromium";v="116", "Not)A;Brand";v="24", "Google Chrome";v="116"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9,es;q=0.8
+
+
+valor: 687
+[33m CODICO DE ERROR antes 200[0m
+[33m CODICO DE ERROR PARSEO ....200[0m
+[33m CODICO DE ERROR despues 404[0m
+[33m MAIN [0m
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+[33m MAIN 1close[0m
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 1
+socket 3:   fd: 7;   events: 1;   revents: 0
+[32m sendResponse [0m
+3 CLOSEEEEEEE
+2 CLOSEEEEEEE
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 1
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 1;   revents: 0
+[32m recvRequest [0m
+check_revent 2
+GET /prueba HTTP/1.1
+Host: localhost:8081
+Connection: keep-alive
+Cache-Control: max-age=0
+sec-ch-ua: "Chromium";v="116", "Not)A;Brand";v="24", "Google Chrome";v="116"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9,es;q=0.8
+
+
+valor: 687
+[33m CODICO DE ERROR antes 200[0m
+[33m CODICO DE ERROR PARSEO ....200[0m
+[33m CODICO DE ERROR despues 200[0m
+[33m MAIN [0m
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+[33m MAIN keep-alive[0m
+[32m sendResponse [0m
+Hacemis CGI
+[33m fd_pipe 7[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 1
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+Hacemis CGI
+argv[0] = /bin/bash
+[33m pid  5578[0m
+argv[1] = html/test/prueba
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+
+root: html/test/prueba
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 1[0m
+[35m pid_ret 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+[32m sendResponse [0m
+[33m pid  5578[0m
+[35m WIFSIGNALED(wstatus) 0[0m
+[35m pid_ret 5578[0m
+AQUI 7
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+socket 3:   fd: 7;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 4;   revents: 4
+socket 3:   fd: 7;   events: 1;   revents: 17
+[32m sendResponse [0m
+3 CLOSEEEEEEE
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 1;   revents: 4
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 1
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 1;   revents: 0
+socket 3:   fd: 7;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 1;   revents: 0
+socket 3:   fd: 7;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 1;   revents: 0
+socket 3:   fd: 7;   events: 1;   revents: 0
+[32m sendResponse [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+socket 2:   fd: 6;   events: 1;   revents: 0
+socket 3:   fd: 7;   events: 1;   revents: 0

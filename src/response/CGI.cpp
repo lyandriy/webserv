@@ -137,13 +137,13 @@ int   CGI::makeProcess()
         close(fd_pipe[1]);
         deleteArray();
     }
-    //std::cout << "\033[33m" << " pid " << pid <<  "\033[0m" << std::endl;
+    std::cout << "\033[33m" << " fd_pipe " << fd_pipe[0] <<  "\033[0m" << std::endl;
     return (0);
 }
 
 void    CGI::make_execve()
 {
-    //printArgumentsAndEnvironment();
+    printArgumentsAndEnvironment();
     //std::cout << "MI PIPE " << fd_pipe[1] << fd_pipe[0] << std::endl;
     if (dup2(fd_pipe[1], STDOUT_FILENO) < 0 || dup2(fd_pipe[0], STDIN_FILENO) < 0)
     {
@@ -159,16 +159,11 @@ void    CGI::make_execve()
         deleteArray();
         exit (1);
     }
-    std::cerr << "close error. " << std::endl;
-    /*write(STDOUT_FILENO, "hola", 4);
-    char buffer[4];
-    read(STDIN_FILENO, buffer, 4);
-    std::cerr << "aaaaaaaaaaaaaaaaaaaaaaaaaaaa " << buffer << std::endl;*/
     if (execve("/bin/bash", argv, envp) == -1)
 	{
         std::cerr << "Execve error: " << strerror(errno) << std::endl;
         deleteArray();
-        exit (1);
+        exit (1);//esto hay que cambiarlo, para diferencia error de execve y errorr del server
 	}
 }
 

@@ -66,10 +66,16 @@ Response::Response(const Location &location, Request &request)
     this->_pos_socket = request.get_pos_socket();
     this->params = request.get_params();
     this->body = request.get_body();
-    if (request.get_headers().find("Connection") == request.get_headers().end())
-        this->connection_val = "keep-alive";
+    if (this->headers["Connection"].empty() || this->error_code != 200)
+    {
+        this->connection_val = "close";
+        std::cout << "\033[33m" << " MAIN 1" << this->connection_val <<  "\033[0m" << std::endl;
+    }
     else
-        this->connection_val = request.get_headers()["Connection"];
+    {
+        this->connection_val = this->headers["Connection"];
+        std::cout << "\033[33m" << " MAIN " << this->connection_val <<  "\033[0m" << std::endl;
+    }
     if (this->error_code != 200)
         error_response();
     total_bytes_read = 0;
@@ -101,7 +107,7 @@ Response::Response(const Server &server, Request &request){
     this->_pos_socket = request.get_pos_socket();
     this->params = request.get_params();
     this->body = request.get_body();
-    if (this->headers["Connection"].empty())
+    if (this->headers["Connection"].empty() || this->error_code != 200)
     {
         this->connection_val = "close";
         std::cout << "\033[33m" << " MAIN 1" << this->connection_val <<  "\033[0m" << std::endl;
