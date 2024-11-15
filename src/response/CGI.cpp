@@ -25,7 +25,6 @@ CGI &CGI::operator=(const CGI &other)
 
 CGI::CGI(const Response &response)
 {
-    std::cout << "\033[34m" << " CGI " <<  "\033[0m" << std::endl;
     this->root = response.getRoot();
     this->uri = response.getURI();
     this->params = response.getParams();
@@ -91,12 +90,10 @@ void    CGI::deleteArray()
     for (size_t i = 0; i != 2; i++)
         delete[] argv[i];
     delete[] argv;
-    std::cout << "HOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
 }
 
 int   CGI::makeProcess()
 {
-    std::cout << "\033[35m" << " Make process" <<  "\033[0m" << std::endl;
     std::map<std::string, std::string>::iterator it;
     int     count = 0;
     std::string query_parameter;
@@ -107,18 +104,15 @@ int   CGI::makeProcess()
         return (0);
     }
     //crear el argv
-    std::cout << "params.size()" << params.size() << std::endl;
     envp = new char*[params.size() + 1];
     for (it = params.begin(); it != params.end(); ++it)
     {
-        std::cout << "\033[34m" << " it->first " << it->first << " it->second " << it->second <<  "\033[0m" << std::endl;
         query_parameter = it->first + "=" + it->second;
         envp[count] = new char [query_parameter.size() + 1];
         std::strcpy(envp[count], query_parameter.c_str());
         count++;
     }
     envp[count] = NULL;
-    std::cout << count << std::endl;
     //crer el envp
     argv = new char*[2];
     argv[0] = new char [root.size()];
@@ -141,7 +135,6 @@ int   CGI::makeProcess()
         close(fd_pipe[1]);
         deleteArray();
     }
-    std::cout << "\033[36m" << " termino make process "  <<  "\033[0m" << std::endl;
     return (1);
 }
 
@@ -158,13 +151,13 @@ void    CGI::make_execve()
     }
     close(fd_pipe[1]);
     close(fd_pipe[0]);
-    /*if (execve(root.c_str(), argv, envp) == -1)
+    if (execve(root.c_str(), argv, envp) == -1)
 	{
 		std::cerr << "Execve error." << std::endl;
         std::cerr << "Execve error: " << strerror(errno) << std::endl;
         deleteArray();
         exit (1);
-	}*/
+	}
 }
 
 void CGI::printArgumentsAndEnvironment()

@@ -1,7 +1,5 @@
 # include "../inc/Webserver.hpp"
 
-//std::cout << "\033[33m" << " MAIN " <<  "\033[0m" << std::endl;
-
 int main(int argc, char **argv)
 {
     int first_poll = 0;
@@ -20,12 +18,6 @@ int main(int argc, char **argv)
 
             while (true)
             {
-                for (int i = 0; i < socketManager.getSockNum(); ++i) {
-                std::cout << "socket " << i << ": ";
-                std::cout << "  fd: " << pfds[i].fd << "; ";
-                std::cout << "  events: " << pfds[i].events << "; ";
-                std::cout << "  revents: " << pfds[i].revents << std::endl;
-            }
                 if (poll(pfds, socketManager.getSockNum(), 1000) == -1)//monitorear si hay algun cliente
                     std::cerr << "Error: poll error." << std::endl;
                 if (first_poll > 0)
@@ -47,10 +39,3 @@ int main(int argc, char **argv)
     }
     return (0);
 }
-
-/*for (int i = 0; i < socketManager.getSockNum(); ++i) {
-    std::cout << "socket " << i << ": ";
-    std::cout << "  fd: " << pfds[i].fd << "; ";
-    std::cout << "  events: " << pfds[i].events << "; ";
-    std::cout << "  revents: " << pfds[i].revents << std::endl;
-}*/
