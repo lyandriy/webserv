@@ -25,7 +25,6 @@ CGI &CGI::operator=(const CGI &other)
 
 CGI::CGI(const Response &response)
 {
-    std::cout << "\033[34m" << " CGI " <<  "\033[0m" << std::endl;
     this->root = response.getRoot();
     this->uri = response.getURI();
     this->params = response.getParams();
@@ -91,48 +90,45 @@ void    CGI::deleteArray()
     for (size_t i = 0; i != 2; i++)
         delete[] argv[i];
     delete[] argv;
-    std::cout << "HOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
 }
 
 int   CGI::makeProcess()
 {
-    std::cout << "\033[35m" << " Make process" <<  "\033[0m" << std::endl;
     std::map<std::string, std::string>::iterator it;
     int     count = 0;
     std::string query_parameter;
 
     if (pipe(fd_pipe) == -1)
     {
-        std::cerr << "Pipe error." << std::endl;
-        return (0);
+        std::cerr << "Pipe error." << strerror(errno) << std::endl;
+        return (1);
     }
     //crear el argv
-    std::cout << "params.size()" << params.size() << std::endl;
     envp = new char*[params.size() + 1];
     for (it = params.begin(); it != params.end(); ++it)
     {
-        std::cout << "\033[34m" << " it->first " << it->first << " it->second " << it->second <<  "\033[0m" << std::endl;
         query_parameter = it->first + "=" + it->second;
         envp[count] = new char [query_parameter.size() + 1];
         std::strcpy(envp[count], query_parameter.c_str());
         count++;
     }
     envp[count] = NULL;
-    std::cout << count << std::endl;
     //crer el envp
-    argv = new char*[2];
-    argv[0] = new char [root.size()];
-    std::strcpy(argv[0], root.c_str());
-    argv[1] = NULL;
+    argv = new char*[3];
+    argv[0] = new char [20];
+    std::strcpy(argv[0], "/bin/bash");
+    argv[1] = new char [root.size()];
+    std::strcpy(argv[1], root.c_str());
+    argv[2] = NULL;
     //fork
     pid = fork();
     if (pid < 0)
     {
-        std::cerr << "Fork error." << std::endl;
+        std::cerr << "Fork error. " << strerror(errno) << std::endl;
         close(fd_pipe[0]);
         close(fd_pipe[1]);
         deleteArray();
-        return (0);
+        return (1);//1 es error
     }
     if (pid == 0)
         make_execve();
@@ -141,30 +137,39 @@ int   CGI::makeProcess()
         close(fd_pipe[1]);
         deleteArray();
     }
-    std::cout << "\033[36m" << " termino make process "  <<  "\033[0m" << std::endl;
-    return (1);
+    //std::cout << "\033[33m" << " pid " << pid <<  "\033[0m" << std::endl;
+    return (0);
 }
 
 void    CGI::make_execve()
 {
     //printArgumentsAndEnvironment();
-    if (dup2(fd_pipe[1], STDOUT_FILENO) == -1 || dup2(fd_pipe[0], STDIN_FILENO) == -1)
+    //std::cout << "MI PIPE " << fd_pipe[1] << fd_pipe[0] << std::endl;
+    if (dup2(fd_pipe[1], STDOUT_FILENO) < 0 || dup2(fd_pipe[0], STDIN_FILENO) < 0)
     {
-        std::cerr << "dup2 error." << std::endl;
+        std::cerr << "dup2 error. " << strerror(errno) << std::endl;
         close(fd_pipe[1]);
         close(fd_pipe[0]);
         deleteArray();
-        exit (01);
+        exit (1);
     }
-    close(fd_pipe[1]);
-    close(fd_pipe[0]);
-    /*if (execve(root.c_str(), argv, envp) == -1)
+    if (close(fd_pipe[1]) == -1 || close(fd_pipe[0]) == -1)
+    {
+        std::cerr << "close error. " << strerror(errno) << std::endl;
+        deleteArray();
+        exit (1);
+    }
+    std::cerr << "close error. " << std::endl;
+    /*write(STDOUT_FILENO, "hola", 4);
+    char buffer[4];
+    read(STDIN_FILENO, buffer, 4);
+    std::cerr << "aaaaaaaaaaaaaaaaaaaaaaaaaaaa " << buffer << std::endl;*/
+    if (execve("/bin/bash", argv, envp) == -1)
 	{
-		std::cerr << "Execve error." << std::endl;
         std::cerr << "Execve error: " << strerror(errno) << std::endl;
         deleteArray();
         exit (1);
-	}*/
+	}
 }
 
 void CGI::printArgumentsAndEnvironment()
