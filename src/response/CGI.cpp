@@ -147,7 +147,7 @@ int   CGI::makeProcess()
 
 void    CGI::make_execve()
 {
-    printArgumentsAndEnvironment();
+    //printArgumentsAndEnvironment();
     if (dup2(fd_pipe[1], STDOUT_FILENO) == -1 || dup2(fd_pipe[0], STDIN_FILENO) == -1)
     {
         std::cerr << "dup2 error." << std::endl;
@@ -158,16 +158,17 @@ void    CGI::make_execve()
     }
     close(fd_pipe[1]);
     close(fd_pipe[0]);
-    if (execve(root.c_str(), argv, envp) == -1)
+    /*if (execve(root.c_str(), argv, envp) == -1)
 	{
 		std::cerr << "Execve error." << std::endl;
         std::cerr << "Execve error: " << strerror(errno) << std::endl;
         deleteArray();
         exit (1);
-	}
+	}*/
 }
 
-void CGI::printArgumentsAndEnvironment() {
+void CGI::printArgumentsAndEnvironment()
+{
     int i = 0;
     while (argv[i] != NULL)
     {

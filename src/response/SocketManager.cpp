@@ -309,13 +309,16 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
 {
     pid_t pid_ret;
     int wstatus;
+    int i = 0;
 
-    for (std::map<int, CGI>::iterator it = cgiClients.begin(); it != cgiClients.end(); ++it)
+    std::map<int, CGI>::iterator it = cgiClients.begin();
+    for (size_t a = 0; a < cgiClients.size(); a++)
     {
         if (it->second.getPid() == -2)//si aun no se ha creado el proceso, solo se ha construido el objeto
         {
             if (!it->second.makeProcess())//cambia el pid del proceso al pid del proceso hijo
             {
+                std::cout << "\033[35m" << "INTERNAL_SERVER_ERROR 5" <<  "\033[0m" << std::endl;
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first]);
                 cgiClients.erase(it);
@@ -327,7 +330,7 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
             pid_ret = waitpid(it->second.getPid(), &wstatus, WNOHANG);
             if (pid_ret == -1 || WIFSIGNALED(wstatus)/* el proceso hijo ha terminado con un error*/)//si hay error, devolver error 500
             {
-                std::cout << "\033[35m" << "y aqui2" <<  "\033[0m" << std::endl;
+                std::cout << "\033[35m" << "INTERNAL_SERVER_ERROR 6" <<  "\033[0m" << std::endl;
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first]);
                 cgiClients.erase(it);
@@ -342,8 +345,13 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
                 sock_num++;
                 cgiClients.erase(it);
             }
+            else
+                it++;
         }
+    i++;
+    std::cout << "\033[34m" << "i = " << i <<  "\033[0m" << std::endl;
     }
+    
 }
 
 void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
