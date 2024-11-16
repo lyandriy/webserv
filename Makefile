@@ -42,7 +42,7 @@ $(BIN_PATH)%.o: $(SRCS_PATH)%.cpp
 # Regla para generar el ejecutable
 $(NAME): $(OBJS) #$(INCS_PATH)/webserv.hpp
 	echo $(PURPLE)"[Creating $(NAME)]"$(NONE)
-	$(CC) -o $(NAME) $(OBJS)
+	$(CC) ${CFLAGS} -o $(NAME) $(OBJS)
 	echo $(GREEN)"$(NAME): ready to be executed"$(NONE)
 
 # Limpiar archivos objeto
@@ -64,6 +64,6 @@ re: fclean
 run: all
 	./$(NAME)
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re run
 
 .SILENT:

@@ -179,7 +179,6 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
 
 void    SocketManager::check_join(int sock, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
-    requests[sock].set_current_status(INCOMPLETE_REQUEST);
     requests[sock].join_request(buffer, valread, server);
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock, pfds);
@@ -207,7 +206,6 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
     char    buffer[BUFFER_SIZE + 1] = {0};
     int     valread;
 
-    std::cout << "\033[32m" << " recvRequest " <<  "\033[0m" << std::endl;
     check_revent(pfds, sock);/// no se que hacer con esto!!!!!!!!!!!!!!!!!!!!
     if (sock_num == BACKLOG - 2)//si no hay espacio en pollfd para el fd del archivo
     {
@@ -273,7 +271,6 @@ void    SocketManager::reventPOLLIN(struct pollfd* pfds, std::vector<Server> &se
 
 void    SocketManager::sendResponse(struct pollfd* pfds)
 {
-    std::cout << "\033[32m" << " sendResponse " <<  "\033[0m" << std::endl;
     ssize_t send_size;
 
     for (int client = listen_sockets; client < sock_num; client++)//recorre todos los sockets

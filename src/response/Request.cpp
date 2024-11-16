@@ -8,7 +8,8 @@ Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket
 {
 
 	conf_loc = Location();
-	conf_serv = Server(-1);debug = true;
+	conf_serv = Server(-1);
+	debug = true;
 	_last_chunk_size = -1;
 }
 
@@ -17,45 +18,6 @@ Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
 					_headers(), _params(),
 					_chunks(), _accept_method(), _request_line(""), _lines()
 {}
-
-Request::Request(int i, int fd, std::vector<char> request_accumulator, int type) : _fd_socket(fd), _pos_socket(i), 
-						  _req_accumulator(request_accumulator), 
-						  _method(""), _uri(""), _protocol(""), _host(""), _port(0),
-						  _body(), _help_message(), _valid(true), _error_code(200), _headers(),
-						  _params(), _chunks(), _accept_method(), _request_line(""), _lines()
-{
-	/*std::cout << "Constructor con índice, fd y acumulador llamado. Valor de i: " << i
-				<<" valor de fd: " << fd << "\n";
-	for (size_t i = 0; i < _req_accumulator.size(); i++)
-		std::cout << _req_accumulator[i];
-	std::cout << "\nFinal de la request\n" << std::endl;*/
-	(void)type;
-	
-}
-
-Request::Request(char *buffer) : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
-								_body(), _help_message(), _valid(true), _error_code(200),
-								_headers(), _params(),
-								_chunks(), _accept_method(), _request_line(""), _lines() 
-{
-	debug = true;
-	if (debug == true)
-	{
-		std::cout << "\nConstructor BUFFER" << std::endl;
-		_accept_method.push_back("GET");
-		// _accept_metod.push_back("POST");
-		_accept_method.push_back("DELETE");
-	}
-	this->_chunks.insert(_chunks.end(), buffer, buffer + std::strlen(buffer));
-	// std::string aux(_chunks.begin(), _chunks.end());
-	// _request_str = aux;
-	read_request_lines();
-	check_any_valid_line();
-	extract_request_line();
-	check_request_line();
-	read_headers_lines();
-	if (debug == true){print_request_complete_info();}
-}
 
 Request::Request(Request const &copy)
 {
@@ -106,27 +68,21 @@ Request::~Request()
 
 int Request::join_request(char *buffer, int read_size, std::vector<Server> &server)
 {
-	debug = true;
 	switch (_status)
 	{
 	case INVALID_REQUEST:
 		return INVALID_REQUEST;
-		break;
+	case EMPTY_REQUEST:
 	case INCOMPLETE_REQUEST:
 		return manage_incomplete_request(buffer, read_size, server);
-		break;
 	case HEADERS_RECEIVED:
 		return manage_headers_received(server);
-		break;
 	case REQUEST_WITH_BODY:
 		return manage_request_with_body(buffer, read_size);
-		break;
 	case CHUNKED_REQUEST:
 		return manage_chunked_request(buffer, read_size);
-		break;
 	case FULL_COMPLETE_REQUEST:
 		return manage_full_complete_request(buffer, read_size);
-		break;
 	}
 	return INCOMPLETE_REQUEST;
 }
@@ -176,10 +132,6 @@ bool Request::search_chunked_body()
 
 int	Request::manage_headers_received(std::vector<Server> &server)
 {
-	// print_raw_request();
-	// print_body();
-	// std::cout << "CONTENIDO DE REQUEST ACCUMULATOR:\n";
-	// print_raw_vector(_req_accumulator);
 	read_request_lines();
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
@@ -194,20 +146,18 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	if (search_body_length_header() == true)
 	{
 		_status = REQUEST_WITH_BODY;
-		// separar antes y después de CRLFx2
 		split_at_CRLFx2();
-		if (static_cast<int>(_body.size()) == _body_size) // teóricamente completa, no se deberían recibir más partes de esta request
+		if (static_cast<int>(_body.size()) == _body_size)
 		{
 			_status = FULL_COMPLETE_REQUEST;
 		}
-		if (static_cast<int>(_body.size()) > _body_size) // el body es más largo que el indicado en el header
+		if (static_cast<int>(_body.size()) > _body_size)
 		{
 			set_validity(BAD_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
 		}
 	}
 	else if (search_chunked_body() == true)
 	{
-		// if (debug == true){std::cout << "ENCONTRADO EL HEADER DE CHUNKEDDDDDDDDDDDDDDD\n\n";}
 		if (_status == REQUEST_WITH_BODY)
 		{
 			set_validity(BAD_REQUEST, "Incompatible headers");
@@ -222,21 +172,16 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		_status = FULL_COMPLETE_REQUEST;
 	}
 	check_request_line(server);
-	// if (debug == true){print_full_info();}
-	// if (debug == true){std::cout << "Se han leído las líneas de los header\n" << std::endl;}
-	// if (debug == true){std::cout << "El estado es: " << _status << "\n" << std::endl;}
-
 	return _status;
 }
 
 void Request::split_at_CRLFx2()
 {
-
-	if (_req_accumulator.size() - 4 == _CRLFx2_index - 1) // el CRLFx2 justo coincide en el final del vector
+	if (_req_accumulator.size() - 4 == _CRLFx2_index - 1)
 	{
 		_body.clear();
 	}
-	else if (_req_accumulator.size() - 4 > _CRLFx2_index - 1) //hay cosas después del CRLFx2
+	else if (_req_accumulator.size() - 4 > _CRLFx2_index - 1)
 	{
 		std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
 		if (_status == REQUEST_WITH_BODY)
@@ -267,9 +212,7 @@ int Request::manage_possible_chunked_beggining()
 			{
 				std::string number_str(it + start, it + end);
 				aux.first = std::strtol(number_str.c_str(), NULL, 16);
-				std::cout << "\033[31mNúmero obtenido: " << aux.first << "\033[0m" << std::endl;
 				start = i + 2;
-				// almacenar en pair first
 			}
 			if (CRLF_count % 2 == 0)
 			{
@@ -277,91 +220,25 @@ int Request::manage_possible_chunked_beggining()
 				if (aux.first != static_cast<long>(text_str.size()))
 				{
 					_status = INVALID_REQUEST;
-					std::cerr << "SE HA PRODUCIDO UN ERROR" << std::endl; 
 					return (set_validity(BAD_REQUEST, "Chunk lentgh doesn't match"));
-					// break;
 				}
-				// std::cout << "\033[31mTexto obtenido: " << text_str << " -> " << text_str.size() << "\033[0m" << std::endl;
 				_body.insert(_body.end(), it + start, it + end);
 				start = i + 2;
 			}
 			if (aux.first == 0)
 			{
-				// std::cout << "Esta request está terminada" << std::endl;
 				_status = FULL_COMPLETE_REQUEST;
-				std::cout << "That's all forks!" << std::endl;
 				return _status;
-				// break;
 			}
 		}
 	}
-		print_raw_vector(_req_accumulator);
 		_last_chunk_size = (CRLF_count % 2 == 1) ? aux.first : -1;
-	/* while (it != _chunks.end())
-	{
-		if (*it == '\r'){std::cout << "\\r";}
-		else if (*it == '\n'){std::cout << "\\n";}
-		else {std::cout << *it;}
-		std::cout.flush();
-
-
-		if (*it == '\r' && (it + 1) != _chunks.end() && *(it + 1) == '\n')
-		{
-				if (debug == true){std::cout << "SU PUTA MADREEEEEEEEEEEEEE\n";}
-			CRLF_count++;
-			if (CRLF_count % 2 == 1)
-			{
-				if (debug == true)
-				{
-					std::cout << "\033[31mEste es el primer caracter encontrado:\033[0m\n";
-					if (*(_chunks.begin() + start) == '\r'){std::cout << "\\r\n";}
-					else if (*(_chunks.begin() + start)){std::cout << "\\n\n";}
-					else {std::cout << *(_chunks.begin() + start) << "\n";}
-
-				}
-				aux.first = atoi(std::string(_chunks.begin() + start, _chunks.begin() + end + 1).c_str());  // end+1?
-				// if (debug == true){std::cout << "Encontrado CRLF: " << aux.first << "\n";}				
-				start = end + 2;
-			}
-			else if (CRLF_count % 2 == 0)
-			{
-				// aux.second.insert(aux.second.end(), _chunks.begin() + start, _chunks.begin() + end + 1);
-				// for (size_t i = 0; i < aux.second.size(); i++){std::cout << aux.second[i];}std::cout<<std::endl;
-
-				// if (debug == true){std::cout << "Encontrado CRLF par" << CRLF_count << "\n";}				
-				// SEGUIR AQUÍ!!!!
-				// _body.insert(_body.end(), )
-				// es la segunda parte del 
-			}
-		}
-		it++;
-		// std::advance(it, 1);
-	} */
-	if (debug == true){std::cout << "\033[31mBUCLE TERMINADO\033[0m\n" << std::endl;}
-		
-	// 
-		// recorrer todo el after_CRLFx2
-			// buscar CRLFs
-				// si es un número impar guardar el número
-					// si el número es 0 cambiar status a FULL_COMPLETE_REQUEST
-				// si es un número par guardar la string
-					// añadir la string al body
-			// guardar índice del último CRLF para leer entre ese y el encontrado
-				// qué hacer con la parte previa?
-			// dónde guardar si no llega un chunk completo???
-
-		//empezar a extraer las chunks, parejas de int + string.
-		// comprobar q int y string size son iguales
-	std::cout << "LA REQUEST EN CACHITOS NO ESTÁ TERMINADA\n";
 	_chunks.erase(_chunks.begin(), _chunks.begin() + start);
-	print_raw_vector(_chunks, 0, _chunks.size() - 1);
-	// _req_accumulator.clear();
 	return CHUNKED_REQUEST;
 }
 
 int	Request::manage_request_with_body(char *buffer, int read_size)
 {
-	//aquí ya ha sido procesado el header de Content-Length y extraído el valor del body size y posiblemente body tenga algún valor (o no si el último buffer coincidión con el CRLFx2)
 	_body.insert(_body.end(), buffer, buffer + read_size);
 	size_t body_len = _body.size();
 	if (body_len == static_cast<size_t>(_body_size))
@@ -371,26 +248,19 @@ int	Request::manage_request_with_body(char *buffer, int read_size)
 		set_validity(INVALID_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
 		_status = INVALID_REQUEST;
 	}
-	//si body_len < _body_size no hay que hacer nada, el status sigue siendo el mismo y hay que seguir leyendo más request
 	return _status;
 }
 
 int	Request::manage_chunked_request(char *buffer, int read_size)
 {
-	std::cout << "Aquí va el resto de la gestion de los chunks que no caben en el buffer\n";
-	std::cout.flush();
-	std::cout << buffer;
-	std::cout.flush();
-	print_raw_vector(_chunks);
-	_chunks.insert(_chunks.end(), buffer, buffer + std::strlen(buffer));
-	print_raw_vector(_chunks);
-
 	std::pair<long, std::vector<char> > aux;
 	std::vector<char>::iterator  it = _chunks.begin();
 	size_t start = 0;
 	size_t end = 0;
 	size_t CRLF_count;
-
+	(void)read_size;
+	
+	_chunks.insert(_chunks.end(), buffer, buffer + std::strlen(buffer));
 	CRLF_count =  (_last_chunk_size != -1) ? _last_chunk_size : 0;
 	for (size_t i = 0; i < _chunks.size(); i++)
 	{
@@ -402,9 +272,7 @@ int	Request::manage_chunked_request(char *buffer, int read_size)
 			{
 				std::string number_str(it + start, it + end);
 				aux.first = std::strtol(number_str.c_str(), NULL, 16);
-				std::cout << "\033[31mNúmero obtenido: " << aux.first << "\033[0m" << std::endl;
 				start = i + 2;
-				// almacenar en pair first
 			}
 			if (CRLF_count % 2 == 0)
 			{
@@ -412,34 +280,23 @@ int	Request::manage_chunked_request(char *buffer, int read_size)
 				if (aux.first != static_cast<long>(text_str.size()))
 				{
 					_status = INVALID_REQUEST;
-					std::cerr << "SE HA PRODUCIDO UN ERROR" << std::endl; 
 					return (set_validity(BAD_REQUEST, "Chunk lentgh doesn't match"));
-					// break;
 				}
-				// std::cout << "\033[31mTexto obtenido: " << text_str << " -> " << text_str.size() << "\033[0m" << std::endl;
 				_body.insert(_body.end(), it + start, it + end);
 				start = i + 2;
 			}
 			if (aux.first == 0)
 			{
-				// std::cout << "Esta request está terminada" << std::endl;
 				_status = FULL_COMPLETE_REQUEST;
-				std::cout << "That's all forks!" << std::endl;
 				return _status;
-				// break;
 			}
 		}
 	}
-
-	exit(44);
-	(void)buffer;
-	(void)read_size;
 	return INVALID_REQUEST;
 }
 
 int	Request::manage_full_complete_request(char *buffer, int read_size)
 {
-	//set validity()
 	(void)buffer;
 	(void)read_size;
 	return INVALID_REQUEST;
@@ -453,18 +310,16 @@ bool Request::search_double_CRLF()
 		_status = INCOMPLETE_REQUEST;
 		return false;
 	}
-	
 	for (size_t i = 0; i < request_len - 3; i++)
 	{
-		if (_req_accumulator[i] == '\r' && _req_accumulator[i+1] == '\n'
-			 && _req_accumulator[i+2] == '\r' && _req_accumulator[i+3] == '\n')
+		if (_req_accumulator[i] == '\r' && _req_accumulator[i + 1] == '\n'
+			 && _req_accumulator[i + 2] == '\r' && _req_accumulator[i + 3] == '\n')
 		{
 			_CRLFx2_index = i;
 			_status = HEADERS_RECEIVED;
 			return true;
 		}
 	}
-	print_full_info();
 	_status = INCOMPLETE_REQUEST;
 	return false;
 }
@@ -478,7 +333,6 @@ void Request::read_request_lines()
 		if (*it == '\r' && (it + 1) != _req_accumulator.end() && *(it + 1) == '\n')
 		{
 			std::string line(line_start, it);
-			// if (debug == true){std::cout << "línea a añadir:\n" << line << std::endl;}
 			_lines.push_back(line);
 			it += 2; 
 			line_start = it;
@@ -489,7 +343,6 @@ void Request::read_request_lines()
 				it += 2;
 				if (it != _req_accumulator.end())
 				{
-					// _body = std::vector<char> (it, _req_accumulator.end());  //si la request es chunked esto es una cagada enorme, lo lee 2 veces y lo borra entero en los chunks
 					break;
 				}
 			}
@@ -551,8 +404,6 @@ bool Request::check_request_line()
 	if (this->_valid == false)
 		return false;
 	check_spaces_at_beginning();
-	// check_method();
-	check_uri();
 	check_protocol();
 	return true;
 }
@@ -567,12 +418,9 @@ bool Request::read_headers_lines()
 		return _valid;
 	if (_lines.size() <= 1)
 		return _valid;
-	// if (debug == true){std::cout << "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY\n" << std::endl;}
-
 	for (size_t i = 1; i < _lines.size(); i++)
 	{
 		colon_position = _lines[i].find(":");
-		// if (debug == true){std::cout << "->->->->->->->-> "<<_lines[i] << " <-<-<-<-<-<-<-<-" << std::endl;}
 		if (colon_position == _lines[i].npos || 
 			_lines[i].find(" :") != _lines[i].npos)
 			return set_validity(BAD_REQUEST);
@@ -599,7 +447,6 @@ bool Request::check_number_elements_request_line(std::vector<std::string> result
 {
 	if (result.size() != 3)
 		return set_validity(BAD_REQUEST);
-	// if(debug == true){std::cout << "La línea tiene la cantidad  de elementos adecuada" << std::endl;}
 	return true; 
 }
 
@@ -607,7 +454,6 @@ void Request::get_params_from_uri()
 {
 	size_t question_mark_pos;
 	question_mark_pos = _uri.find("?");
-
 	if (question_mark_pos != _uri.npos)
 	{
 		std::string params_raw = _uri.substr(question_mark_pos + 1);
@@ -615,7 +461,6 @@ void Request::get_params_from_uri()
 		split_params(params_raw);
 	}
 }
-
 
 bool Request::check_spaces_at_beginning()
 {
@@ -630,39 +475,14 @@ bool Request::check_method()
 {
 	if (_valid == false)
 		return false;
-	// chequear que el método está en los válidos del servidor
-	// para eso hay que saber a qué servidor va dirigido ¿y el puerto?
-	// revisar el campo location los métodos permitidos
-	//este código verifica si el método está en los permitidos (sin buscar el location)
-	// si recorre todos los métodos permitidos y no ha encontrado que sea válido
-	//establece la request como inválida y establece código de error 403
-//Proceso lógico:
-	//Llega request
-	//verificar bloque server
-	//Determinar bloquer locatio correspondiente
-	//Verificar métodos dentro del location
 	size_t i = 0;
-	if (debug == true){std::cout << "Métodos aceptados: " << _accept_method.size() << "\n\n";}
-	if (debug == true){_accept_method.push_back("GET");}
 	for (i = 0; i < _accept_method.size(); i++)
 	{
 		if (_accept_method[i] == _method)
 			break;
 	}
-		// if (debug == true){std::cout << "i: " << i << std::endl;}
 	if (i == _accept_method.size())
 		return set_validity(METHOD_NOT_ALLOWED);
-	return true;
-}
-
-bool Request::check_uri()  //falta implementar
-{
-	if (_valid == false)
-		return false;
-	// buscar uri en location
-		// buscar coincidencia exacta
-		// buscar coincidencia parcial
-		// si no hay, retroceder un / y volver a comparar
 	return true;
 }
 
@@ -675,8 +495,6 @@ bool Request::check_protocol()
 		return set_validity(BAD_REQUEST);
 	std::string protocol = _protocol.substr(0, bar_positition);
 	std::string version = _protocol.substr(bar_positition + 1);
-	// if (debug == true){std::cout << "Protocol: " << protocol << std::endl;
-	// std::cout << "Version: " << version << std::endl;}
 	if (protocol != "HTTP")
 		return set_validity(BAD_REQUEST);
 	if (version == "1.0")
@@ -685,7 +503,6 @@ bool Request::check_protocol()
 		return set_validity(BAD_REQUEST);
 	return true;
 }
-
 
 void Request::set_host_and_port(std::string &host_line_value)
 {
@@ -703,7 +520,6 @@ void Request::set_host_and_port(std::string &host_line_value)
 		_port = atoi(host_line_value.substr(colon_position + 1).c_str());
 	}
 }
-
 
 void Request::split_params(std::string &params_raw)
 {
@@ -911,8 +727,6 @@ void Request::print_request_complete_info()
 	}
 
 }
-
-// if (debug == true){std::cout << "" << std::endl;}
 
 //añadidas por Lyudmyla
 //va despues de recibir el header (listen es siempre de server)
