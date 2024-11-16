@@ -256,7 +256,8 @@ int	Request::manage_chunked_request(char *buffer, int read_size)
 	size_t start = 0;
 	size_t end = 0;
 	size_t CRLF_count;
-
+	(void)read_size;
+	
 	_chunks.insert(_chunks.end(), buffer, buffer + std::strlen(buffer));
 	CRLF_count =  (_last_chunk_size != -1) ? _last_chunk_size : 0;
 	for (size_t i = 0; i < _chunks.size(); i++)

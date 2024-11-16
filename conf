@@ -3,7 +3,7 @@ server
     listen 8081;
     server_name localhost;
     root html/test;
-    accept_method GET;
+    accept_method GET POST;
     index index.html;
     autoindex on;
     cgi off;
