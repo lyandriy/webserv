@@ -3,8 +3,8 @@
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
 											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
-											_params(), _chunks(), _accept_method(), _request_line(""), _lines(),
-											_type(0), _status(1)
+											_params(), _body_size(0), _chunks(), _accept_method(), _request_line(""), 
+											_lines(), _type(0), _status(1)
 {
 
 	conf_loc = Location();
@@ -140,7 +140,6 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
-	check_request_line(server);
 	if (search_body_length_header() == true)
 	{
 		_status = REQUEST_WITH_BODY;
