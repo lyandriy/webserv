@@ -436,7 +436,10 @@ int Response::get_fd(std::string root)
     int fd_file = -1;
     
     if (stat(root.c_str(), &fileStat) == -1)
+    {
+        std::cout << "\033[35m" << "stat error" << "\033[0m" << std::endl;
         error_code = NOT_FOUND;
+    }
     if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
     {
         if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos

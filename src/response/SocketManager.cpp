@@ -124,6 +124,7 @@ void    SocketManager::acceptClient(struct pollfd* pfds)
             {
                 pfds[sock_num].fd = new_sock;
                 pfds[sock_num].events = POLLIN;
+                std::cout << "\033[32m" << "new_sock " << new_sock << "\033[0m" << std::endl;
                 requests[sock_num] = Request(sock_num, new_sock);
                 requests[sock_num].last_conection_time();
                 sock_num++;
@@ -179,7 +180,9 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
 
 void    SocketManager::check_join(int sock, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
+    std::cout << "\033[34m" << "ERROR CODE ANTES" << requests[sock].get_error_code() << "\033[0m" << std::endl;
     requests[sock].join_request(buffer, valread, server);
+    std::cout << "\033[34m" << "ERROR CODE DESPUES" << requests[sock].get_error_code() << "\033[0m" << std::endl;
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock, pfds);
 }
@@ -246,10 +249,13 @@ void    SocketManager::reventPOLLIN(struct pollfd* pfds, std::vector<Server> &se
 {
     int file;
 
+    std::cout << "\033[31m" << "reventPOLLIN" << "\033[0m" << std::endl;
     for (int sock = listen_sockets; sock < sock_num; sock++)//recorre todos los sockets
     {  
         if ((pfds[sock].revents & POLLIN))//si algun socket tiene un revent de POLLIN
         {
+            std::cout << "\033[33m" << "reventPOLLIN On" << "\033[0m" << std::endl;
+            check_revent(pfds, sock);
             if ((file = is_file(sock)))
                 readFile(pfds, sock, file);
             else
@@ -277,6 +283,7 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
     {
         if ((pfds[client].revents & POLLOUT) && !is_file(client) && fd_file.find(client) != fd_file.end())//si algun socket tiene un revent de POLLOUT
         {
+            std::cout << "\033[31m" << client << " POLLOUT " << pfds[client].fd << "\033[0m" << std::endl;
             send_size = send(pfds[client].fd, response[client].getStringBuffer().c_str(), response[client].getStringBuffer().size(), 0);//enviar el buffer leido de archivo
             response[client].setSendSize(send_size);
             if (static_cast<int>(response[client].getBytesRead()) == response[client].get_fileStat().st_size || response[client].getStringBuffer().empty())//significa que hemos llegado hasta el final del archivo
@@ -292,6 +299,7 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
                     requests[client].reset();
                     requests[client].last_conection_time();//guardar el tiempo de ultima conexion
                 }
+                std::cout << "\033[31m" << sock_num << "\033[0m" << std::endl;
             }
             response[client].remove_sent_data(send_size);
         }
@@ -364,6 +372,7 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
             }
         }
         sock_num--;
+        std::cout << "aqui llego1\n";
         return ;
     }
     //movemos el ultimo pfd a la pos borrada
@@ -374,6 +383,7 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
     pfds[sock_num - 1].fd = -1;
     pfds[sock_num - 1].events = 0;
     pfds[sock_num - 1].revents = 0;
+    std::cout << "aqui llego\n";
     //cuando la structura movida era de fd del archivo
     for (std::map<int, int>::iterator it = fd_file.begin(); it != fd_file.end(); ++it)
     {
@@ -407,13 +417,13 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
     }
     if (cgiClients.find(sock_num - 1) != cgiClients.end())
     {
-        CGI copy_cgi = cgiClients.find(sock_num - 1)->second;;
+        CGI copy_cgi = cgiClients.find(sock_num - 1)->second;
         cgiClients.erase(sock_num - 1);
         cgiClients.erase(pfd_free);
         cgiClients[pfd_free] = copy_cgi;
     }
-    std::cout << "aqui llego\n";
     sock_num--;
+    std::cout << "\033[31m" << sock_num << "\033[0m" << std::endl;
 }
 
 std::string SocketManager::make_response_str(Response &response, std::string buffer)

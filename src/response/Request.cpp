@@ -3,7 +3,7 @@
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
 											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
-											_params(), _chunks(), _accept_method(), _request_line(""), _lines(),
+											_params(), _body_size(0), _chunks(), _accept_method(), _request_line(""), _lines(),
 											_type(0), _status(1)
 {
 
@@ -48,11 +48,13 @@ Request& Request::operator=(Request const & other)
 		this->_params = other._params;
 		this->_body_size = other._body_size;
 		this->_chunks = other._chunks;
+		this->_chunk_size = other._chunk_size;
 		this->_accept_method = other._accept_method;
 		this->_request_line = other._request_line;
 		this->_lines = other._lines;
 		this->_type = other._type;
 		this->_status = other._status;
+		this->_last_chunk_size = other._last_chunk_size;
 		this->_CRLFx2_index = other._CRLFx2_index;
 		this->conf_serv = other.conf_serv;
 		this->conf_loc = other.conf_loc;
@@ -68,13 +70,17 @@ Request::~Request()
 
 int Request::join_request(char *buffer, int read_size, std::vector<Server> &server)
 {
+	std::cout << "\033[31m" << "join_request" << "\033[0m" << std::endl;
 	switch (_status)
 	{
 	case INVALID_REQUEST:
 		return INVALID_REQUEST;
 	case EMPTY_REQUEST:
 	case INCOMPLETE_REQUEST:
+	{
+		std::cout << "\033[31m" << "manage_incomplete_request" << "\033[0m" << std::endl;
 		return manage_incomplete_request(buffer, read_size, server);
+	}
 	case HEADERS_RECEIVED:
 		return manage_headers_received(server);
 	case REQUEST_WITH_BODY:
@@ -137,12 +143,9 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		return INVALID_REQUEST;
 	extract_request_line();
 	if (check_request_line() == false)
-	{
 		return INVALID_REQUEST;
-	}
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
-	check_request_line(server);
 	if (search_body_length_header() == true)
 	{
 		_status = REQUEST_WITH_BODY;
@@ -304,6 +307,7 @@ int	Request::manage_full_complete_request(char *buffer, int read_size)
 
 bool Request::search_double_CRLF()
 {
+	std::cout << "\033[31m" << "search_double_CRLF" << _error_code << "\033[0m" << std::endl;
 	size_t request_len = _req_accumulator.size();
 	if (request_len < 4)
 	{
@@ -797,6 +801,7 @@ int    Request::check_request_line(std::vector<Server> &server)
 			{
 				if (_body_size > it_serv->getBodySize())
 				{
+					std::cout << "\033[35m" << _body_size <<  " NOT_FOUND 3 " << it_serv->getBodySize() << _error_code << "\033[0m" << std::endl;
 					this->_error_code = NOT_FOUND;
 					return (0);
 				}

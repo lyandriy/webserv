@@ -127,6 +127,7 @@ int   CGI::makeProcess()
     std::strcpy(argv[1], root.c_str());
     argv[2] = NULL;
     //fork
+    std::cout << "\033[34m" << "FORKKKKK" << "\033[0m" << std::endl;
     pid = fork();
     if (pid < 0)
     {
@@ -146,6 +147,7 @@ int   CGI::makeProcess()
 void    CGI::make_execve()
 {
     //printArgumentsAndEnvironment();
+    std::cout << "\033[35m" << "DUP2" << "\033[0m" << std::endl;
     if (dup2(fd_pipe[1], STDOUT_FILENO) < 0 || dup2(fd_pipe[0], STDIN_FILENO) < 0)
     {
         std::cerr << "dup2 error. " << strerror(errno) << std::endl;
