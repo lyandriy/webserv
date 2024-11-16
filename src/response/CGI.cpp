@@ -25,6 +25,7 @@ CGI &CGI::operator=(const CGI &other)
 
 CGI::CGI(const Response &response)
 {
+    std::cout << "\033[33m" << " creando cgi object " <<  "\033[0m" << std::endl;
     this->root = response.getRoot();
     this->uri = response.getURI();
     this->params = response.getParams();
@@ -72,9 +73,14 @@ std::vector<char>   CGI::getBody() const
     return (this->body);
 }
 
-int CGI::getFd() const
+int CGI::getFDread() const
 {
     return (this->fd_pipe[0]);
+}
+
+int CGI::getFDwrite() const
+{
+    return (this->fd_pipe[1]);
 }
 
 pid_t   CGI::getPid() const
@@ -133,18 +139,13 @@ int   CGI::makeProcess()
     if (pid == 0)
         make_execve();
     else
-    {
-        close(fd_pipe[1]);
         deleteArray();
-    }
-    std::cout << "\033[33m" << " fd_pipe " << fd_pipe[0] <<  "\033[0m" << std::endl;
     return (0);
 }
 
 void    CGI::make_execve()
 {
-    printArgumentsAndEnvironment();
-    //std::cout << "MI PIPE " << fd_pipe[1] << fd_pipe[0] << std::endl;
+    //printArgumentsAndEnvironment();
     if (dup2(fd_pipe[1], STDOUT_FILENO) < 0 || dup2(fd_pipe[0], STDIN_FILENO) < 0)
     {
         std::cerr << "dup2 error. " << strerror(errno) << std::endl;

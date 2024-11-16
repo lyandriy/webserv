@@ -163,10 +163,7 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
     if (requests[sock].getLoc().getCGI() != -1)
         response[sock] = Response(requests[sock].getLoc(), requests[sock]);//crear la response de error
     else
-    {
-        std::cout << "\033[33m" << " MAIN " <<  "\033[0m" << std::endl;
         response[sock] = Response(requests[sock].getServ(), requests[sock]);
-    }
     pfds[sock_num].fd = response[sock].open_file(sock_num);
     if (response[sock].getCGIState() == 1)
         cgiClients[sock] = CGI(response[sock]);
@@ -182,18 +179,15 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
 
 void    SocketManager::check_join(int sock, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
-    //requests[sock].set_current_status(INCOMPLETE_REQUEST);
-    std::cout << "\033[33m" << " CODICO DE ERROR antes " << requests[sock].get_error_code() <<  "\033[0m" << std::endl;
+    requests[sock].set_current_status(INCOMPLETE_REQUEST);
     requests[sock].join_request(buffer, valread, server);
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
-    {
-        std::cout << "\033[33m" << " CODICO DE ERROR despues " << requests[sock].get_error_code() <<  "\033[0m" << std::endl;
-        make_response(sock, pfds);}
+        make_response(sock, pfds);
 }
 
 void    SocketManager::check_revent(struct pollfd* pfds, int client)
 {
-    printf("check_revent %d\n", client);//cambiar esta funcion
+    //printf("check_revent %d\n", client);//cambiar esta funcion
     if (pfds[client].revents & POLLERR) {
         printf("POLLERR %d\n", client);
         //close_move_pfd(pfds, client);
@@ -317,10 +311,8 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
     {
         if (it->second.getPid() == -2)//si aun no se ha creado el proceso, solo se ha construido el objeto
         {
-            std::cout << "Hacemis CGI\n";
             if (it->second.makeProcess())//cambia el pid del proceso al pid del proceso hijo
             {
-                std::cout << "\033[35m" << "INTERNAL_SERVER_ERROR 5" <<  "\033[0m" << std::endl;
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first]);
                 cgiClients.erase(it);
@@ -328,22 +320,17 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
         }
         else
         {
-            std::cout << "\033[33m" << " pid  " << it->second.getPid() <<  "\033[0m" << std::endl;
             pid_ret = waitpid(it->second.getPid(), &wstatus, WNOHANG);
-            std::cout << "\033[35m" << " WIFSIGNALED(wstatus) " << WIFSIGNALED(wstatus) <<  "\033[0m" << std::endl;
-            std::cout << "\033[35m" << " pid_ret " << pid_ret <<  "\033[0m" << std::endl;
             if (pid_ret == -1 || (WIFSIGNALED(wstatus) && pid_ret != 0)/* el proceso hijo ha terminado con un error*/)//si hay error, devolver error 500
             {
-                std::cout << strerror(WTERMSIG(wstatus)) << std::endl,
-                std::cout << "\033[35m" << "INTERNAL_SERVER_ERROR 6" <<  "\033[0m" << std::endl;
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first]);
                 cgiClients.erase(it);
             }
             else if (pid_ret > 0)//si el hijo ha  terminado
             {
-                pfds[sock_num].fd = it->second.getFd();
-                std::cout << "AQUI " << pfds[sock_num].fd << std::endl;
+                response[it->first].setFDpipe(it->second.getFDread(), it->second.getFDwrite());
+                pfds[sock_num].fd = it->second.getFDread();
                 pfds[sock_num].events = POLLIN;
                 fd_file[it->first] = sock_num;
                 sock_num++;
@@ -358,7 +345,7 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
 
 void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
 {
-    std::cout << pfd_free << pfds[pfd_free].fd <<" CLOSEEEEEEE\n";
+    std::cout << pfd_free << " " << pfds[pfd_free].fd <<" CLOSEEEEEEE\n";
     if (pfds[pfd_free].fd == -1)
         return ;
     close(pfds[pfd_free].fd);
@@ -428,6 +415,7 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
         cgiClients.erase(pfd_free);
         cgiClients[pfd_free] = copy_cgi;
     }
+    std::cout << "aqui llego\n";
     sock_num--;
 }
 
@@ -443,6 +431,8 @@ std::string SocketManager::make_response_str(Response &response, std::string buf
     timeinfo = localtime (&rawtime);
     std::ostringstream str;
 
+    if  (response.get_fileStat().st_size != static_cast<off_t>(buffer.size()))
+        response.set_fileStatSize(buffer.size());
     str << status_code[response.getErrorCode()]
         << "Connection: " << response.getConnectionVal() << "\r\n"
         << "Date: " << days[timeinfo->tm_wday] << ", "

@@ -6,7 +6,7 @@
 class CGI
 {
     private:
-    //variables de reesponse
+    //variables de response
         std::string root;
         std::string uri;//must be either a binary executable, or a script
         std::map<std::string, std::string> params;
@@ -34,7 +34,8 @@ class CGI
         std::string getURI() const;
         std::map<std::string, std::string>  getParams() const;
         std::vector<char>   getBody() const;
-        int getFd() const;
+        int getFDread() const;
+        int getFDwrite() const;
         pid_t   getPid() const;
 
         int    makeProcess();

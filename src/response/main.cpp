@@ -22,15 +22,15 @@ int main(int argc, char **argv)
             {
                 
                 if (poll(pfds, socketManager.getSockNum(), 1000) == -1)//monitorear si hay algun cliente
-                    std::cerr << "Error: poll error." << std::endl;
-                for (int i = 0; i < socketManager.getSockNum(); ++i) {
-                std::cout << "socket " << i << ": ";
-                std::cout << "  fd: " << pfds[i].fd << "; ";
-                std::cout << "  events: " << pfds[i].events << "; ";
-                std::cout << "  revents: " << pfds[i].revents << std::endl;
-                socketManager.check_revent(pfds, i);
-            }
-            
+                    std::cerr << "Error: poll error." << std::endl;    
+                for (int i = 0; i < socketManager.getSockNum(); ++i)
+                {
+                    std::cout << "socket " << i << ": ";
+                    std::cout << "  fd: " << pfds[i].fd << "; ";
+                    std::cout << "  events: " << pfds[i].events << "; ";
+                    std::cout << "  revents: " << pfds[i].revents << std::endl;
+                    socketManager.check_revent(pfds, i);
+                }        
                 if (first_poll > 0)
                 {
                     socketManager.acceptClient(pfds);//comprueba si hay un cliente y lo acepta

@@ -135,16 +135,12 @@ int	Request::manage_incomplete_request(char *buffer, int read_size, std::vector<
 {
 	_req_accumulator.insert(_req_accumulator.end(), buffer, buffer + read_size);
 	if (search_double_CRLF() == false)
-	{
-		std::cout << "\033[33m" << " CODICO DE ERROR PARSEO 1" << _error_code <<  "\033[0m" << std::endl;
 		return INCOMPLETE_REQUEST;
-	}
 	else
 	{
 		_status = HEADERS_RECEIVED;
 		return (manage_headers_received(server));
 	}
-	std::cout << "\033[33m" << " CODICO DE ERROR PARSEO 2" << _error_code <<  "\033[0m" << std::endl;
 	return INCOMPLETE_REQUEST;
 }
 
@@ -187,15 +183,13 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	read_request_lines();
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
-	std::cout << "\033[33m" << " CODICO DE ERROR PARSEO ...." << _error_code <<  "\033[0m" << std::endl;
 	extract_request_line();
 	if (check_request_line() == false)
 	{
 		return INVALID_REQUEST;
 	}
 	if (read_headers_lines() == false)
-	{	std::cout << "\033[33m" << " CODICO DE ERROR PARSEO +++++" << _error_code <<  "\033[0m" << std::endl;
-		return INVALID_REQUEST;}
+		return INVALID_REQUEST;
 	check_request_line(server);
 	if (search_body_length_header() == true)
 	{
@@ -217,7 +211,6 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		if (_status == REQUEST_WITH_BODY)
 		{
 			set_validity(BAD_REQUEST, "Incompatible headers");
-			std::cout << "\033[33m" << " CODICO DE ERROR PARSEO +++++" << _error_code <<  "\033[0m" << std::endl;
 			return (INVALID_REQUEST);
 		}
 		_status = CHUNKED_REQUEST;
@@ -819,7 +812,6 @@ std::map<std::string, std::string> Request::get_headers()
 }
 std::map<std::string, std::string> Request::get_params()
 {
-	std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
 	return _params;
 }
 int Request::get_current_status()

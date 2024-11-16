@@ -2,7 +2,11 @@
 
 Response::Response(){}
 
-Response::~Response(){}
+Response::~Response()
+{
+    close(fd_pipe[0]);
+    close(fd_pipe[1]);
+}
 
 Response::Response(const Response &other)
 {
@@ -67,22 +71,19 @@ Response::Response(const Location &location, Request &request)
     this->params = request.get_params();
     this->body = request.get_body();
     if (this->headers["Connection"].empty() || this->error_code != 200)
-    {
         this->connection_val = "close";
-        std::cout << "\033[33m" << " MAIN 1" << this->connection_val <<  "\033[0m" << std::endl;
-    }
     else
-    {
         this->connection_val = this->headers["Connection"];
-        std::cout << "\033[33m" << " MAIN " << this->connection_val <<  "\033[0m" << std::endl;
-    }
     if (this->error_code != 200)
         error_response();
     total_bytes_read = 0;
     send_size = 0;
+    fd_pipe[0] = -1;
+    fd_pipe[1] = -1;
 }
 
-Response::Response(const Server &server, Request &request){
+Response::Response(const Server &server, Request &request)
+{
     this->root = server.getRoot();
     this->index = server.getIndex();
     this->redirection = server.getRedirection();
@@ -108,19 +109,15 @@ Response::Response(const Server &server, Request &request){
     this->params = request.get_params();
     this->body = request.get_body();
     if (this->headers["Connection"].empty() || this->error_code != 200)
-    {
         this->connection_val = "close";
-        std::cout << "\033[33m" << " MAIN 1" << this->connection_val <<  "\033[0m" << std::endl;
-    }
     else
-    {
         this->connection_val = this->headers["Connection"];
-        std::cout << "\033[33m" << " MAIN " << this->connection_val <<  "\033[0m" << std::endl;
-    }
     if (this->error_code != 200)
         error_response();
     total_bytes_read = 0;
     send_size = 0;
+    fd_pipe[0] = -1;
+    fd_pipe[1] = -1;
 }
 
 Response &Response::operator=(const Response &other){
@@ -275,6 +272,16 @@ int Response::getCGIState() const
     return (this->cgi_state);
 }
 
+int Response::getFDread() const
+{
+    return (this->fd_pipe[0]);
+}
+
+int Response::getFDwrite() const
+{
+    return (this->fd_pipe[1]);
+}
+
 void Response::setListen(struct sockaddr_in listen)
 {
     this->listen = listen;
@@ -380,9 +387,26 @@ void    Response::setCGIState(int cgi_state)
     this->cgi_state = cgi_state;
 }
 
+void    Response::setFDpipe(int fdw, int fdr)
+{
+    this->fd_pipe[0] = fdr;
+    this->fd_pipe[1] = fdw;
+}
+
+void    Response::closeFD()
+{
+    close(this->fd_pipe[0]);
+    close(this->fd_pipe[1]);
+}
+
 void    Response::remove_sent_data(ssize_t send_size)
 {
     this->string_buffer.erase(0, send_size);
+}
+
+void    Response::set_fileStatSize(size_t size)
+{
+    this->fileStat.st_size = size;
 }
 
 int    Response::open_error_file()
@@ -439,7 +463,6 @@ void    Response::join_with_uri(std::string &root, std::string &uri)
 int Response::make_autoindex_file()
 {
     std::string html_text;
-    int fd[2];
     struct dirent *file_list;
 
     root = root_origin;
@@ -449,19 +472,18 @@ int Response::make_autoindex_file()
     {
         if (uri.rfind("/") != uri.size() - 1)//compribar que la uri termina con /
             uri += "/";
-        if (pipe(fd) != -1)//abrimos pipe
+        if (pipe(fd_pipe) != -1)//abrimos pipe
         {
             html_text = HTML_AUTOINDEX_BEGIN;//metemos el texto de inicio
             while ((file_list = readdir(dir)) != NULL)
                 html_text += "      <li><a href=\"" + uri + file_list->d_name + "\">" + file_list->d_name + "</a></li>\n";
             html_text += HTML_AUTOINDEX_END;//metemos el texto de final
-            if (write(fd[1], html_text.c_str(), html_text.size()) != -1)//escribimos en pipe
+            if (write(fd_pipe[1], html_text.c_str(), html_text.size()) != -1)//escribimos en pipe
             {
                 closedir(dir);//cerramos el directorio
-                close(fd[1]);//cerramos el pipe de escritura
                 error_code = OK;
                 fileStat.st_size = html_text.size();//poner una fcntl
-                return (fd[0]);
+                return (fd_pipe[0]);
             }
         }
     }
