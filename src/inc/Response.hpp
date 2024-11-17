@@ -107,6 +107,7 @@ class Response
         void    join_with_uri(std::string &, std::string &);
         void    remove_sent_data(ssize_t);
         void    closeFD();
+        int control_fd(int &);
 
         void print_full_info();
 };

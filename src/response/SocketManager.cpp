@@ -33,17 +33,20 @@ int SocketManager::connect_socket(struct pollfd* pfds, struct sockaddr_in &addr_
     {
         if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) != -1)
         {
-            socket_addr = addr_vect;
-            if (bind(sockfd, (struct sockaddr *)&socket_addr, sizeof(socket_addr)) != -1)
+            if (control_fd(sockfd) != -1)
             {
-                if (listen(sockfd, BACKLOG) != -1)
+                socket_addr = addr_vect;
+                if (bind(sockfd, (struct sockaddr *)&socket_addr, sizeof(socket_addr)) != -1)
                 {
-                    char ip[INET_ADDRSTRLEN];
-                    inet_ntop(AF_INET, &(addr_vect.sin_addr), ip, INET_ADDRSTRLEN);
-                    pfds[sock_num].fd = sockfd;
-                    pfds[sock_num].events = POLLIN;
-                    sock_num++;
-                    return (1);
+                    if (listen(sockfd, BACKLOG) != -1)
+                    {
+                        char ip[INET_ADDRSTRLEN];
+                        inet_ntop(AF_INET, &(addr_vect.sin_addr), ip, INET_ADDRSTRLEN);
+                        pfds[sock_num].fd = sockfd;
+                        pfds[sock_num].events = POLLIN;
+                        sock_num++;
+                        return (1);
+                    }
                 }
             }
         }
@@ -104,6 +107,21 @@ SocketManager::SocketManager(struct pollfd* pfds, std::vector<Server> &server)
         pfds[i].fd = -1;
 }
 
+int SocketManager::control_fd(int &new_fd)
+{
+    int fd;
+
+    if (new_fd < 3)
+    {
+        fd = new_fd;
+        new_fd = fcntl(new_fd, F_DUPFD, 3);
+        close(fd);
+    }
+    if(fcntl(new_fd, F_SETFD, O_CLOEXEC) == -1 || fcntl(new_fd, F_SETFL, O_NONBLOCK) == -1)
+        return (-1);
+    return (new_fd);
+}
+
 void    SocketManager::acceptClient(struct pollfd* pfds)
 {
     int new_sock;
@@ -120,11 +138,10 @@ void    SocketManager::acceptClient(struct pollfd* pfds)
             struct sockaddr_in client_addr;
             socklen_t client_len = sizeof(client_addr);
             new_sock = accept(pfds[i].fd, (struct sockaddr *)&client_addr, &client_len);
-            if (new_sock != -1)//aceptar evento
+            if (new_sock != -1 || control_fd(new_sock) != -1)//aceptar evento
             {
                 pfds[sock_num].fd = new_sock;
                 pfds[sock_num].events = POLLIN;
-                std::cout << "\033[32m" << "new_sock " << new_sock << "\033[0m" << std::endl;
                 requests[sock_num] = Request(sock_num, new_sock);
                 requests[sock_num].last_conection_time();
                 sock_num++;
@@ -180,9 +197,7 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
 
 void    SocketManager::check_join(int sock, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
-    std::cout << "\033[34m" << "ERROR CODE ANTES" << requests[sock].get_error_code() << "\033[0m" << std::endl;
     requests[sock].join_request(buffer, valread, server);
-    std::cout << "\033[34m" << "ERROR CODE DESPUES" << requests[sock].get_error_code() << "\033[0m" << std::endl;
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock, pfds);
 }
@@ -268,6 +283,11 @@ void    SocketManager::reventPOLLIN(struct pollfd* pfds, std::vector<Server> &se
                 close_move_pfd(pfds, sock);
             else if (response.find(sock) == response.end())
             {
+                if (cgiClients[sock].getPid() != -1)
+                {
+                    kill(cgiClients[sock].getPid(), SIGINT);
+                    cgiClients.erase(sock);
+                }
                 requests[sock].set_error_code(REQUEST_TIMEOUT);//si empezo a resibir request pero tarda mucho
                 make_response(sock, pfds);
             }
@@ -299,7 +319,6 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
                     requests[client].reset();
                     requests[client].last_conection_time();//guardar el tiempo de ultima conexion
                 }
-                std::cout << "\033[31m" << sock_num << "\033[0m" << std::endl;
             }
             response[client].remove_sent_data(send_size);
         }
@@ -372,7 +391,6 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
             }
         }
         sock_num--;
-        std::cout << "aqui llego1\n";
         return ;
     }
     //movemos el ultimo pfd a la pos borrada
@@ -383,7 +401,6 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
     pfds[sock_num - 1].fd = -1;
     pfds[sock_num - 1].events = 0;
     pfds[sock_num - 1].revents = 0;
-    std::cout << "aqui llego\n";
     //cuando la structura movida era de fd del archivo
     for (std::map<int, int>::iterator it = fd_file.begin(); it != fd_file.end(); ++it)
     {
@@ -423,7 +440,6 @@ void    SocketManager::close_move_pfd(struct pollfd* pfds, int pfd_free)
         cgiClients[pfd_free] = copy_cgi;
     }
     sock_num--;
-    std::cout << "\033[31m" << sock_num << "\033[0m" << std::endl;
 }
 
 std::string SocketManager::make_response_str(Response &response, std::string buffer)

@@ -1,5 +1,10 @@
 # include "../inc/Webserver.hpp"
 
+void    closeWebserv(SocketManager &socketManager)
+{
+
+}
+
 int main(int argc, char **argv)
 {
     int first_poll = 0;
@@ -16,18 +21,19 @@ int main(int argc, char **argv)
             server = parser.conf_file();
             SocketManager   socketManager = SocketManager(pfds, server);//abre los socket para cada puerto
 
+            signal(SIGINT, closeWebserv(socketManager));
             while (true)
             {
                 if (poll(pfds, socketManager.getSockNum(), 1000) == -1)//monitorear si hay algun cliente
                     std::cerr << "Error: poll error." << std::endl;    
-                /*for (int i = 0; i < socketManager.getSockNum(); ++i)
+                for (int i = 0; i < socketManager.getSockNum(); ++i)
                 {
                     std::cout << "socket " << i << ": ";
                     std::cout << "  fd: " << pfds[i].fd << "; ";
                     std::cout << "  events: " << pfds[i].events << "; ";
                     std::cout << "  revents: " << pfds[i].revents << std::endl;
                     socketManager.check_revent(pfds, i);
-                }*/     
+                }   
                 if (first_poll > 0)
                 {
                     socketManager.acceptClient(pfds);//comprueba si hay un cliente y lo acepta

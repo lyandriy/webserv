@@ -44,6 +44,7 @@ class SocketManager
         int is_file(int);
         void    check_revent(struct pollfd*, int);
         int its_open(struct sockaddr_in &);
+        int control_fd(int &);
 };
 
 # endif

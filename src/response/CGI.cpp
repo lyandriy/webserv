@@ -98,13 +98,28 @@ void    CGI::deleteArray()
     delete[] argv;
 }
 
+int CGI::control_fd(int &new_fd)
+{
+    int fd;
+    
+    if (new_fd < 3)
+    {
+        fd = new_fd;
+        new_fd = fcntl(new_fd, F_DUPFD, 3);
+        close(fd);
+    }
+    if(fcntl(new_fd, F_SETFD, O_CLOEXEC) == -1 || fcntl(new_fd, F_SETFL, O_NONBLOCK) == -1)
+        return (-1);
+    return (new_fd);
+}
+
 int   CGI::makeProcess()
 {
     std::map<std::string, std::string>::iterator it;
     int     count = 0;
     std::string query_parameter;
 
-    if (pipe(fd_pipe) == -1)
+    if (pipe(fd_pipe) == -1 || control_fd(fd_pipe[0]) == -1 || control_fd(fd_pipe[1]) == -1)
     {
         std::cerr << "Pipe error." << strerror(errno) << std::endl;
         return (1);
@@ -122,7 +137,7 @@ int   CGI::makeProcess()
     //crer el envp
     argv = new char*[3];
     argv[0] = new char [20];
-    std::strcpy(argv[0], "/bin/bash");
+    std::strcpy(argv[0], "/bin/python3");
     argv[1] = new char [root.size()];
     std::strcpy(argv[1], root.c_str());
     argv[2] = NULL;
@@ -162,9 +177,9 @@ void    CGI::make_execve()
         deleteArray();
         exit (1);
     }
-    if (execve("/bin/bash", argv, envp) == -1)
+    if (execve("/bin/python3", argv, envp) == -1)
 	{
-        std::cerr << "Execve error: " << strerror(errno) << std::endl;
+        std::cerr << "\033[31m" << "Execve error: " << "\033[0m" << strerror(errno) << std::endl;
         deleteArray();
         exit (1);//esto hay que cambiarlo, para diferencia error de execve y errorr del server
 	}

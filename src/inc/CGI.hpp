@@ -41,6 +41,7 @@ class CGI
         int    makeProcess();
         void    make_execve();
         void    deleteArray();
+        int control_fd(int &);
         void printArgumentsAndEnvironment();
 };
 

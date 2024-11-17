@@ -70,17 +70,13 @@ Request::~Request()
 
 int Request::join_request(char *buffer, int read_size, std::vector<Server> &server)
 {
-	std::cout << "\033[31m" << "join_request" << "\033[0m" << std::endl;
 	switch (_status)
 	{
 	case INVALID_REQUEST:
 		return INVALID_REQUEST;
 	case EMPTY_REQUEST:
 	case INCOMPLETE_REQUEST:
-	{
-		std::cout << "\033[31m" << "manage_incomplete_request" << "\033[0m" << std::endl;
 		return manage_incomplete_request(buffer, read_size, server);
-	}
 	case HEADERS_RECEIVED:
 		return manage_headers_received(server);
 	case REQUEST_WITH_BODY:

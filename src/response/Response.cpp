@@ -431,22 +431,35 @@ int    Response::open_error_file()
     return (fd);
 }
 
+int Response::control_fd(int &new_fd)
+{
+    int fd;
+    
+    if (new_fd < 3)
+    {
+        fd = new_fd;
+        new_fd = fcntl(new_fd, F_DUPFD, 3);
+        close(fd);
+    }
+    if(fcntl(new_fd, F_SETFD, O_CLOEXEC) == -1 || fcntl(new_fd, F_SETFL, O_NONBLOCK) == -1)
+        return (-1);
+    return (new_fd);
+}
+
 int Response::get_fd(std::string root)
 {
     int fd_file = -1;
     
     if (stat(root.c_str(), &fileStat) == -1)
-    {
-        std::cout << "\033[35m" << "stat error" << "\033[0m" << std::endl;
         error_code = NOT_FOUND;
-    }
     if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
     {
         if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
             error_code = FORBIDEN;
-        else if (cgi && error_code == 200)
-            cgi_state = 1;//
-        else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1)
+        else if (cgi && error_code == 200 && root.size() > 3 
+                && root.substr(root.size() - 3) == ".py")
+            cgi_state = 1;
+        else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1 || control_fd(fd_file) == -1)
             error_code = INTERNAL_SERVER_ERROR;
     }
     return (fd_file);
