@@ -37,7 +37,8 @@ class Response
         ssize_t send_size;
         //nuevo
         int cgi_state;
-        int fd_pipe[2];
+        int fd_pipe[2];//hay  que ver si cierro todos los fds
+        bool pipeRes;
     public:
         Response();
         ~Response();
@@ -74,6 +75,7 @@ class Response
         int getCGIState() const;
         int getFDread() const;
         int getFDwrite() const;
+        bool    getPipeRes() const;
 
         void setListen(struct sockaddr_in);
         void setHost(std::string);
@@ -96,8 +98,9 @@ class Response
         void setParams(std::map<std::string, std::string>);
         void setBody(std::vector<char>);
         void setCGIState(int);
-        void set_fileStatSize(size_t);
+        void set_fileStatSize(int);
         void setFDpipe(int, int);
+        void setPipeRes(bool);
 
         int     open_file(int);
         int    open_error_file();
@@ -107,7 +110,6 @@ class Response
         void    join_with_uri(std::string &, std::string &);
         void    remove_sent_data(ssize_t);
         void    closeFD();
-        int control_fd(int &);
 
         void print_full_info();
 };

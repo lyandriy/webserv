@@ -303,7 +303,6 @@ int	Request::manage_full_complete_request(char *buffer, int read_size)
 
 bool Request::search_double_CRLF()
 {
-	std::cout << "\033[31m" << "search_double_CRLF" << _error_code << "\033[0m" << std::endl;
 	size_t request_len = _req_accumulator.size();
 	if (request_len < 4)
 	{
@@ -797,7 +796,6 @@ int    Request::check_request_line(std::vector<Server> &server)
 			{
 				if (_body_size > it_serv->getBodySize())
 				{
-					std::cout << "\033[35m" << _body_size <<  " NOT_FOUND 3 " << it_serv->getBodySize() << _error_code << "\033[0m" << std::endl;
 					this->_error_code = NOT_FOUND;
 					return (0);
 				}

@@ -1,9 +1,11 @@
 # include "../inc/Webserver.hpp"
 
-void    closeWebserv(SocketManager &socketManager)
+//std::cout << "\033[31m" << client << " POLLOUT " << pfds[client].fd << "\033[0m" << std::endl;
+
+/*void    closeWebserv(SocketManager &socketManager)
 {
 
-}
+}*/
 
 int main(int argc, char **argv)
 {
@@ -21,7 +23,7 @@ int main(int argc, char **argv)
             server = parser.conf_file();
             SocketManager   socketManager = SocketManager(pfds, server);//abre los socket para cada puerto
 
-            signal(SIGINT, closeWebserv(socketManager));
+            //signal(SIGINT, closeWebserv(socketManager));
             while (true)
             {
                 if (poll(pfds, socketManager.getSockNum(), 1000) == -1)//monitorear si hay algun cliente

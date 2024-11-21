@@ -4,8 +4,8 @@ Response::Response(){}
 
 Response::~Response()
 {
-    close(fd_pipe[0]);
-    close(fd_pipe[1]);
+    /*close(fd_pipe[0]);
+    close(fd_pipe[1]);*/
 }
 
 Response::Response(const Response &other)
@@ -80,6 +80,7 @@ Response::Response(const Location &location, Request &request)
     send_size = 0;
     fd_pipe[0] = -1;
     fd_pipe[1] = -1;
+    pipeRes = false;
 }
 
 Response::Response(const Server &server, Request &request)
@@ -118,6 +119,7 @@ Response::Response(const Server &server, Request &request)
     send_size = 0;
     fd_pipe[0] = -1;
     fd_pipe[1] = -1;
+    pipeRes = false;
 }
 
 Response &Response::operator=(const Response &other){
@@ -144,6 +146,12 @@ Response &Response::operator=(const Response &other){
     this->send_size = other.send_size;
     this->params = other.params;
     this->body = other.body;
+    this->root_origin = other.root_origin;
+    this->string_buffer = other.string_buffer;
+    this->cgi_state = other.cgi_state;
+    this->fd_pipe[0] = other.fd_pipe[0];
+    this->fd_pipe[1] = other.fd_pipe[1];
+    this->pipeRes = other.pipeRes;
     return *this;
 }
 
@@ -282,6 +290,11 @@ int Response::getFDwrite() const
     return (this->fd_pipe[1]);
 }
 
+bool    Response::getPipeRes() const
+{
+    return (this->pipeRes);
+}
+
 void Response::setListen(struct sockaddr_in listen)
 {
     this->listen = listen;
@@ -393,6 +406,11 @@ void    Response::setFDpipe(int fdw, int fdr)
     this->fd_pipe[1] = fdw;
 }
 
+void    Response::setPipeRes(bool piperes)
+{
+    this->pipeRes = piperes;
+}
+
 void    Response::closeFD()
 {
     close(this->fd_pipe[0]);
@@ -404,7 +422,7 @@ void    Response::remove_sent_data(ssize_t send_size)
     this->string_buffer.erase(0, send_size);
 }
 
-void    Response::set_fileStatSize(size_t size)
+void    Response::set_fileStatSize(int size)
 {
     this->fileStat.st_size = size;
 }
@@ -431,21 +449,6 @@ int    Response::open_error_file()
     return (fd);
 }
 
-int Response::control_fd(int &new_fd)
-{
-    int fd;
-    
-    if (new_fd < 3)
-    {
-        fd = new_fd;
-        new_fd = fcntl(new_fd, F_DUPFD, 3);
-        close(fd);
-    }
-    if(fcntl(new_fd, F_SETFD, O_CLOEXEC) == -1 || fcntl(new_fd, F_SETFL, O_NONBLOCK) == -1)
-        return (-1);
-    return (new_fd);
-}
-
 int Response::get_fd(std::string root)
 {
     int fd_file = -1;
@@ -459,7 +462,7 @@ int Response::get_fd(std::string root)
         else if (cgi && error_code == 200 && root.size() > 3 
                 && root.substr(root.size() - 3) == ".py")
             cgi_state = 1;
-        else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1 || control_fd(fd_file) == -1)
+        else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1 || fcntl(fd_file, F_SETFD, O_CLOEXEC) == -1 || fcntl(fd_file, F_SETFL, O_NONBLOCK) == -1)
             error_code = INTERNAL_SERVER_ERROR;
     }
     return (fd_file);
@@ -499,6 +502,7 @@ int Response::make_autoindex_file()
                 closedir(dir);//cerramos el directorio
                 error_code = OK;
                 fileStat.st_size = html_text.size();//poner una fcntl
+                pipeRes = true;
                 return (fd_pipe[0]);
             }
         }

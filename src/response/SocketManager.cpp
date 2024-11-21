@@ -33,7 +33,7 @@ int SocketManager::connect_socket(struct pollfd* pfds, struct sockaddr_in &addr_
     {
         if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) != -1)
         {
-            if (control_fd(sockfd) != -1)
+            if (fcntl(sockfd, F_SETFD, O_CLOEXEC) != -1 || fcntl(sockfd, F_SETFL, O_NONBLOCK) != -1)
             {
                 socket_addr = addr_vect;
                 if (bind(sockfd, (struct sockaddr *)&socket_addr, sizeof(socket_addr)) != -1)
@@ -107,21 +107,6 @@ SocketManager::SocketManager(struct pollfd* pfds, std::vector<Server> &server)
         pfds[i].fd = -1;
 }
 
-int SocketManager::control_fd(int &new_fd)
-{
-    int fd;
-
-    if (new_fd < 3)
-    {
-        fd = new_fd;
-        new_fd = fcntl(new_fd, F_DUPFD, 3);
-        close(fd);
-    }
-    if(fcntl(new_fd, F_SETFD, O_CLOEXEC) == -1 || fcntl(new_fd, F_SETFL, O_NONBLOCK) == -1)
-        return (-1);
-    return (new_fd);
-}
-
 void    SocketManager::acceptClient(struct pollfd* pfds)
 {
     int new_sock;
@@ -138,10 +123,11 @@ void    SocketManager::acceptClient(struct pollfd* pfds)
             struct sockaddr_in client_addr;
             socklen_t client_len = sizeof(client_addr);
             new_sock = accept(pfds[i].fd, (struct sockaddr *)&client_addr, &client_len);
-            if (new_sock != -1 || control_fd(new_sock) != -1)//aceptar evento
+            if (new_sock != -1 || fcntl(new_sock, F_SETFD, O_CLOEXEC) != -1 || fcntl(new_sock, F_SETFL, O_NONBLOCK) != -1)//aceptar evento
             {
                 pfds[sock_num].fd = new_sock;
                 pfds[sock_num].events = POLLIN;
+                std::cout << "\033[33m" << sock_num << " acceptClient " << pfds[sock_num].fd << "\033[0m" << std::endl;
                 requests[sock_num] = Request(sock_num, new_sock);
                 requests[sock_num].last_conection_time();
                 sock_num++;
@@ -183,6 +169,7 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
     else
         response[sock] = Response(requests[sock].getServ(), requests[sock]);
     pfds[sock_num].fd = response[sock].open_file(sock_num);
+    std::cout << "\033[34m" << " open_file " << pfds[sock_num].fd << " to client " << sock << "\033[0m" << std::endl;
     if (response[sock].getCGIState() == 1)
         cgiClients[sock] = CGI(response[sock]);
     else if (pfds[sock_num].fd == -1)
@@ -224,6 +211,7 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
     char    buffer[BUFFER_SIZE + 1] = {0};
     int     valread;
 
+    std::cout << "\033[32m" << " recvRequest " << "\033[0m" << std::endl;
     check_revent(pfds, sock);/// no se que hacer con esto!!!!!!!!!!!!!!!!!!!!
     if (sock_num == BACKLOG - 2)//si no hay espacio en pollfd para el fd del archivo
     {
@@ -233,7 +221,7 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
     else
     {
         valread = recv(pfds[sock].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de socke
-        std::cout << buffer << "\nvalor: " << valread << std::endl;
+        std::cout << "\033[38m" << buffer << "\033[0m" << std::endl;
         if (requests[sock].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0)
             make_response(sock, pfds);//ha terminado de recibir el mensaje
         else if (valread == 0 || valread == -1)
@@ -249,14 +237,31 @@ void    SocketManager::readFile(struct pollfd* pfds, int sock, int file)
     int     valread;
     char    buffer[BUFFER_SIZE + 1] = {0};
     
+    std::cout << "\033[32m" << " readFile " << "\033[0m" << std::endl;
     valread = read(pfds[sock].fd, buffer, BUFFER_SIZE);
     if (valread == -1)
+    {
+        //hay que ver si falla con chunked transfer encoding
         close_move_pfd(pfds, sock);
-    if (response[file].getBytesRead() == 0)
-        response[file].setStringBuffer(make_response_str(response[file], buffer));
-    else
-        response[file].setStringBuffer((buffer));//convirte char * en std::string
-    response[file].setBytesRead(valread);
+    }
+    //si el fd es pipe o tamaño del achivo es mayr a BUFFER_SIZE hacer chunkd response en otros casos respuesta normal
+    if (response[file].get_fileStat().st_size > BUFFER_SIZE || response[file].getPipeRes())
+    {
+        //chunked transfer encoding
+        if (response[file].getBytesRead() == 0)
+            response[file].setStringBuffer(make_chunked_response(response[file], buffer, valread));
+        else
+            response[file].setStringBuffer(make_chunked(buffer, valread));
+        response[file].setBytesRead(valread);//que hago con esto?
+    }
+    else//respuesta Content-Length
+    {
+        if (response[file].getBytesRead() == 0)
+            response[file].setStringBuffer(make_response_str(response[file], buffer));
+        else
+            response[file].setStringBuffer((buffer));//convirte char * en std::string
+        response[file].setBytesRead(valread);
+    }
     memset(buffer, 0, strlen(buffer));
 }
 
@@ -264,12 +269,11 @@ void    SocketManager::reventPOLLIN(struct pollfd* pfds, std::vector<Server> &se
 {
     int file;
 
-    std::cout << "\033[31m" << "reventPOLLIN" << "\033[0m" << std::endl;
+    std::cout << "\033[32m" << " reventPOLLIN " << "\033[0m" << std::endl;
     for (int sock = listen_sockets; sock < sock_num; sock++)//recorre todos los sockets
     {  
         if ((pfds[sock].revents & POLLIN))//si algun socket tiene un revent de POLLIN
         {
-            std::cout << "\033[33m" << "reventPOLLIN On" << "\033[0m" << std::endl;
             check_revent(pfds, sock);
             if ((file = is_file(sock)))
                 readFile(pfds, sock, file);
@@ -299,13 +303,15 @@ void    SocketManager::sendResponse(struct pollfd* pfds)
 {
     ssize_t send_size;
 
+    std::cout << "\033[32m" << " sendResponse " << "\033[0m" << std::endl;
     for (int client = listen_sockets; client < sock_num; client++)//recorre todos los sockets
     {
         if ((pfds[client].revents & POLLOUT) && !is_file(client) && fd_file.find(client) != fd_file.end())//si algun socket tiene un revent de POLLOUT
         {
-            std::cout << "\033[31m" << client << " POLLOUT " << pfds[client].fd << "\033[0m" << std::endl;
+            std::cout << "\033[33m" << " send Response to " << client << "\033[0m" << std::endl;
             send_size = send(pfds[client].fd, response[client].getStringBuffer().c_str(), response[client].getStringBuffer().size(), 0);//enviar el buffer leido de archivo
             response[client].setSendSize(send_size);
+            std::cout << "\033[38m" << response[client].getStringBuffer().c_str() << "\033[0m" << std::endl;
             if (static_cast<int>(response[client].getBytesRead()) == response[client].get_fileStat().st_size || response[client].getStringBuffer().empty())//significa que hemos llegado hasta el final del archivo
             {
                 if (fd_file[client] != -1)
@@ -330,6 +336,7 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
     pid_t pid_ret;
     int wstatus;
 
+    std::cout << "\033[32m" << " CommonGatewayInterface " << "\033[0m" << std::endl;
     std::map<int, CGI>::iterator it = cgiClients.begin();
     for (size_t a = 0; a < cgiClients.size(); a++)
     {
@@ -353,10 +360,12 @@ void    SocketManager::CommonGatewayInterface(struct pollfd* pfds)
             }
             else if (pid_ret > 0)//si el hijo ha  terminado
             {
+                std::cout << "\033[35m" << " Child finish " << "\033[0m" << std::endl;
                 response[it->first].setFDpipe(it->second.getFDread(), it->second.getFDwrite());
                 pfds[sock_num].fd = it->second.getFDread();
                 pfds[sock_num].events = POLLIN;
                 fd_file[it->first] = sock_num;
+                response[it->first].setPipeRes(true);
                 sock_num++;
                 cgiClients.erase(it);
             }
@@ -454,8 +463,7 @@ std::string SocketManager::make_response_str(Response &response, std::string buf
     timeinfo = localtime (&rawtime);
     std::ostringstream str;
 
-    if  (response.get_fileStat().st_size != static_cast<off_t>(buffer.size()))
-        response.set_fileStatSize(buffer.size());
+    std::cout << "\033[36m" << " size of response " << response.get_fileStat().st_size << "\033[0m" << std::endl;
     str << status_code[response.getErrorCode()]
         << "Connection: " << response.getConnectionVal() << "\r\n"
         << "Date: " << days[timeinfo->tm_wday] << ", "
@@ -468,5 +476,40 @@ std::string SocketManager::make_response_str(Response &response, std::string buf
         << " GMT\r\n"
         << "Content-Length: " << response.get_fileStat().st_size << "\r\n"
         << "\r\n" << buffer;
+    return (str.str());
+}
+
+std::string SocketManager::make_chunked_response(Response &response, std::string buffer, int valread)
+{
+    time_t rawtime;
+    std::string day;
+    struct tm *timeinfo;
+    const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"};
+    const char* days[] = {"Mon", "Tues", "Weds", "Thur", "Fri", "Sat", "Sun"};
+
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    std::ostringstream str;
+
+    std::cout << "\033[36m" << " size of response " << response.get_fileStat().st_size << "\033[0m" << std::endl;
+    str << status_code[response.getErrorCode()]
+        << "Connection: " << response.getConnectionVal() << "\r\n"
+        << "Date: " << days[timeinfo->tm_wday] << ", "
+        << timeinfo->tm_mday << " "
+        << months[timeinfo->tm_mon] << " "
+        << (timeinfo->tm_year + 1900) << " "
+        << timeinfo->tm_hour << ":"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_min << ":"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_sec
+        << " GMT\r\n"
+        << "Transfer-Encoding: chunked" << "\r\n"
+        << "\r\n" << valread << "\r\n" << buffer;
+    return (str.str());
+}
+
+std::string SocketManager::make_chunked(std::string buffer, int valread)
+{
+    std::ostringstream str;
+    str << valread << "\r\n" << buffer;
     return (str.str());
 }

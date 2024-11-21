@@ -44,7 +44,8 @@ class SocketManager
         int is_file(int);
         void    check_revent(struct pollfd*, int);
         int its_open(struct sockaddr_in &);
-        int control_fd(int &);
+        std::string make_chunked_response(Response &, std::string, int);
+        std::string make_chunked(std::string, int);
 };
 
 # endif

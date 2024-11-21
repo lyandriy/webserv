@@ -25,7 +25,7 @@ CGI &CGI::operator=(const CGI &other)
 
 CGI::CGI(const Response &response)
 {
-    std::cout << "\033[33m" << " creando cgi object " <<  "\033[0m" << std::endl;
+    std::cout << "\033[35m" << " CGI constructor " << "\033[0m" << std::endl;
     this->root = response.getRoot();
     this->uri = response.getURI();
     this->params = response.getParams();
@@ -100,17 +100,9 @@ void    CGI::deleteArray()
 
 int CGI::control_fd(int &new_fd)
 {
-    int fd;
-    
-    if (new_fd < 3)
-    {
-        fd = new_fd;
-        new_fd = fcntl(new_fd, F_DUPFD, 3);
-        close(fd);
-    }
     if(fcntl(new_fd, F_SETFD, O_CLOEXEC) == -1 || fcntl(new_fd, F_SETFL, O_NONBLOCK) == -1)
-        return (-1);
-    return (new_fd);
+        return (0);
+    return (1);
 }
 
 int   CGI::makeProcess()
@@ -119,7 +111,8 @@ int   CGI::makeProcess()
     int     count = 0;
     std::string query_parameter;
 
-    if (pipe(fd_pipe) == -1 || control_fd(fd_pipe[0]) == -1 || control_fd(fd_pipe[1]) == -1)
+    std::cout << "\033[36m" << " makeProcess CGI " << "\033[0m" << std::endl;
+    if (pipe(fd_pipe) == -1 || !control_fd(fd_pipe[0]) || !control_fd(fd_pipe[1]))
     {
         std::cerr << "Pipe error." << strerror(errno) << std::endl;
         return (1);
@@ -142,7 +135,6 @@ int   CGI::makeProcess()
     std::strcpy(argv[1], root.c_str());
     argv[2] = NULL;
     //fork
-    std::cout << "\033[34m" << "FORKKKKK" << "\033[0m" << std::endl;
     pid = fork();
     if (pid < 0)
     {
@@ -162,7 +154,7 @@ int   CGI::makeProcess()
 void    CGI::make_execve()
 {
     //printArgumentsAndEnvironment();
-    std::cout << "\033[35m" << "DUP2" << "\033[0m" << std::endl;
+    std::cout << "\033[37m" << " I'm child fron CGI " << "\033[0m" << std::endl;
     if (dup2(fd_pipe[1], STDOUT_FILENO) < 0 || dup2(fd_pipe[0], STDIN_FILENO) < 0)
     {
         std::cerr << "dup2 error. " << strerror(errno) << std::endl;
