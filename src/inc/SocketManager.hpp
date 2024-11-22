@@ -46,6 +46,7 @@ class SocketManager
         int its_open(struct sockaddr_in &);
         std::string make_chunked_response(Response &, std::string, int);
         std::string make_chunked(std::string, int);
+        int deleteMethod(int);
 };
 
 # endif

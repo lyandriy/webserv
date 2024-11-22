@@ -81,6 +81,9 @@ Response::Response(const Location &location, Request &request)
     fd_pipe[0] = -1;
     fd_pipe[1] = -1;
     pipeRes = false;
+    valread = -1;
+    fileStat.st_size = 0;
+    cgi_state = 0;
 }
 
 Response::Response(const Server &server, Request &request)
@@ -120,6 +123,9 @@ Response::Response(const Server &server, Request &request)
     fd_pipe[0] = -1;
     fd_pipe[1] = -1;
     pipeRes = false;
+    valread = -1;
+    fileStat.st_size = 0;
+    cgi_state = 0;
 }
 
 Response &Response::operator=(const Response &other){
@@ -152,6 +158,7 @@ Response &Response::operator=(const Response &other){
     this->fd_pipe[0] = other.fd_pipe[0];
     this->fd_pipe[1] = other.fd_pipe[1];
     this->pipeRes = other.pipeRes;
+    this->valread = other.valread;
     return *this;
 }
 
@@ -295,6 +302,11 @@ bool    Response::getPipeRes() const
     return (this->pipeRes);
 }
 
+int Response::getValread() const
+{
+    return (this->valread);
+}
+
 void Response::setListen(struct sockaddr_in listen)
 {
     this->listen = listen;
@@ -411,6 +423,11 @@ void    Response::setPipeRes(bool piperes)
     this->pipeRes = piperes;
 }
 
+void    Response::setValread(int valread)
+{
+    this->valread = valread;
+}
+
 void    Response::closeFD()
 {
     close(this->fd_pipe[0]);
@@ -517,6 +534,7 @@ int Response::open_file(int pos_file_response)
     _pos_file_response = pos_file_response;//posicion del fd en pollfd del archivo que se v a enviar al cliente
     root_origin = root;//copiamos rota original
     join_with_uri(root, uri);
+    std::cout << root << std::endl;
     fd = get_fd(root);//stat + abrimos ruta + uri
     if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
     {

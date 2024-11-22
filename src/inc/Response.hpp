@@ -39,6 +39,7 @@ class Response
         int cgi_state;
         int fd_pipe[2];//hay  que ver si cierro todos los fds
         bool pipeRes;
+        int valread;
     public:
         Response();
         ~Response();
@@ -76,6 +77,7 @@ class Response
         int getFDread() const;
         int getFDwrite() const;
         bool    getPipeRes() const;
+        int getValread() const;
 
         void setListen(struct sockaddr_in);
         void setHost(std::string);
@@ -101,6 +103,7 @@ class Response
         void set_fileStatSize(int);
         void setFDpipe(int, int);
         void setPipeRes(bool);
+        void setValread(int);
 
         int     open_file(int);
         int    open_error_file();

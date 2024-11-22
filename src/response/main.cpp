@@ -2,10 +2,13 @@
 
 //std::cout << "\033[31m" << client << " POLLOUT " << pfds[client].fd << "\033[0m" << std::endl;
 
-/*void    closeWebserv(SocketManager &socketManager)
+void    closeWebserv(int signal)
 {
-
-}*/
+    std::cout << "\nReceived signal " << signal << ". Shutting down the web server...\n";
+    std::cout << "Web server stopped." << std::endl;
+    std::cout << "Thank you for using the service.\n";
+    exit(0);
+}
 
 int main(int argc, char **argv)
 {
@@ -23,7 +26,7 @@ int main(int argc, char **argv)
             server = parser.conf_file();
             SocketManager   socketManager = SocketManager(pfds, server);//abre los socket para cada puerto
 
-            //signal(SIGINT, closeWebserv(socketManager));
+            signal(SIGINT, closeWebserv);
             while (true)
             {
                 if (poll(pfds, socketManager.getSockNum(), 1000) == -1)//monitorear si hay algun cliente
@@ -35,13 +38,13 @@ int main(int argc, char **argv)
                     std::cout << "  events: " << pfds[i].events << "; ";
                     std::cout << "  revents: " << pfds[i].revents << std::endl;
                     socketManager.check_revent(pfds, i);
-                }   
+                } 
                 if (first_poll > 0)
                 {
                     socketManager.acceptClient(pfds);//comprueba si hay un cliente y lo acepta
                     socketManager.reventPOLLIN(pfds, server);//recibe mensajes de request
                     socketManager.sendResponse(pfds);//responder al cliente
-                    socketManager.CommonGatewayInterface(pfds);
+                    socketManager.CommonGatewayInterface(pfds);  
                 }
                 if (first_poll == 0)
                     first_poll++;
