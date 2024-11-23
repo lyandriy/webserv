@@ -58,3 +58,8 @@ int main(int argc, char **argv)
     }
     return (0);
 }
+
+//POST
+//gestionar cuando se descnecta el cliente
+//recvisar close_move_pfd
+//gestionar varios tips de cgi 

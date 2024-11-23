@@ -4,8 +4,8 @@ Response::Response(){}
 
 Response::~Response()
 {
-    /*close(fd_pipe[0]);
-    close(fd_pipe[1]);*/
+    if (pipeRes)
+        close(fd_pipe[1]);
 }
 
 Response::Response(const Response &other)
@@ -448,6 +448,7 @@ int    Response::open_error_file()
 {
     int fd = -1;
 
+    std::cout << "\033[36m" << error_code << "\033[0m" << std::endl;
     if (!error_page[error_code].empty())//si el archivo de error esta configurado
     {
         root = root_origin;
@@ -472,12 +473,13 @@ int Response::get_fd(std::string root)
     
     if (stat(root.c_str(), &fileStat) == -1)
         error_code = NOT_FOUND;
+    std::cout << "\033[36m" << "ERROR CODE " << error_code << "\033[0m" << std::endl;
     if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
     {
         if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
             error_code = FORBIDEN;
         else if (cgi && error_code == 200 && root.size() > 3 
-                && root.substr(root.size() - 3) == ".py")
+                && (root.substr(root.size() - 3) == ".py" || root.substr(root.size() - 4) == ".php" || root.substr(root.size() - 3) == ".pl"))
             cgi_state = 1;
         else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1 || fcntl(fd_file, F_SETFD, O_CLOEXEC) == -1 || fcntl(fd_file, F_SETFL, O_NONBLOCK) == -1)
             error_code = INTERNAL_SERVER_ERROR;
@@ -538,12 +540,16 @@ int Response::open_file(int pos_file_response)
     fd = get_fd(root);//stat + abrimos ruta + uri
     if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
     {
+        
         join_with_uri(root, index);//root + index
         if ((fd = get_fd(root)) == -1 && autoindex)//probamos root + index, si no existe y autoindex es on
             fd = make_autoindex_file();//hacemos el archivo de autoindex
     }
     if (fd == -1 && cgi_state == 0)
+    {
         fd = open_error_file();//funcion que abre archivo de error
+        std::cout << "get_fd " << error_code << std::endl;
+    }
     return (fd);
 }
 

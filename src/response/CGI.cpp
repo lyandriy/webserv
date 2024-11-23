@@ -130,7 +130,12 @@ int   CGI::makeProcess()
     //crer el envp
     argv = new char*[3];
     argv[0] = new char [20];
-    std::strcpy(argv[0], "/bin/python3");
+    if (root.substr(root.size() - 3) == ".py")
+        std::strcpy(argv[0], "/usr/bin/python3");
+    else if (root.substr(root.size() - 4) == ".php")
+        std::strcpy(argv[0], "/usr/bin/php");
+    else if (root.substr(root.size() - 3) == ".pl")
+        std::strcpy(argv[0], "/usr/bin/perl");
     argv[1] = new char [root.size()];
     std::strcpy(argv[1], root.c_str());
     argv[2] = NULL;
@@ -169,7 +174,7 @@ void    CGI::make_execve()
         deleteArray();
         exit (1);
     }
-    if (execve("/bin/python3", argv, envp) == -1)
+    if (execve(argv[0], argv, envp) == -1)
 	{
         std::cerr << "\033[31m" << "Execve error: " << "\033[0m" << strerror(errno) << std::endl;
         deleteArray();

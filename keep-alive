@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# Mantener la conexión abierta y enviar múltiples solicitudes
-for i in {1..5}; do
-  echo "Enviando solicitud $i..."
-  curl -v --keep-alive-time 30 http://localhost:8080
-  sleep 10  # Esperar 10 segundos antes de la siguiente solicitud
-done

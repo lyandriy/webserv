@@ -15,6 +15,7 @@ class SocketManager
         std::map<int, int>      fd_file;//posicion del cliente en pfds y su correspondiente fd de archivo responder
         std::map<int, std::string> status_code;///codigo de respuesta y el texto que va en el response line
         std::vector<struct sockaddr_in> open_addr;
+        //struct pollfd* pfds_;
         
         //nuevo
         std::map<int, CGI> cgiClients;//son los que tienen una request con cgi
@@ -47,6 +48,7 @@ class SocketManager
         std::string make_chunked_response(Response &, std::string, int);
         std::string make_chunked(std::string, int);
         int deleteMethod(int);
+        void    managerFinishSend(struct pollfd*, int);
 };
 
 # endif
