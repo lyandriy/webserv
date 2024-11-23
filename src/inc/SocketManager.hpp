@@ -1,6 +1,4 @@
 # pragma once
-# ifndef SOCKET_MANAGET_HPP
-# define SOCKET_MANAGER_HPP
 # include "../inc/Webserver.hpp"
 
 class CGI;
@@ -15,7 +13,7 @@ class SocketManager
         std::map<int, int>      fd_file;//posicion del cliente en pfds y su correspondiente fd de archivo responder
         std::map<int, std::string> status_code;///codigo de respuesta y el texto que va en el response line
         std::vector<struct sockaddr_in> open_addr;
-        //struct pollfd* pfds_;
+        struct pollfd* pfds;
         
         //nuevo
         std::map<int, CGI> cgiClients;//son los que tienen una request con cgi
@@ -29,26 +27,24 @@ class SocketManager
 
         int     getSockNum() const;
 
-        void    acceptClient(struct pollfd*);
-        void    recvRequest(struct pollfd*, std::vector<Server> &, int);
-        void    readFile(struct pollfd*, int, int);
-        void    reventPOLLIN(struct pollfd*, std::vector<Server> &);
-        void    sendResponse(struct pollfd*);
-        void    CommonGatewayInterface(struct pollfd*);
+        void    acceptClient();
+        void    recvRequest(std::vector<Server> &, int);
+        void    readFile(int, int);
+        void    reventPOLLIN(std::vector<Server> &);
+        void    sendResponse();
+        void    CommonGatewayInterface();
 
-        int     connect_socket(struct pollfd*, struct sockaddr_in &);
-        void    make_response(int, struct pollfd*);
-        void    check_join(int, struct pollfd*, std::vector<Server> &, char *, int);
-        void    close_move_pfd(struct pollfd*, int);
-        void    ErrorResponse(Response &, int &);
+        int     connect_socket(struct sockaddr_in &);
+        void    make_response(int);
+        void    check_join(int, std::vector<Server> &, char *, int);
+        void    close_move_pfd(int);
+        void    ErrorResponse(Response &, int &, int);
         std::string make_response_str(Response &, std::string);
         int is_file(int);
-        void    check_revent(struct pollfd*, int);
+        void    check_revent(int);
         int its_open(struct sockaddr_in &);
         std::string make_chunked_response(Response &, std::string, int);
         std::string make_chunked(std::string, int);
         int deleteMethod(int);
-        void    managerFinishSend(struct pollfd*, int);
+        void    managerFinishSend(int);
 };
-
-# endif

@@ -11,6 +11,7 @@
 # define INTERNAL_SERVER_ERROR 500 //RESPONSE
 # define SERVICE_UNAVAIBLE 503 //RESPONSE
 # define HTTP_VERSION_NOT_SUPPORTED 505 //REQUEST--
+# define GATEWAY_TIMEOUT 504 //RESPONSE--
 
 # define ROOT_BAD_REQUEST "html/error/400.html"
 # define ROOT_FORBIDEN "html/error/403.html"
@@ -22,6 +23,7 @@
 # define ROOT_INTERNAL_SERVER_ERROR "html/error/500.html"
 # define ROOT_SERVICE_UNAVAIBLE "html/error/503.html"
 # define ROOT_HTTP_VERSION_NOT_SUPPORTED "html/error/505.html"
+# define ROOT_HTTP_GATEWAY_TIMEOUT "html/error/504.html"
 
 # define HTML_AUTOINDEX_BEGIN "<!DOCTYPE html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Índice del Directorio</title></head>\n<body>\n    <h1>Índice del Directorio</h1>\n    <ul>\n"
 # define HTML_AUTOINDEX_END "    </ul>\n</body>\n</html>\r\n\r\n"

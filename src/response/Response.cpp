@@ -40,6 +40,8 @@ void    Response::error_response()
             this->root = ROOT_SERVICE_UNAVAIBLE;
         else if (error_code == HTTP_VERSION_NOT_SUPPORTED)
             this->root = ROOT_HTTP_VERSION_NOT_SUPPORTED;
+        else if (error_code == GATEWAY_TIMEOUT)
+            this->root = ROOT_HTTP_GATEWAY_TIMEOUT;
         uri.clear();
     }
 }

@@ -158,7 +158,6 @@ int   CGI::makeProcess()
 
 void    CGI::make_execve()
 {
-    //printArgumentsAndEnvironment();
     std::cout << "\033[37m" << " I'm child fron CGI " << "\033[0m" << std::endl;
     if (dup2(fd_pipe[1], STDOUT_FILENO) < 0 || dup2(fd_pipe[0], STDIN_FILENO) < 0)
     {
@@ -182,23 +181,3 @@ void    CGI::make_execve()
 	}
 }
 
-void CGI::printArgumentsAndEnvironment()
-{
-    int i = 0;
-    while (argv[i] != NULL)
-    {
-        std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
-        i++;
-    }
-
-    // Imprimir los valores de envp
-    int j = 0;
-    while (envp[j] != NULL)
-    {
-        std::cout << "envp[" << j << "] = " << envp[j] << std::endl;
-        j++;
-    }
-
-    // Imprimir los valores de root y uri
-    std::cout << "\nroot: " << root << std::endl;
-}

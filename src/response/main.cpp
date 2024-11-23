@@ -37,14 +37,14 @@ int main(int argc, char **argv)
                     std::cout << "  fd: " << pfds[i].fd << "; ";
                     std::cout << "  events: " << pfds[i].events << "; ";
                     std::cout << "  revents: " << pfds[i].revents << std::endl;
-                    socketManager.check_revent(pfds, i);
+                    socketManager.check_revent(i);
                 } 
                 if (first_poll > 0)
                 {
-                    socketManager.acceptClient(pfds);//comprueba si hay un cliente y lo acepta
-                    socketManager.reventPOLLIN(pfds, server);//recibe mensajes de request
-                    socketManager.sendResponse(pfds);//responder al cliente
-                    socketManager.CommonGatewayInterface(pfds);  
+                    socketManager.acceptClient();//comprueba si hay un cliente y lo acepta
+                    socketManager.reventPOLLIN(server);//recibe mensajes de request
+                    socketManager.sendResponse();//responder al cliente
+                    socketManager.CommonGatewayInterface();  
                 }
                 if (first_poll == 0)
                     first_poll++;
@@ -60,6 +60,5 @@ int main(int argc, char **argv)
 }
 
 //POST
-//gestionar cuando se descnecta el cliente
+//gestionar cuando se descnecta el cliente. se rompe totalmente
 //recvisar close_move_pfd
-//gestionar varios tips de cgi 
