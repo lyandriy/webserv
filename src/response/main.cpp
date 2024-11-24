@@ -4,7 +4,10 @@
 
 void    closeWebserv(int signal)
 {
-    std::cout << "\nReceived signal " << signal << ". Shutting down the web server...\n";
+    if (signal == 2)
+        std::cout << "\nReceived Interrupt Signal. Shutting down the web server...\n";
+    else
+        std::cout << "\nReceived signal " << signal << " Shutting down the web server...\n";
     std::cout << "Web server stopped." << std::endl;
     std::cout << "Thank you for using the service.\n";
     exit(0);
@@ -62,3 +65,4 @@ int main(int argc, char **argv)
 //POST
 //gestionar cuando se descnecta el cliente. se rompe totalmente
 //recvisar close_move_pfd
+//poner un flag el cgi para que vea si es post o cgi y le mande body o params

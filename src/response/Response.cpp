@@ -475,7 +475,6 @@ int Response::get_fd(std::string root)
     
     if (stat(root.c_str(), &fileStat) == -1)
         error_code = NOT_FOUND;
-    std::cout << "\033[36m" << "ERROR CODE " << error_code << "\033[0m" << std::endl;
     if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
     {
         if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
@@ -542,15 +541,39 @@ int Response::open_file(int pos_file_response)
     fd = get_fd(root);//stat + abrimos ruta + uri
     if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
     {
-        
         join_with_uri(root, index);//root + index
         if ((fd = get_fd(root)) == -1 && autoindex)//probamos root + index, si no existe y autoindex es on
             fd = make_autoindex_file();//hacemos el archivo de autoindex
     }
     if (fd == -1 && cgi_state == 0)
-    {
         fd = open_error_file();//funcion que abre archivo de error
-        std::cout << "get_fd " << error_code << std::endl;
+    return (fd);
+}
+
+int Response::postIsExec()
+{
+    if (root.size() > 3 && (root.substr(root.size() - 3) == ".py" || root.substr(root.size() - 4) == ".php" || root.substr(root.size() - 3) == ".pl"))
+    {
+        cgi_state = 1;
+        return (1);
+    }
+    return (0);
+}
+
+int Response::makePost()
+{
+    int fd;
+
+    std::ofstream file(root.c_str(), std::ios::app);
+    if (file.is_open())
+    {
+        file << body.data();
+        fd = get_fd("serverHTML/postResponse.html");
+    }
+    else
+    {
+        error_code = FORBIDEN;
+        fd = open_error_file();
     }
     return (fd);
 }

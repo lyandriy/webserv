@@ -24,59 +24,7 @@ Listen Addresses:
   IP: 0.0.0.0, Port: 8081
 Error Pages: 
 socket 0:   fd: 4;   events: 1;   revents: 0
-socket 0:   fd: 4;   events: 1;   revents: 0
-[32m reventPOLLIN [0m
-[32m sendResponse [0m
-[32m CommonGatewayInterface [0m
-socket 0:   fd: 4;   events: 1;   revents: 0
-[32m reventPOLLIN [0m
-[32m sendResponse [0m
-[32m CommonGatewayInterface [0m
-socket 0:   fd: 4;   events: 1;   revents: 1
-[33m1 acceptClient 5[0m
-[32m reventPOLLIN [0m
-[32m sendResponse [0m
-[32m CommonGatewayInterface [0m
-socket 0:   fd: 4;   events: 1;   revents: 0
-socket 1:   fd: 5;   events: 1;   revents: 1
-[32m reventPOLLIN [0m
-[32m recvRequest [0m
-[38mGET /python/con_fallos.py HTTP/1.1
-Host: localhost:8081
-User-Agent: curl/7.81.0
-Accept: */*
 
-[0m
-html/test/python/con_fallos.py
-[36mERROR CODE 200[0m
-[35m CGI constructor [0m
-[32m sendResponse [0m
-[32m CommonGatewayInterface [0m
-[36m makeProcess CGI [0m
-[37m I'm child fron CGI [0m
-socket 0:   fd: 4;   events: 1;   revents: 0
-socket 1:   fd: 5;   events: 1;   revents: 0
-[32m reventPOLLIN [0m
-[32m sendResponse [0m
-[32m CommonGatewayInterface [0m
-[35m CSTATUS DEL HIJO 1[0m
-socket 0:   fd: 4;   events: 1;   revents: 0
-socket 1:   fd: 5;   events: 4;   revents: 4
-[32m reventPOLLIN [0m
-[32m sendResponse [0m
-[35mvalrear0[0m
-[33m send Response to 1
-[34mHTTP/1.1 500 Internal Server Error
-Content-Type: text/html
-Content-Length: 25
-
-500 Internal Server Error0
-
-[0m
-[35mDESCONECT 5[0m
-1 5 CLOSEEEEEEE
-[32m CommonGatewayInterface [0m
-
-Received signal 2. Shutting down the web server...
+Received Interrupt Signal. Shutting down the web server...
 Web server stopped.
 Thank you for using the service.

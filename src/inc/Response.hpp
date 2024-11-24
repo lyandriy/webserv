@@ -113,6 +113,8 @@ class Response
         void    join_with_uri(std::string &, std::string &);
         void    remove_sent_data(ssize_t);
         void    closeFD();
+        int     postIsExec();
+        int     makePost();
 
         void print_full_info();
 };

@@ -26,7 +26,7 @@ SRCS =	src/response/main.cpp \
 OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(BIN_PATH)%.o)
 
 CC = g++
-CFLAGS = -std=c++98 -Wall -Werror -Wextra -g -O0 
+CFLAGS = -std=c++98 -Wall -Werror -Wextra -g -O0 -fsanitize=address
 RM = rm -f
 
 ### --- RULES --- ###

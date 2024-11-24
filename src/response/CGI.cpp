@@ -136,13 +136,15 @@ int   CGI::makeProcess()
         std::strcpy(argv[0], "/usr/bin/php");
     else if (root.substr(root.size() - 3) == ".pl")
         std::strcpy(argv[0], "/usr/bin/perl");
-    argv[1] = new char [root.size()];
+    argv[1] = new char [root.size() + 1];
     std::strcpy(argv[1], root.c_str());
     argv[2] = NULL;
     //fork
     pid = fork();
+    std::cerr << "\033[31m" << argv[0] << " y " << argv[1] << "\033[0m" << strerror(errno) << std::endl;
     if (pid < 0)
     {
+        
         std::cerr << "Fork error. " << strerror(errno) << std::endl;
         close(fd_pipe[0]);
         close(fd_pipe[1]);
@@ -158,6 +160,7 @@ int   CGI::makeProcess()
 
 void    CGI::make_execve()
 {
+   //errno = 0;
     std::cout << "\033[37m" << " I'm child fron CGI " << "\033[0m" << std::endl;
     if (dup2(fd_pipe[1], STDOUT_FILENO) < 0 || dup2(fd_pipe[0], STDIN_FILENO) < 0)
     {
@@ -173,6 +176,7 @@ void    CGI::make_execve()
         deleteArray();
         exit (1);
     }
+    std::cerr << "\033[31m" << argv[0] << " y " << argv[1] << "\033[0m" << strerror(errno) << std::endl;
     if (execve(argv[0], argv, envp) == -1)
 	{
         std::cerr << "\033[31m" << "Execve error: " << "\033[0m" << strerror(errno) << std::endl;

@@ -1,0 +1,12 @@
+1. Examinar la Semántica del Recurso (HTTP/REST)
+Crear un nuevo archivo:
+Esto ocurre cuando el cliente solicita la creación de un nuevo recurso, generalmente especificando un identificador único o enviando datos nuevos. Esto es común en las siguientes circunstancias:
+
+La URL apunta a un directorio y no a un archivo específico.
+El archivo no existe aún en el sistema.
+Hay encabezados específicos que indican la intención de creación, como Content-Disposition o parámetros del cuerpo.
+Hacer un append:
+Esto ocurre cuando el recurso ya existe y el cliente solicita agregar datos al final del archivo en lugar de sobrescribirlo. Esto podría estar indicado mediante:
+
+Un encabezado HTTP específico (por ejemplo, Content-Range).
+Un parámetro o lógica de tu servidor para manejar actualizaciones incrementales.
