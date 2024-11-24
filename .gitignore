@@ -1,0 +1,6 @@
+bin/*
+.vscode/*
+webserv
+*/**/*.o
+*/**/*wololo*
+**/wololo/

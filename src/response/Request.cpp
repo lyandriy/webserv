@@ -2,7 +2,7 @@
 
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
-											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
+											_body(), _body_size(0), _help_message(), _valid(true), _error_code(200), _headers(),
 											_params(), _chunks(), _accept_method(), _request_line(""), _lines(),
 											_type(0), _status(1)
 {
@@ -114,6 +114,7 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 	case INVALID_REQUEST:
 		return INVALID_REQUEST;
 		break;
+	case EMPTY_REQUEST:
 	case INCOMPLETE_REQUEST:
 		return manage_incomplete_request(buffer, read_size, server);
 		break;

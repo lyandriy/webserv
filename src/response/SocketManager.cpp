@@ -179,7 +179,7 @@ void    SocketManager::make_response(int sock, struct pollfd* pfds)
 
 void    SocketManager::check_join(int sock, struct pollfd* pfds, std::vector<Server> &server, char *buffer, int valread)
 {
-    requests[sock].set_current_status(INCOMPLETE_REQUEST);
+    // requests[sock].set_current_status(INCOMPLETE_REQUEST);
     requests[sock].join_request(buffer, valread, server);
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock, pfds);
