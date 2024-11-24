@@ -2,8 +2,8 @@
 
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
 											_method(""), _protocol(""), _host(""), _port(0),
-											_body(), _body_size(0), _help_message(), _valid(true), _error_code(200), _headers(),
-											_params(), _chunks(), _accept_method(), _request_line(""), _lines(),
+											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
+											_params(), _body_size(0), _chunks(), _accept_method(), _request_line(""), _lines(),
 											_type(0), _status(1)
 {
 
