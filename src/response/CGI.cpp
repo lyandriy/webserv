@@ -156,7 +156,7 @@ int   CGI::makeProcess()
     if (pipe(fd_pipe) == -1 || !control_fd(fd_pipe[0]) || !control_fd(fd_pipe[1]))
     {
         std::cerr << "Pipe error." << strerror(errno) << std::endl;
-        return (2);
+        return (1);
     }
     envp = NULL;
     if (accept_method != "POST")
@@ -166,7 +166,6 @@ int   CGI::makeProcess()
         {
             query_parameter = it->first + "=" + it->second;
             envp[count] = new char [query_parameter.size() + 1];
-            std::cout << envp[count] << std::endl;
             std::strcpy(envp[count], query_parameter.c_str());
             count++;
         }
@@ -179,7 +178,6 @@ int   CGI::makeProcess()
         {
             query_parameter = it->first + "=" + it->second;
             envp[count] = new char [query_parameter.size() + 1];
-            std::cout << envp[count] << std::endl;
             std::strcpy(envp[count], query_parameter.c_str());
             count++;
         }
@@ -198,7 +196,6 @@ int   CGI::makeProcess()
     argv[2] = NULL;
     if (a == 0)
     {
-        std::cout << "hola\n";
         a++;
         pid = fork();
         if (pid < 0)
@@ -207,7 +204,7 @@ int   CGI::makeProcess()
             close(fd_pipe[0]);
             close(fd_pipe[1]);
             deleteArray();
-            return (2);
+            return (1);
         }
         if (pid == 0)
             make_execve();
@@ -227,7 +224,7 @@ void    CGI::make_execve()
         {
             std::cerr << "Internal error: " << strerror(errno) << std::endl;
             deleteArray();
-            exit (2);
+            exit (1);
         }
 
     }
@@ -237,18 +234,18 @@ void    CGI::make_execve()
         close(fd_pipe[1]);
         close(fd_pipe[0]);
         deleteArray();
-        exit (2);
+        exit (1);
     }
     if (close(fd_pipe[1]) == -1 || close(fd_pipe[0]) == -1)
     {
         std::cerr << "close error. " << strerror(errno) << std::endl;
         deleteArray();
-        exit (2);
+        exit (1);
     }
     if (execve(argv[0], argv, envp) == -1)
 	{
         std::cerr << "\033[31m" << "Execve error: " << "\033[0m" << strerror(errno) << std::endl;
         deleteArray();
-        exit (2);
+        exit (1);
 	}
 }

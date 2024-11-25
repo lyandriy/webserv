@@ -1,9 +1,2319 @@
-Aquí, cuando se recibe el archivo, el servidor crea un archivo en la carpeta uploads/ (si no existe ya un archivo con ese nombre).
+[31mServer Name: localhost
+[0mAccept Method: GET 1 POST 1 DELETE 1
+Client Max Body Size: 1048576
+Root: html/test
+Autoindex: 1
+Index: index.html
+CGI: 1
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8081
+Error Pages: 
+Locations (1): 
+[33mLocation 1:
+[0mURI: /hola
+Server Name: localhost
+Accept Method: GET 1 POST 0 DELETE 0
+Client Max Body Size: 1048576
+Root: html/test
+Autoindex: 1
+Index: index.html
+CGI: 1
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8081
+Error Pages: 
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 0:   fd: 4;   events: 1;   revents: 1
+[33m1 acceptClient 5[0m
+[32m reventPOLLIN [0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 0[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35mGET /python/timeout_script.py HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
 
-Si el servidor no está configurado para manejar archivos:
+[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+[32m reventPOLLIN [0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 0
+[32m reventPOLLIN [0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[37m I'm child fron CGI [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[37m I'm child fron CGI [0m
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[37m I'm child fron CGI [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[37m I'm child fron CGI [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 1:   fd: 5;   events: 1;   revents: 1
+[37m I'm child fron CGI [0m
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[37m I'm child fron CGI [0m
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+[37m I'm child fron CGI [0m
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[37m I'm child fron CGI [0m
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[37m I'm child fron CGI [0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[37m I'm child fron CGI [0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[37m I'm child fron CGI [0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[37m I'm child fron CGI [0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[37m I'm child fron CGI [0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+socket 0:   fd: 4;   events: 1;   revents: 0
+socket 1:   fd: 5;   events: 1;   revents: 1
+[32m reventPOLLIN [0m
+[32m recvRequest [0m
+[35m[0m
+[31mSIGO VIVO 200[0m
+[32m sendResponse [0m
+[32m CommonGatewayInterface 1[0m
+1it->second.getPid()  -2
+[36m makeProcess CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
+[37m I'm child fron CGI [0m
 
-En este caso, el servidor podría rechazar la solicitud o simplemente no hacer nada con el archivo. El servidor podría devolver un error como 400 (Bad Request) o 415 (Unsupported Media Type) si no está configurado para manejar el contenido del formulario que contiene el archivo.
-Resumen
-Sí, el archivo puede ser creado en el servidor, pero esto depende de que el servidor tenga un endpoint que procese los archivos subidos y que esté configurado para guardar esos archivos.
-El comportamiento de la creación del archivo también dependerá de cómo el servidor maneje los archivos recibidos. Si el servidor está configurado para guardar el archivo, entonces se almacenará en una ubicación especificada, como un directorio en el servidor. Si no, el servidor devolverá un error.
-Si estás configurando el servidor para aceptar y almacenar archivos, necesitarás escribir un código que maneje la subida y el almacenamiento del archivo en una carpeta adecuada del servidor.
+Received Interrupt Signal. Shutting down the web server...
+Web server stopped.
+Thank you for using the service.
+
+Received Interrupt Signal. Shutting down the web server...
+Web server stopped.
+Thank you for using the service.

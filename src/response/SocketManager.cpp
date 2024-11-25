@@ -280,7 +280,17 @@ void    SocketManager::recvRequest(std::vector<Server> &server, int sock)
         if (requests[sock].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0)
             make_response(sock);//ha terminado de recibir el mensaje
         else if (valread == 0 || valread == -1)
+        {
+            if (cgiClients.find(sock) != cgiClients.end())
+            {
+                std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" <<std::endl;
+                kill(cgiClients[sock].getPid(), SIGINT);
+                close(cgiClients[sock].getFDread());
+                close(cgiClients[sock].getFDwrite());
+                cgiClients.erase(sock);
+            }
             close_move_pfd(sock);
+        }
         else
             check_join(sock, server, buffer, valread);//recibe una parte del mensaje
     }
@@ -412,12 +422,13 @@ void    SocketManager::CommonGatewayInterface()
     pid_t pid_ret;
     int wstatus;
 
-    std::cout << "\033[32m" << " CommonGatewayInterface " << "\033[0m" << std::endl;
+    std::cout << "\033[32m" << " CommonGatewayInterface " << cgiClients.size() << "\033[0m" << std::endl;
     std::map<int, CGI>::iterator it = cgiClients.begin();
     for (size_t a = 0; a < cgiClients.size(); a++)
     {
         if (it->second.getPid() == -2)//si aun no se ha creado el proceso, solo se ha construido el objeto
         {
+            std::cout << it->first << "it->second.getPid()  " << it->second.getPid()  << std::endl;
             if (it->second.makeProcess())//cambia el pid del proceso al pid del proceso hijo
             {
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
@@ -429,15 +440,18 @@ void    SocketManager::CommonGatewayInterface()
         else
         {
             pid_ret = waitpid(it->second.getPid(), &wstatus, WNOHANG);
-            if (pid_ret == -1 || WEXITSTATUS(wstatus) == 2)//si hay error, devolver error 500
+            if (pid_ret == -1 || WEXITSTATUS(wstatus) == 1)//si hay error, devolver error 500
             {
-                std::cout << "\033[31m" << "SIGO VIVO aaaaav " << WEXITSTATUS(wstatus) << "\033[0m" << std::endl;
+                kill(cgiClients[it->first].getPid(), SIGINT);
+                close(it->second.getFDread());
+                close(it->second.getFDwrite());
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first], it->first);
                 cgiClients.erase(it);
             }
             else if (pid_ret > 0)//si el hijo ha  terminado
             {
+
                 std::cout << "\033[35m" << " Child finish " << "\033[0m" << std::endl;
                 response[it->first].setFDpipe(it->second.getFDread(), it->second.getFDwrite());
                 pfds[sock_num].fd = it->second.getFDread();
