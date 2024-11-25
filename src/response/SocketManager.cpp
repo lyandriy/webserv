@@ -197,8 +197,6 @@ void    SocketManager:: make_response(int sock)
     pfds[sock_num].fd = response[sock].open_file(sock_num);
     if (response[sock].getCGIState() == 1)
         cgiClients[sock] = CGI(response[sock]);
-    else if (pfds[sock_num].fd == -1)
-        ErrorResponse(response[sock], fd_file[sock], sock);
     else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "POST" && !response[sock].getPipeRes())
     {
         if (response[sock].postIsExec())
@@ -212,6 +210,8 @@ void    SocketManager:: make_response(int sock)
             sock_num++;
         }
     }
+    else if (pfds[sock_num].fd == -1)
+        ErrorResponse(response[sock], fd_file[sock], sock);
     else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "DELETE")
     {
         close(pfds[sock_num].fd);
@@ -233,7 +233,8 @@ void    SocketManager:: make_response(int sock)
 void    SocketManager::check_join(int sock, std::vector<Server> &server, char *buffer, int valread)
 {
     requests[sock].join_request(buffer, valread, server);
-    std::cout << std::endl;
+    //requests[sock].print_raw_request();
+    //requests[sock].print_raw_vector(requests[sock].get_body());
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock);
 }
@@ -274,6 +275,7 @@ void    SocketManager::recvRequest(std::vector<Server> &server, int sock)
     else
     {
         valread = recv(pfds[sock].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de socke //ver por que es 0
+        std::cout << "\033[35m" <<buffer<< "\033[0m" << std::endl;
         if (requests[sock].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0)
             make_response(sock);//ha terminado de recibir el mensaje
         else if (valread == 0 || valread == -1)
@@ -332,10 +334,8 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
             else
                 recvRequest(server, sock);
         }
-        std::cout << "\033[32m" << sock << "is_file(sock) antes " << is_file(sock)  << "\033[0m" << std::endl;
         if (requests.find(sock) != requests.end() && !is_file(sock) && difftime(time(NULL), requests[sock].get_time()) > 65)//si no hay evento y el tiempo es mayoa a 65, desconectamos al socke
         {
-            std::cout << "\033[32m" << difftime(time(NULL), requests[sock].get_time()) << "is_file(sock) " << is_file(sock)  << "\033[0m" << std::endl;
             if (requests[sock].get_current_status() == EMPTY_REQUEST)//si no se ha reecibido ninguna request solo cierra la conexion
                 close_move_pfd(sock);
             else if (response.find(sock) == response.end())
@@ -387,7 +387,6 @@ void    SocketManager::sendResponse()
                 response[client].setStringBuffer(make_chunked("", 0));
                 response[client].setValread(0); 
             }
-            std::cout << "\033[32m" << " UPS" << "\033[0m" << std::endl;
             if (!response[client].getStringBuffer().empty())
             {
                 send_size = send(pfds[client].fd, response[client].getStringBuffer().c_str(), response[client].getStringBuffer().size(), 0);//enviar el buffer leido de archivo

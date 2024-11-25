@@ -40,6 +40,7 @@ class Response
         int fd_pipe[2];//hay  que ver si cierro todos los fds
         bool pipeRes;
         int valread;
+        std::string upload_files;
     public:
         Response();
         ~Response();

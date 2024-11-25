@@ -86,6 +86,7 @@ Response::Response(const Location &location, Request &request)
     valread = -1;
     fileStat.st_size = 0;
     cgi_state = 0;
+    //upload_files = request.get_upload_files();
 }
 
 Response::Response(const Server &server, Request &request)
@@ -128,6 +129,7 @@ Response::Response(const Server &server, Request &request)
     valread = -1;
     fileStat.st_size = 0;
     cgi_state = 0;
+    //upload_files = request.get_upload_files();
 }
 
 Response &Response::operator=(const Response &other){
@@ -161,6 +163,7 @@ Response &Response::operator=(const Response &other){
     this->fd_pipe[1] = other.fd_pipe[1];
     this->pipeRes = other.pipeRes;
     this->valread = other.valread;
+    this->upload_files = other.upload_files; 
     return *this;
 }
 
@@ -450,7 +453,6 @@ int    Response::open_error_file()
 {
     int fd = -1;
 
-    std::cout << "\033[36m" << error_code << "\033[0m" << std::endl;
     if (!error_page[error_code].empty())//si el archivo de error esta configurado
     {
         root = root_origin;
@@ -474,7 +476,10 @@ int Response::get_fd(std::string root)
     int fd_file = -1;
     
     if (stat(root.c_str(), &fileStat) == -1)
-        error_code = NOT_FOUND;
+    {
+        if (!(accept_method == "POST" && errno == ENOENT))
+            error_code = NOT_FOUND;
+    }
     if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
     {
         if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
@@ -537,7 +542,6 @@ int Response::open_file(int pos_file_response)
     _pos_file_response = pos_file_response;//posicion del fd en pollfd del archivo que se v a enviar al cliente
     root_origin = root;//copiamos rota original
     join_with_uri(root, uri);
-    std::cout << root << std::endl;
     fd = get_fd(root);//stat + abrimos ruta + uri
     if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
     {
@@ -545,7 +549,7 @@ int Response::open_file(int pos_file_response)
         if ((fd = get_fd(root)) == -1 && autoindex)//probamos root + index, si no existe y autoindex es on
             fd = make_autoindex_file();//hacemos el archivo de autoindex
     }
-    if (fd == -1 && cgi_state == 0)
+    if (fd == -1 && cgi_state == 0 && accept_method != "POST")
         fd = open_error_file();//funcion que abre archivo de error
     return (fd);
 }
@@ -563,15 +567,20 @@ int Response::postIsExec()
 int Response::makePost()
 {
     int fd;
+    std::string str(body.begin(), body.end());
 
-    std::ofstream file(root.c_str(), std::ios::app);
+    std::cout << root <<  " Me rompo aqui\n";
+    if (upload_files.empty())
+        upload_files = root;
+    std::ofstream file(upload_files.c_str(), std::ios::app);
     if (file.is_open())
     {
-        file << body.data();
+        file << str;
         fd = get_fd("serverHTML/postResponse.html");
     }
     else
     {
+        std::cout << root <<  " Me rompo aqui forbiden\n";
         error_code = FORBIDEN;
         fd = open_error_file();
     }
