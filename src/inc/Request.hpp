@@ -57,6 +57,8 @@ private:
 	Location					conf_loc;
 	int  						server_body_size;
 	time_t						conecction_time;
+	bool						_multipart;
+	std::string					_boundary;
 
 
 	void read_request_lines();
@@ -71,6 +73,7 @@ private:
 	bool check_protocol();
 	std::string spaces_trim(std::string &str);
 	void set_host_and_port(std::string &host_line_value);
+	void set_multipart(std::string &content_type_value);
 	void split_params(std::string &params_raw);
 	bool check_and_set_params(std::vector<std::string> params_unchecked);
 	bool search_double_CRLF();
@@ -140,4 +143,5 @@ public:
 	void print_body();
 	void print_raw_vector(std::vector<char> loquesea);
 	void print_raw_vector(std::vector<char>& loquesea, size_t start, size_t end);
+	void print_headers();
 };

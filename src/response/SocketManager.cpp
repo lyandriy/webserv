@@ -181,6 +181,8 @@ void    SocketManager::check_join(int sock, struct pollfd* pfds, std::vector<Ser
 {
     // requests[sock].set_current_status(INCOMPLETE_REQUEST);
     requests[sock].join_request(buffer, valread, server);
+    // requests[sock].print_raw_request();
+    // requests[sock].print_raw_vector(requests[sock].get_body());
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock, pfds);
 }
@@ -217,7 +219,11 @@ void    SocketManager::recvRequest(struct pollfd* pfds, std::vector<Server> &ser
     {
         valread = recv(pfds[sock].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de socke
         if (requests[sock].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0)
+        {
+            // requests[sock].print_raw_request();
+            // requests[sock].print_raw_vector(requests[sock].get_body());
             make_response(sock, pfds);//ha terminado de recibir el mensaje
+        }
         else if (valread == 0 || valread == -1)
             close_move_pfd(pfds, sock);
         else

@@ -24,5 +24,8 @@ html = f"""<!DOCTYPE html>
 </body>
 </html>"""
 
+
+
+sys.stdout.write(f"Content-Type: text/html\r\n\r\n")
 sys.stdout.write(html)
 

@@ -4,7 +4,7 @@ Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket
 											_method(""), _protocol(""), _host(""), _port(0),
 											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
 											_params(), _body_size(0), _chunks(), _accept_method(), _request_line(""), 
-											_lines(), _type(0), _status(1)
+											_lines(), _type(0), _status(1), _multipart(false), _boundary("")
 {
 
 	conf_loc = Location();
@@ -239,7 +239,12 @@ int	Request::manage_request_with_body(char *buffer, int read_size)
 	_body.insert(_body.end(), buffer, buffer + read_size);
 	size_t body_len = _body.size();
 	if (body_len == static_cast<size_t>(_body_size))
+	{
 		_status = FULL_COMPLETE_REQUEST;
+		print_raw_request();
+		print_raw_vector(_body);
+		print_headers();
+	}
 	if (body_len > static_cast<size_t>(_body_size))
 	{
 		set_validity(INVALID_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
@@ -427,6 +432,8 @@ bool Request::read_headers_lines()
 		_headers[key] = value;
 		if (key == "Host")
 			set_host_and_port(value);
+		if (key == "Content-Type")
+			set_multipart(value);
 	}
 	return _valid;
 }
@@ -516,6 +523,24 @@ void Request::set_host_and_port(std::string &host_line_value)
 		_host = host_line_value.substr(0, colon_position);
 		_port = atoi(host_line_value.substr(colon_position + 1).c_str());
 	}
+}
+
+void Request::set_multipart(std::string &content_type_value)
+{
+	/*POST / HTTP/1.1\r\n
+	User-Agent: PostmanRuntime/7.42.0\r\n
+	Accept: *//*\r\n
+	Host: localhost:8081\r\n
+	Accept-Encoding: gzip, deflate, br\r\n
+	Connection: keep-alive\r\n
+	Content-Type: multipart/form-data; boundary=--------------------------347389713640189908765970\r\n
+	Content-Length: 232\r\n
+	\r\n
+	----------------------------347389713640189908765970\r\n
+	Content-Disposition: form-data; name="xyz"; filename="wololo.kaka"\r\n
+	Content-Type: application/octet-stream\r\n
+	\r\n*/
+	(void)content_type_value;
 }
 
 void Request::split_params(std::string &params_raw)
@@ -985,7 +1010,7 @@ void Request::print_raw_vector(std::vector<char> loquesea)
 		if (loquesea[i] == '\r')
 			std::cout << "\\r";
 		else if (loquesea[i] == '\n')
-			std::cout << "\\n";
+			std::cout << "\\n\n";
 		else
 			std::cout << loquesea[i];
 		std::cout.flush();
@@ -1000,10 +1025,22 @@ void Request::print_raw_vector(std::vector<char>& loquesea, size_t start, size_t
 		if (loquesea[i] == '\r')
 			std::cout << "\\r";
 		else if (loquesea[i] == '\n')
-			std::cout << "\\n";
+			std::cout << "\\n\n";
 		else
 			std::cout << loquesea[i];
 		std::cout.flush();
 	}
 	std::cout << std::endl;
 }
+
+void Request::print_headers()
+{
+	
+	for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); ++it)
+	{
+		std::cout << it->first << " -> " << it->second << std::endl;
+	}
+	
+}
+
+
