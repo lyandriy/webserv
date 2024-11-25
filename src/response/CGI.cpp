@@ -22,6 +22,7 @@ CGI &CGI::operator=(const CGI &other)
     this->pid = other.pid;
     this->envp = other.envp;
     this->argv = other.argv;
+    this->a = other.a;
     return (*this);
 }
 
@@ -34,6 +35,12 @@ CGI::CGI(const Response &response)
     this->body = response.getBody();
     this->accept_method = response.getAcceptMethod();
     this->pid = -2;
+    a = 0;
+    std::map<std::string, std::string>::iterator it;
+    for (it = params.begin(); it != params.end(); ++it)
+    {
+        std::cout << it->first + "=" + it->second << std::endl;
+    }
 }
 
 void    CGI::setRoot(std::string root)
@@ -121,7 +128,7 @@ int CGI::control_fd(int &new_fd)
     return (1);
 }
 
-void    CGI::dupEnv(std::map<std::string, std::string> &env)
+void    CGI::dupEnv(std::map<std::string, std::string> env)
 {
     std::string query_parameter;
     std::map<std::string, std::string>::iterator it;
@@ -132,6 +139,7 @@ void    CGI::dupEnv(std::map<std::string, std::string> &env)
     {
         query_parameter = it->first + "=" + it->second;
         envp[count] = new char [query_parameter.size() + 1];
+        std::cout << envp[count] << std::endl;
         std::strcpy(envp[count], query_parameter.c_str());
         count++;
     }
@@ -140,16 +148,43 @@ void    CGI::dupEnv(std::map<std::string, std::string> &env)
 
 int   CGI::makeProcess()
 {
+    std::string query_parameter;
+    std::map<std::string, std::string>::iterator it;
+    int     count = 0;
+
     std::cout << "\033[36m" << " makeProcess CGI " << "\033[0m" << std::endl;
     if (pipe(fd_pipe) == -1 || !control_fd(fd_pipe[0]) || !control_fd(fd_pipe[1]))
     {
         std::cerr << "Pipe error." << strerror(errno) << std::endl;
-        return (1);
+        return (2);
     }
+    envp = NULL;
     if (accept_method != "POST")
-        dupEnv(params);
+    {
+        envp = new char*[params.size() + 1];
+        for (it = params.begin(); it != params.end(); ++it)
+        {
+            query_parameter = it->first + "=" + it->second;
+            envp[count] = new char [query_parameter.size() + 1];
+            std::cout << envp[count] << std::endl;
+            std::strcpy(envp[count], query_parameter.c_str());
+            count++;
+        }
+        envp[count] = NULL;
+    }
     else
-       dupEnv(headers);
+    {
+        envp = new char*[headers.size() + 1];
+        for (it = headers.begin(); it != headers.end(); ++it)
+        {
+            query_parameter = it->first + "=" + it->second;
+            envp[count] = new char [query_parameter.size() + 1];
+            std::cout << envp[count] << std::endl;
+            std::strcpy(envp[count], query_parameter.c_str());
+            count++;
+        }
+        envp[count] = NULL;
+    }
     argv = new char*[3];
     argv[0] = new char [20];
     if (root.substr(root.size() - 3) == ".py")
@@ -161,19 +196,24 @@ int   CGI::makeProcess()
     argv[1] = new char [root.size() + 1];
     std::strcpy(argv[1], root.c_str());
     argv[2] = NULL;
-    pid = fork();
-    if (pid < 0)
+    if (a == 0)
     {
-        std::cerr << "Fork error. " << strerror(errno) << std::endl;
-        close(fd_pipe[0]);
-        close(fd_pipe[1]);
-        deleteArray();
-        return (1);
+        std::cout << "hola\n";
+        a++;
+        pid = fork();
+        if (pid < 0)
+        {
+            std::cerr << "Fork error. " << strerror(errno) << std::endl;
+            close(fd_pipe[0]);
+            close(fd_pipe[1]);
+            deleteArray();
+            return (2);
+        }
+        if (pid == 0)
+            make_execve();
+        else
+            deleteArray();
     }
-    if (pid == 0)
-        make_execve();
-    else
-        deleteArray();
     return (0);
 }
 
@@ -187,7 +227,7 @@ void    CGI::make_execve()
         {
             std::cerr << "Internal error: " << strerror(errno) << std::endl;
             deleteArray();
-            exit (1);
+            exit (2);
         }
 
     }
@@ -197,18 +237,18 @@ void    CGI::make_execve()
         close(fd_pipe[1]);
         close(fd_pipe[0]);
         deleteArray();
-        exit (1);
+        exit (2);
     }
     if (close(fd_pipe[1]) == -1 || close(fd_pipe[0]) == -1)
     {
         std::cerr << "close error. " << strerror(errno) << std::endl;
         deleteArray();
-        exit (1);
+        exit (2);
     }
     if (execve(argv[0], argv, envp) == -1)
 	{
         std::cerr << "\033[31m" << "Execve error: " << "\033[0m" << strerror(errno) << std::endl;
         deleteArray();
-        exit (1);
+        exit (2);
 	}
 }

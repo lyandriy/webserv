@@ -569,7 +569,6 @@ int Response::makePost()
     int fd;
     std::string str(body.begin(), body.end());
 
-    std::cout << root <<  " Me rompo aqui\n";
     if (upload_files.empty())
         upload_files = root;
     std::ofstream file(upload_files.c_str(), std::ios::app);
@@ -580,7 +579,6 @@ int Response::makePost()
     }
     else
     {
-        std::cout << root <<  " Me rompo aqui forbiden\n";
         error_code = FORBIDEN;
         fd = open_error_file();
     }

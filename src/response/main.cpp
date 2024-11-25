@@ -62,7 +62,5 @@ int main(int argc, char **argv)
     return (0);
 }
 
-//POST
 //gestionar cuando se descnecta el cliente. se rompe totalmente
 //recvisar close_move_pfd
-//poner un flag el cgi para que vea si es post o cgi y le mande body o params

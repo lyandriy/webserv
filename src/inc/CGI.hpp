@@ -19,6 +19,7 @@ class CGI
         pid_t pid;
         char    **envp;
         char    **argv;
+        int a;
 
     public:
         CGI();
@@ -42,11 +43,11 @@ class CGI
         pid_t   getPid() const;
         std::string getAcceptMethod() const;
 
-        int    makeProcess();
+        int     makeProcess();
         void    make_execve();
         void    deleteArray();
-        int control_fd(int &);
-        void    dupEnv(std::map<std::string, std::string> &);
+        int     control_fd(int &);
+        void    dupEnv(std::map<std::string, std::string>);
 };
 
 #endif

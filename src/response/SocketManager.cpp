@@ -195,6 +195,7 @@ void    SocketManager:: make_response(int sock)
     else
         response[sock] = Response(requests[sock].getServ(), requests[sock]);
     pfds[sock_num].fd = response[sock].open_file(sock_num);
+    std::cout << "\033[31m" << "SIGO VIVO " << response[sock].getErrorCode() << "\033[0m" << std::endl;
     if (response[sock].getCGIState() == 1)
         cgiClients[sock] = CGI(response[sock]);
     else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "POST" && !response[sock].getPipeRes())
@@ -380,6 +381,7 @@ void    SocketManager::sendResponse()
     {
         if ((pfds[client].revents & POLLOUT) && !is_file(client) && fd_file.find(client) != fd_file.end())//si algun socket tiene un revent de POLLOUT
         {
+            std::cout << "\033[31m" << "SIGO VIVO " << response[client].getErrorCode() << "\033[0m" << std::endl;
             if (response[client].getBytesRead() != 0 //no se ha leido nada
                 && ((fd_file[client] != -1 && (pfds[fd_file[client]].revents == 0))  || response[client].getErrorCode() == INTERNAL_SERVER_ERROR) //el revent del fd de archivo esta en 0 o hay un error interno
                 && (response[client].get_fileStat().st_size > BUFFER_SIZE || response[client].getPipeRes()))//se lee de una pipe o el tamaño del archivo es muy largo
@@ -427,8 +429,9 @@ void    SocketManager::CommonGatewayInterface()
         else
         {
             pid_ret = waitpid(it->second.getPid(), &wstatus, WNOHANG);
-            if (pid_ret == -1 || WEXITSTATUS(wstatus) != EXIT_SUCCESS)//si hay error, devolver error 500
+            if (pid_ret == -1 || WEXITSTATUS(wstatus) == 2)//si hay error, devolver error 500
             {
+                std::cout << "\033[31m" << "SIGO VIVO aaaaav " << WEXITSTATUS(wstatus) << "\033[0m" << std::endl;
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first], it->first);
                 cgiClients.erase(it);
