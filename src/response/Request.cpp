@@ -90,6 +90,7 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 int	Request::manage_incomplete_request(char *buffer, int read_size, std::vector<Server> &server)
 {
 	_req_accumulator.insert(_req_accumulator.end(), buffer, buffer + read_size);
+	print_raw_request();
 	if (search_double_CRLF() == false)
 		return INCOMPLETE_REQUEST;
 	else
@@ -108,6 +109,7 @@ bool Request::search_body_length_header()
 	{
 		if (it->first == "Content-Length")
 		{
+			std::cout << "HIJO DE LA GRAN PUTAAAAAAAAAAAAAAAAA" << std::endl;
 			_body_size = atoi(it->second.c_str());
 			return true;
 		}
@@ -140,16 +142,18 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
+	// print_headers();
+	// print_raw_vector(_req_accumulator);
 	if (search_body_length_header() == true)
 	{
 		_status = REQUEST_WITH_BODY;
-		split_at_CRLFx2();
 		if (static_cast<int>(_body.size()) == _body_size)
 		{
 			_status = FULL_COMPLETE_REQUEST;
 		}
 		if (static_cast<int>(_body.size()) > _body_size)
 		{
+			_status = INVALID_REQUEST;
 			set_validity(BAD_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
 		}
 	}
@@ -163,6 +167,11 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		_status = CHUNKED_REQUEST;
 		_body.clear(); //esto es una guarrada de narices, aquí no debería haber _body...
 		manage_possible_chunked_beggining();
+	}
+	else if (_multipart == true)
+	{
+		_status = INVALID_REQUEST;
+		set_validity(INVALID_REQUEST, "Content-Length or Transfer-Encoding header not provided");
 	}
 	else
 	{
@@ -422,6 +431,7 @@ bool Request::read_headers_lines()
 		return _valid;
 	for (size_t i = 1; i < _lines.size(); i++)
 	{
+		std::cout << i << " <-> " << _lines[i] << std::endl;
 		colon_position = _lines[i].find(":");
 		if (colon_position == _lines[i].npos || 
 			_lines[i].find(" :") != _lines[i].npos)
@@ -540,7 +550,31 @@ void Request::set_multipart(std::string &content_type_value)
 	Content-Disposition: form-data; name="xyz"; filename="wololo.kaka"\r\n
 	Content-Type: application/octet-stream\r\n
 	\r\n*/
-	(void)content_type_value;
+	size_t colon_position;
+
+	colon_position = content_type_value.find(";");
+	if (colon_position == content_type_value.npos)
+		return;
+	else
+	{
+		std::string first_part = content_type_value.substr(0, colon_position);
+		_multipart = true ? first_part == "multipart/form-data" : false;
+		std::string second_part = content_type_value.substr(colon_position + 1);
+		size_t equal_position;
+		equal_position = second_part.find("=");
+		if (equal_position == second_part.npos)
+		{
+			_status = INVALID_REQUEST;
+			_valid = set_validity(BAD_REQUEST, "Content-Type invalid"); // algo más??
+			return;
+		}
+		else
+		{
+			_boundary = second_part.substr(equal_position + 1);
+		}
+		// _host = content_type_value.substr(0, colon_position);
+		// _port = atoi(content_type_value.substr(colon_position + 1).c_str());
+	}
 }
 
 void Request::split_params(std::string &params_raw)
