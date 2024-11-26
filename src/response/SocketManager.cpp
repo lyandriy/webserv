@@ -440,7 +440,7 @@ void    SocketManager::CommonGatewayInterface()
         else
         {
             pid_ret = waitpid(it->second.getPid(), &wstatus, WNOHANG);
-            if (pid_ret == -1 || WEXITSTATUS(wstatus) == 1)//si hay error, devolver error 500
+            if (pid_ret == -1)//si hay error, devolver error 500
             {
                 kill(cgiClients[it->first].getPid(), SIGINT);
                 close(it->second.getFDread());
@@ -451,15 +451,25 @@ void    SocketManager::CommonGatewayInterface()
             }
             else if (pid_ret > 0)//si el hijo ha  terminado
             {
-
-                std::cout << "\033[35m" << " Child finish " << "\033[0m" << std::endl;
-                response[it->first].setFDpipe(it->second.getFDread(), it->second.getFDwrite());
-                pfds[sock_num].fd = it->second.getFDread();
-                pfds[sock_num].events = POLLIN;
-                pfds[it->first].events = POLLOUT;
-                fd_file[it->first] = sock_num;
-                sock_num++;
-                cgiClients.erase(it);
+                if (WIFSIGNALED(wstatus) || WEXITSTATUS(wstatus))
+                {
+                    kill(cgiClients[it->first].getPid(), SIGINT);
+                    close(it->second.getFDread());
+                    close(it->second.getFDwrite());
+                    response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
+                    ErrorResponse(response[it->first], fd_file[it->first], it->first);
+                    cgiClients.erase(it);
+                }
+                else{
+                    std::cout << "\033[35m" << " Child finish " << "\033[0m" << std::endl;
+                    response[it->first].setFDpipe(it->second.getFDread(), it->second.getFDwrite());
+                    pfds[sock_num].fd = it->second.getFDread();
+                    pfds[sock_num].events = POLLIN;
+                    pfds[it->first].events = POLLOUT;
+                    fd_file[it->first] = sock_num;
+                    sock_num++;
+                    cgiClients.erase(it);
+                }
             }
             else
                 it++;

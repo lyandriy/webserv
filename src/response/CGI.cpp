@@ -159,10 +159,10 @@ int   CGI::makeProcess()
         return (1);
     }
     envp = NULL;
-    if (accept_method != "POST")
+    if (accept_method == "POST")
     {
-        envp = new char*[params.size() + 1];
-        for (it = params.begin(); it != params.end(); ++it)
+        envp = new char*[headers.size() + 1];
+        for (it = headers.begin(); it != headers.end(); ++it)
         {
             query_parameter = it->first + "=" + it->second;
             envp[count] = new char [query_parameter.size() + 1];
@@ -171,10 +171,10 @@ int   CGI::makeProcess()
         }
         envp[count] = NULL;
     }
-    else
+    if (accept_method != "POST")
     {
-        envp = new char*[headers.size() + 1];
-        for (it = headers.begin(); it != headers.end(); ++it)
+        envp = new char*[params.size() + 1];
+        for (it = params.begin(); it != params.end(); ++it)
         {
             query_parameter = it->first + "=" + it->second;
             envp[count] = new char [query_parameter.size() + 1];
@@ -194,8 +194,8 @@ int   CGI::makeProcess()
     argv[1] = new char [root.size() + 1];
     std::strcpy(argv[1], root.c_str());
     argv[2] = NULL;
-    if (a == 0)
-    {
+    //if (a == 0)
+    //{
         a++;
         pid = fork();
         if (pid < 0)
@@ -210,7 +210,7 @@ int   CGI::makeProcess()
             make_execve();
         else
             deleteArray();
-    }
+    //}
     return (0);
 }
 
