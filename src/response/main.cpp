@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
             while (true)
             {
-                std::cout << "-----------------------\n";
+                // std::cout << "-----------------------\n";
                 if (poll(pfds, socketManager.getSockNum(), 1000) == -1)//monitorear si hay algun cliente
                     std::cerr << "Error: poll error." << std::endl;
                 if (first_poll > 0)

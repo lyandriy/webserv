@@ -395,7 +395,7 @@ std::vector<Server> Parser::conf_file()
     server_size = server.size();
     //SI HAY DOS SERVER CON EL MISMO HOST SE GUARDA SOLO EL PRIMERO. 
     //SI HAY DOS SERVER CON EL MISMO PUERTO SE GUARDA SOLO EL PRIMERO.
-    for (int i = 0; i < server_size; i++)
-        this->server[i].printValuesServer();
+    // for (int i = 0; i < server_size; i++)
+    //     this->server[i].printValuesServer();
     return (server);
 }

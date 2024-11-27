@@ -132,6 +132,7 @@ bool Request::search_chunked_body()
 
 int	Request::manage_headers_received(char *buffer, int read_size, std::vector<Server> &server)
 {
+	print_raw_request();
 	(void)buffer;
 	(void)read_size;
 	read_request_lines();
@@ -147,8 +148,13 @@ int	Request::manage_headers_received(char *buffer, int read_size, std::vector<Se
 	if (search_body_length_header() == true)
 	{
 		split_at_CRLFx2();
-		print_headers();
-		print_body();
+		if (_multipart == true)
+		{
+
+		}
+		// print_headers();
+		// print_body();
+		// std::cout << "Body_size: " << _body_size << " | bosy.size(): " << _body.size() << std::endl;
 		// manage_request_with_body(buffer, read_size);
 		// std::cout << "Body size: " << _body_size << std::endl;
 		// _status = REQUEST_WITH_BODY;
@@ -1040,7 +1046,6 @@ void Request::print_raw_request()
 
 void Request::print_body()
 {
-	std::cout << "BBOODDYYYYYY:\n";
 	for (size_t i = 0; i < _body.size(); i++)
 	{
 		std::cout << _body[i];
