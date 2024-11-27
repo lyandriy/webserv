@@ -78,7 +78,7 @@ private:
 	bool check_and_set_params(std::vector<std::string> params_unchecked);
 	bool search_double_CRLF();
 	int	manage_incomplete_request(char *, int, std::vector<Server> &);
-	int	manage_headers_received(std::vector<Server> &);
+	int	manage_headers_received(char *, int, std::vector<Server> &);
 	int manage_request_with_body(char *, int);
 	int manage_chunked_request(char *, int);
 	int manage_full_complete_request(char *, int);

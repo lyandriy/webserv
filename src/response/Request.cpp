@@ -76,7 +76,7 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 	case INCOMPLETE_REQUEST:
 		return manage_incomplete_request(buffer, read_size, server);
 	case HEADERS_RECEIVED:
-		return manage_headers_received(server);
+		return manage_headers_received(buffer, read_size, server);
 	case REQUEST_WITH_BODY:
 		return manage_request_with_body(buffer, read_size);
 	case CHUNKED_REQUEST:
@@ -90,13 +90,12 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 int	Request::manage_incomplete_request(char *buffer, int read_size, std::vector<Server> &server)
 {
 	_req_accumulator.insert(_req_accumulator.end(), buffer, buffer + read_size);
-	print_raw_request();
 	if (search_double_CRLF() == false)
 		return INCOMPLETE_REQUEST;
 	else
 	{
 		_status = HEADERS_RECEIVED;
-		return (manage_headers_received(server));
+		return (manage_headers_received(buffer, read_size, server));
 	}
 	return INCOMPLETE_REQUEST;
 }
@@ -109,7 +108,6 @@ bool Request::search_body_length_header()
 	{
 		if (it->first == "Content-Length")
 		{
-			std::cout << "HIJO DE LA GRAN PUTAAAAAAAAAAAAAAAAA" << std::endl;
 			_body_size = atoi(it->second.c_str());
 			return true;
 		}
@@ -132,8 +130,10 @@ bool Request::search_chunked_body()
 	return false;
 }
 
-int	Request::manage_headers_received(std::vector<Server> &server)
+int	Request::manage_headers_received(char *buffer, int read_size, std::vector<Server> &server)
 {
+	(void)buffer;
+	(void)read_size;
 	read_request_lines();
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
@@ -146,16 +146,25 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	// print_raw_vector(_req_accumulator);
 	if (search_body_length_header() == true)
 	{
-		_status = REQUEST_WITH_BODY;
+		split_at_CRLFx2();
+		print_headers();
+		print_body();
+		// manage_request_with_body(buffer, read_size);
+		// std::cout << "Body size: " << _body_size << std::endl;
+		// _status = REQUEST_WITH_BODY;
+		// print_body();
 		if (static_cast<int>(_body.size()) == _body_size)
 		{
+			std::cout << "El body está completo" << std::endl;
 			_status = FULL_COMPLETE_REQUEST;
 		}
 		if (static_cast<int>(_body.size()) > _body_size)
 		{
+			std::cout << "El body no encaja che" << std::endl;
 			_status = INVALID_REQUEST;
 			set_validity(BAD_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
 		}
+			// std::cout << "se terminó la funcion de body pollas" << std::endl;
 	}
 	else if (search_chunked_body() == true)
 	{
@@ -247,12 +256,17 @@ int	Request::manage_request_with_body(char *buffer, int read_size)
 {
 	_body.insert(_body.end(), buffer, buffer + read_size);
 	size_t body_len = _body.size();
+		// print_raw_request();
+		// print_raw_vector(_body);
+		print_body();
+		// print_headers();
+		
 	if (body_len == static_cast<size_t>(_body_size))
 	{
 		_status = FULL_COMPLETE_REQUEST;
-		print_raw_request();
-		print_raw_vector(_body);
-		print_headers();
+		// print_raw_request();
+		// print_raw_vector(_body);
+		// print_headers();
 	}
 	if (body_len > static_cast<size_t>(_body_size))
 	{
@@ -431,7 +445,6 @@ bool Request::read_headers_lines()
 		return _valid;
 	for (size_t i = 1; i < _lines.size(); i++)
 	{
-		std::cout << i << " <-> " << _lines[i] << std::endl;
 		colon_position = _lines[i].find(":");
 		if (colon_position == _lines[i].npos || 
 			_lines[i].find(" :") != _lines[i].npos)
