@@ -47,4 +47,5 @@ class SocketManager
         std::string make_chunked(std::string, int);
         int deleteMethod(int);
         void    managerFinishSend(int);
+        std::string ContentLength(std::string &);
 };

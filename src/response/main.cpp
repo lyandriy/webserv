@@ -62,5 +62,5 @@ int main(int argc, char **argv)
     return (0);
 }
 
-//gestionar cuando se descnecta el cliente. se rompe totalmente
 //recvisar close_move_pfd
+//response con cgi

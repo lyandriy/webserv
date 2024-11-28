@@ -1,5 +1,6 @@
 # include "../inc/Webserver.hpp"
 
+
 SocketManager::SocketManager(){}
 
 SocketManager::~SocketManager(){}
@@ -190,6 +191,7 @@ int SocketManager::deleteMethod(int sock)
 
 void    SocketManager:: make_response(int sock)
 {
+    std::cout << "\033[31m" << "make_response" << "\033[0m" << std::endl;
     if (requests[sock].getLoc().getCGI() != -1)
         response[sock] = Response(requests[sock].getLoc(), requests[sock]);
     else
@@ -234,8 +236,8 @@ void    SocketManager:: make_response(int sock)
 void    SocketManager::check_join(int sock, std::vector<Server> &server, char *buffer, int valread)
 {
     requests[sock].join_request(buffer, valread, server);
-    //requests[sock].print_raw_request();
-    //requests[sock].print_raw_vector(requests[sock].get_body());
+    requests[sock].print_raw_request();
+    requests[sock].print_raw_vector(requests[sock].get_body());
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock);
 }
@@ -245,21 +247,20 @@ void    SocketManager::check_revent(int client)
     //printf("check_revent %d\n", client);//cambiar esta funcion
     if (pfds[client].revents & POLLERR) {
         printf("POLLERR %d\n", client);
-        //close_move_pfd(pfds, client);
+        close_move_pfd(client);
     }
     if (pfds[client].revents & POLLHUP) {
         printf("POLLHUP %d\n", client);
-        //close_move_pfd(pfds, client);
+        close_move_pfd(client);
     }
     if (pfds[client].revents & POLLNVAL) {
         
         printf("POLLNVAL %d\n", client);
-        //close_move_pfd(pfds, client);
+        close_move_pfd(client);
     }
     if (pfds[client].revents & POLLRDHUP){
         printf("POLLRDHUP %d\n", client);
     }
-
 }
 void    SocketManager::recvRequest(std::vector<Server> &server, int sock)
 {
@@ -276,21 +277,11 @@ void    SocketManager::recvRequest(std::vector<Server> &server, int sock)
     else
     {
         valread = recv(pfds[sock].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de socke //ver por que es 0
-        std::cout << "\033[35m" <<buffer<< "\033[0m" << std::endl;
-        if (requests[sock].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0)
+        std::cout << "\033[35m" << "Client " << sock << std::endl << buffer << "\033[0m" << std::endl;
+        if (requests[sock].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0 && response.find(sock) == response.end())
             make_response(sock);//ha terminado de recibir el mensaje
         else if (valread == 0 || valread == -1)
-        {
-            if (cgiClients.find(sock) != cgiClients.end())
-            {
-                std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" <<std::endl;
-                kill(cgiClients[sock].getPid(), SIGINT);
-                close(cgiClients[sock].getFDread());
-                close(cgiClients[sock].getFDwrite());
-                cgiClients.erase(sock);
-            }
             close_move_pfd(sock);
-        }
         else
             check_join(sock, server, buffer, valread);//recibe una parte del mensaje
     }
@@ -352,6 +343,7 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
             else if (response.find(sock) == response.end())
             {
                 requests[sock].set_error_code(REQUEST_TIMEOUT);//si empezo a resibir request pero tarda mucho
+                printf("AQUI4\n");
                 make_response(sock);
             }
             else if (cgiClients.find(sock) != cgiClients.end() && cgiClients[sock].getPid() != -1)
@@ -360,6 +352,7 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
                 cgiClients.erase(sock);
                 response.erase(sock);
                 requests[sock].set_error_code(GATEWAY_TIMEOUT);//si empezo a resibir request pero tarda mucho
+                printf("AQUI5\n");
                 make_response(sock);
             }
             requests[sock].last_conection_time();
@@ -426,6 +419,7 @@ void    SocketManager::CommonGatewayInterface()
     std::map<int, CGI>::iterator it = cgiClients.begin();
     for (size_t a = 0; a < cgiClients.size(); a++)
     {
+        std::cout << it->first << " antes it->second.getPid()  " << it->second.getPid()  << std::endl;
         if (it->second.getPid() == -2)//si aun no se ha creado el proceso, solo se ha construido el objeto
         {
             std::cout << it->first << "it->second.getPid()  " << it->second.getPid()  << std::endl;
@@ -483,12 +477,13 @@ void    SocketManager::close_move_pfd(int pfd_free)
     std::cout << pfd_free << " " << pfds[pfd_free].fd <<" CLOSEEEEEEE\n";
     if (pfds[pfd_free].fd == -1)
         return ;
-    /*if (!is_file(pfd_free) && cgiClients.find(pfd_free) != cgiClients.end() && cgiClients[pfd_free].getPid() != -1)
+    if (!is_file(pfd_free) && cgiClients.find(pfd_free) != cgiClients.end())
     {
-        std::cout  <<" HOLA\n";
         kill(cgiClients[pfd_free].getPid(), SIGINT);
+        close(cgiClients[pfd_free].getFDread());
+        close(cgiClients[pfd_free].getFDwrite());
         cgiClients.erase(pfd_free);
-    }*/
+    }
     close(pfds[pfd_free].fd);
     if (pfd_free == (sock_num - 1))//si el pfd que hay que eliminar esta en la ultima pos, lo borramos y ya
     {
@@ -586,6 +581,30 @@ std::string SocketManager::make_response_str(Response &response, std::string buf
         << "\r\n" << buffer;
     return (str.str());
 }
+
+/*std::string SocketManager::ContentLength(std::string &buffer)
+{
+    size_t pos = buffer.find("Content-Length:");
+    size_t pos_end = buffer.find("\r\n");
+    size_t first_numb;
+    size_t last_numb;
+    std::string sub;
+    std::string numb;
+    int int_numb;
+
+    if (pos != std::string::npos && pos_end != std::string::npos)
+    {
+        sub = buffer.substr(pos, pos_end);
+        first_numb = sub.find_first_not_of(" ");
+        last_numb = sub.find_last_not_of(" ");
+        numb = sub.substr(first_numb, last_numb);
+        int_numb = atoi(numb.c_str());
+        if (int_numb > BUFFER_SIZE)
+        {
+            buffer.replace(pos, (pos - pos_end), "Transfer-Encoding: chunked");
+        }
+    }
+}*/
 
 std::string SocketManager::make_chunked_response(Response &response, std::string buffer, int valread)
 {

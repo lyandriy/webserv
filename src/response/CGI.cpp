@@ -22,7 +22,6 @@ CGI &CGI::operator=(const CGI &other)
     this->pid = other.pid;
     this->envp = other.envp;
     this->argv = other.argv;
-    this->a = other.a;
     return (*this);
 }
 
@@ -35,7 +34,6 @@ CGI::CGI(const Response &response)
     this->body = response.getBody();
     this->accept_method = response.getAcceptMethod();
     this->pid = -2;
-    a = 0;
     std::map<std::string, std::string>::iterator it;
     for (it = params.begin(); it != params.end(); ++it)
     {
@@ -110,7 +108,13 @@ std::string CGI::getAcceptMethod() const
 
 void    CGI::deleteArray()
 {
-    if (accept_method != "POST")
+    if (accept_method == "POST")
+    {
+        for (size_t i = 0; i != headers.size() + 1; i++)
+            delete[] envp[i];
+        delete[] envp;
+    }
+    else
     {
         for (size_t i = 0; i != params.size() + 1; i++)
             delete[] envp[i];
@@ -128,18 +132,19 @@ int CGI::control_fd(int &new_fd)
     return (1);
 }
 
-void    CGI::dupEnv(std::map<std::string, std::string> env)
+void    CGI::dupEnv(std::map<std::string, std::string> &env)
 {
     std::string query_parameter;
     std::map<std::string, std::string>::iterator it;
     int     count = 0;
 
     envp = new char*[env.size() + 1];
+    std::cout << "hola " << env.size() << std::endl;
     for (it = env.begin(); it != env.end(); ++it)
     {
+        std::cout << it->first << std::endl;
         query_parameter = it->first + "=" + it->second;
         envp[count] = new char [query_parameter.size() + 1];
-        std::cout << envp[count] << std::endl;
         std::strcpy(envp[count], query_parameter.c_str());
         count++;
     }
@@ -148,10 +153,6 @@ void    CGI::dupEnv(std::map<std::string, std::string> env)
 
 int   CGI::makeProcess()
 {
-    std::string query_parameter;
-    std::map<std::string, std::string>::iterator it;
-    int     count = 0;
-
     std::cout << "\033[36m" << " makeProcess CGI " << "\033[0m" << std::endl;
     if (pipe(fd_pipe) == -1 || !control_fd(fd_pipe[0]) || !control_fd(fd_pipe[1]))
     {
@@ -160,29 +161,9 @@ int   CGI::makeProcess()
     }
     envp = NULL;
     if (accept_method == "POST")
-    {
-        envp = new char*[headers.size() + 1];
-        for (it = headers.begin(); it != headers.end(); ++it)
-        {
-            query_parameter = it->first + "=" + it->second;
-            envp[count] = new char [query_parameter.size() + 1];
-            std::strcpy(envp[count], query_parameter.c_str());
-            count++;
-        }
-        envp[count] = NULL;
-    }
-    if (accept_method != "POST")
-    {
-        envp = new char*[params.size() + 1];
-        for (it = params.begin(); it != params.end(); ++it)
-        {
-            query_parameter = it->first + "=" + it->second;
-            envp[count] = new char [query_parameter.size() + 1];
-            std::strcpy(envp[count], query_parameter.c_str());
-            count++;
-        }
-        envp[count] = NULL;
-    }
+        dupEnv(headers);
+    else
+        dupEnv(params);
     argv = new char*[3];
     argv[0] = new char [20];
     if (root.substr(root.size() - 3) == ".py")
@@ -194,23 +175,19 @@ int   CGI::makeProcess()
     argv[1] = new char [root.size() + 1];
     std::strcpy(argv[1], root.c_str());
     argv[2] = NULL;
-    //if (a == 0)
-    //{
-        a++;
-        pid = fork();
-        if (pid < 0)
-        {
-            std::cerr << "Fork error. " << strerror(errno) << std::endl;
-            close(fd_pipe[0]);
-            close(fd_pipe[1]);
-            deleteArray();
-            return (1);
-        }
-        if (pid == 0)
-            make_execve();
-        else
-            deleteArray();
-    //}
+    pid = fork();
+    if (pid < 0)
+    {
+        std::cerr << "Fork error. " << strerror(errno) << std::endl;
+        close(fd_pipe[0]);
+        close(fd_pipe[1]);
+        deleteArray();
+        return (1);
+    }
+    if (pid == 0)
+        make_execve();
+    else
+        deleteArray();
     return (0);
 }
 

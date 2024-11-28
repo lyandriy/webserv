@@ -19,7 +19,6 @@ class CGI
         pid_t pid;
         char    **envp;
         char    **argv;
-        int a;
 
     public:
         CGI();
@@ -47,7 +46,7 @@ class CGI
         void    make_execve();
         void    deleteArray();
         int     control_fd(int &);
-        void    dupEnv(std::map<std::string, std::string>);
+        void    dupEnv(std::map<std::string, std::string> &);
 };
 
 #endif
