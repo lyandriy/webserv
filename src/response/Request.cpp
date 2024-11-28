@@ -1,16 +1,18 @@
 # include "../inc/Webserver.hpp"
 
 Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket(new_sock), _req_accumulator(),
-											_method(""), _protocol(""), _host(""), _port(0),
+											_method(""), _uri(""), _protocol(""), _host(""), _port(0),
 											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
-											_params(), _body_size(0), _chunks(), _accept_method(), _request_line(""), 
-											_lines(), _type(0), _status(1), _multipart(false), _boundary("")
+											_params(), _body_size(0), _chunks(), _chunk_size(0), _accept_method(), _request_line(""), 
+											_lines(), _type(0), _status(1), _last_chunk_size(-1), _CRLFx2_index(0),
+											_multipart(false), _boundary("")
+
 {
 
 	conf_loc = Location();
 	conf_serv = Server(-1);
 	debug = true;
-	_last_chunk_size = -1;
+	// _last_chunk_size = -1;
 }
 
 Request::Request() : _method(""), _uri(""), _protocol(""), _host(""), _port(0),
@@ -68,6 +70,17 @@ Request::~Request()
 
 int Request::join_request(char *buffer, int read_size, std::vector<Server> &server)
 {
+	std::cout << "\033[1;35m" << read_size << "\033[0m" << std::endl;
+	if (read_size == 213)
+	{
+	std::cout << "\033[1;32m" << _status << "\033[0m" << std::endl;
+
+	}
+	if (read_size == 196)
+	{
+	std::cout << "\033[1;32m" << _status << "\033[0m" << std::endl;
+
+	}
 	switch (_status)
 	{
 	case INVALID_REQUEST:
@@ -90,11 +103,13 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 int	Request::manage_incomplete_request(char *buffer, int read_size, std::vector<Server> &server)
 {
 	_req_accumulator.insert(_req_accumulator.end(), buffer, buffer + read_size);
+	print_raw_request();
 	if (search_double_CRLF() == false)
 		return INCOMPLETE_REQUEST;
 	else
 	{
 		_status = HEADERS_RECEIVED;
+	std::cout << "\033[36m" << _CRLFx2_index << "\033[0m" << std::endl;
 		return (manage_headers_received(buffer, read_size, server));
 	}
 	return INCOMPLETE_REQUEST;
@@ -132,7 +147,7 @@ bool Request::search_chunked_body()
 
 int	Request::manage_headers_received(char *buffer, int read_size, std::vector<Server> &server)
 {
-	print_raw_request();
+	// print_raw_request();
 	(void)buffer;
 	(void)read_size;
 	read_request_lines();
@@ -145,11 +160,15 @@ int	Request::manage_headers_received(char *buffer, int read_size, std::vector<Se
 		return INVALID_REQUEST;
 	// print_headers();
 	// print_raw_vector(_req_accumulator);
+			// print_body();
 	if (search_body_length_header() == true)
 	{
+
 		split_at_CRLFx2();
+		// print_body();
 		if (_multipart == true)
 		{
+			// print_body();
 
 		}
 		// print_headers();
@@ -166,7 +185,6 @@ int	Request::manage_headers_received(char *buffer, int read_size, std::vector<Se
 		}
 		if (static_cast<int>(_body.size()) > _body_size)
 		{
-			std::cout << "El body no encaja che" << std::endl;
 			_status = INVALID_REQUEST;
 			set_validity(BAD_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
 		}
@@ -176,6 +194,7 @@ int	Request::manage_headers_received(char *buffer, int read_size, std::vector<Se
 	{
 		if (_status == REQUEST_WITH_BODY)
 		{
+			std::cout << "\033[1;35m" << 11111111111 << "\033[0m" << std::endl;
 			set_validity(BAD_REQUEST, "Incompatible headers");
 			return (INVALID_REQUEST);
 		}
@@ -186,6 +205,7 @@ int	Request::manage_headers_received(char *buffer, int read_size, std::vector<Se
 	else if (_multipart == true)
 	{
 		_status = INVALID_REQUEST;
+			std::cout << "\033[1;35m" << 22222222 << "\033[0m" << std::endl;
 		set_validity(INVALID_REQUEST, "Content-Length or Transfer-Encoding header not provided");
 	}
 	else
@@ -206,7 +226,11 @@ void Request::split_at_CRLFx2()
 	{
 		std::vector<char> after_CRLFx2(_req_accumulator.begin() + _CRLFx2_index + 4, _req_accumulator.end());
 		if (_status == REQUEST_WITH_BODY)
+		{
 			_body = after_CRLFx2;
+			// print_body();
+
+		}
 		else if (_status == CHUNKED_REQUEST)
 			_chunks = after_CRLFx2;
 		else
@@ -241,6 +265,7 @@ int Request::manage_possible_chunked_beggining()
 				if (aux.first != static_cast<long>(text_str.size()))
 				{
 					_status = INVALID_REQUEST;
+			std::cout << "\033[1;35m" << 3333333333 << "\033[0m" << std::endl;
 					return (set_validity(BAD_REQUEST, "Chunk lentgh doesn't match"));
 				}
 				_body.insert(_body.end(), it + start, it + end);
@@ -262,20 +287,13 @@ int	Request::manage_request_with_body(char *buffer, int read_size)
 {
 	_body.insert(_body.end(), buffer, buffer + read_size);
 	size_t body_len = _body.size();
-		// print_raw_request();
-		// print_raw_vector(_body);
-		print_body();
-		// print_headers();
-		
 	if (body_len == static_cast<size_t>(_body_size))
 	{
 		_status = FULL_COMPLETE_REQUEST;
-		// print_raw_request();
-		// print_raw_vector(_body);
-		// print_headers();
 	}
 	if (body_len > static_cast<size_t>(_body_size))
 	{
+			std::cout << "\033[1;35m" << 44444444444 << "\033[0m" << std::endl;
 		set_validity(INVALID_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
 		_status = INVALID_REQUEST;
 	}
@@ -311,6 +329,7 @@ int	Request::manage_chunked_request(char *buffer, int read_size)
 				if (aux.first != static_cast<long>(text_str.size()))
 				{
 					_status = INVALID_REQUEST;
+			std::cout << "\033[1;35m" << 555555555 << "\033[0m" << std::endl;
 					return (set_validity(BAD_REQUEST, "Chunk lentgh doesn't match"));
 				}
 				_body.insert(_body.end(), it + start, it + end);
