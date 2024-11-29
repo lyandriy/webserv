@@ -15,13 +15,13 @@ html = html = f"""<!DOCTYPE html>
 	</style>
 </head>
 <body>
-	<h1>¡Enhorabuena!</h1>
+	<h1>¡Enhorabuena!PYTHON</h1>
 	<h2>¡Has tenido la paciencia suficiente para esperar!</h2>
 	<h3>El servidor que me ha devuelto no bloquea las peticiones, ¡mola, eh!</h3>
     <p>Eso es todo, menuda decepción...</p>
 </body>
 </html>"""
 
-time.sleep(20)
+time.sleep(10)
 
 sys.stdout.write(html)

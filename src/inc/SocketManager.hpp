@@ -48,4 +48,7 @@ class SocketManager
         int deleteMethod(int);
         void    managerFinishSend(int);
         std::string ContentLength(std::string &);
+        std::string ContentTipe(std::string);
+
+        void    priint(int);
 };

@@ -98,6 +98,8 @@ int CGI::getFDwrite() const
 
 pid_t   CGI::getPid() const
 {
+    std::cout << "\033[34m" << "Hola soy getPid " << "\033[0m" << std::endl;
+    std::cout << "\033[34m" << "get  pid " << pid << "\033[0m" << std::endl;
     return (this->pid);
 }
 

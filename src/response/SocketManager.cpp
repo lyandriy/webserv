@@ -191,13 +191,13 @@ int SocketManager::deleteMethod(int sock)
 
 void    SocketManager:: make_response(int sock)
 {
-    std::cout << "\033[31m" << "make_response" << "\033[0m" << std::endl;
+    //std::cout << "\033[31m" << "make_response" << "\033[0m" << std::endl;
     if (requests[sock].getLoc().getCGI() != -1)
         response[sock] = Response(requests[sock].getLoc(), requests[sock]);
     else
         response[sock] = Response(requests[sock].getServ(), requests[sock]);
     pfds[sock_num].fd = response[sock].open_file(sock_num);
-    std::cout << "\033[31m" << "SIGO VIVO " << response[sock].getErrorCode() << "\033[0m" << std::endl;
+    //std::cout << "\033[31m" << "SIGO VIVO " << response[sock].getErrorCode() << "\033[0m" << std::endl;
     if (response[sock].getCGIState() == 1)
         cgiClients[sock] = CGI(response[sock]);
     else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "POST" && !response[sock].getPipeRes())
@@ -236,7 +236,6 @@ void    SocketManager:: make_response(int sock)
 void    SocketManager::check_join(int sock, std::vector<Server> &server, char *buffer, int valread)
 {
     requests[sock].join_request(buffer, valread, server);
-    requests[sock].print_raw_request();
     requests[sock].print_raw_vector(requests[sock].get_body());
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock);
@@ -267,7 +266,7 @@ void    SocketManager::recvRequest(std::vector<Server> &server, int sock)
     char    buffer[BUFFER_SIZE + 1] = {0};
     int     valread;
 
-    std::cout << "\033[32m" << " recvRequest " << "\033[0m" << std::endl;
+    //std::cout << "\033[32m" << " recvRequest " << "\033[0m" << std::endl;
     check_revent(sock);/// no se que hacer con esto!!!!!!!!!!!!!!!!!!!!
     if (sock_num == BACKLOG - 2)//si no hay espacio en pollfd para el fd del archivo
     {
@@ -277,7 +276,7 @@ void    SocketManager::recvRequest(std::vector<Server> &server, int sock)
     else
     {
         valread = recv(pfds[sock].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de socke //ver por que es 0
-        std::cout << "\033[35m" << "Client " << sock << std::endl << buffer << "\033[0m" << std::endl;
+        //std::cout << "\033[35m" << "Client " << sock << std::endl << buffer << "\033[0m" << std::endl;
         if (requests[sock].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0 && response.find(sock) == response.end())
             make_response(sock);//ha terminado de recibir el mensaje
         else if (valread == 0 || valread == -1)
@@ -293,7 +292,7 @@ void    SocketManager::readFile(int sock, int file)
     int     valread;
     char    buffer[BUFFER_SIZE + 1] = {0};
     
-    std::cout << "\033[32m" << " readFile " << "\033[0m" << std::endl;
+    //std::cout << "\033[32m" << " readFile " << "\033[0m" << std::endl;
     valread = read(pfds[sock].fd, buffer, BUFFER_SIZE);
     if (valread == -1)
     {
@@ -325,7 +324,7 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
 {
     int file;
 
-    std::cout << "\033[32m" << " reventPOLLIN " << "\033[0m" << std::endl;
+    //std::cout << "\033[32m" << " reventPOLLIN " << "\033[0m" << std::endl;
     for (int sock = listen_sockets; sock < sock_num; sock++)//recorre todos los sockets
     {  
         if ((pfds[sock].revents & POLLIN))//si algun socket tiene un revent de POLLIN
@@ -338,23 +337,27 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
         }
         if (requests.find(sock) != requests.end() && !is_file(sock) && difftime(time(NULL), requests[sock].get_time()) > 65)//si no hay evento y el tiempo es mayoa a 65, desconectamos al socke
         {
+            std::cout << "\033[35m" << " SIGO VIVO2" << "\033[0m" << std::endl;
             if (requests[sock].get_current_status() == EMPTY_REQUEST)//si no se ha reecibido ninguna request solo cierra la conexion
                 close_move_pfd(sock);
             else if (response.find(sock) == response.end())
             {
                 requests[sock].set_error_code(REQUEST_TIMEOUT);//si empezo a resibir request pero tarda mucho
-                printf("AQUI4\n");
+                //printf("AQUI4\n");
                 make_response(sock);
             }
             else if (cgiClients.find(sock) != cgiClients.end() && cgiClients[sock].getPid() != -1)
             {
+                std::cout << "\033[35m" << " SIGO VIVO1" << "\033[0m" << std::endl;
                 kill(cgiClients[sock].getPid(), SIGINT);
+                std::cout << "\033[35m" << " SIGO VIVO1" << "\033[0m" << std::endl;
                 cgiClients.erase(sock);
                 response.erase(sock);
                 requests[sock].set_error_code(GATEWAY_TIMEOUT);//si empezo a resibir request pero tarda mucho
-                printf("AQUI5\n");
+                //printf("AQUI5\n");
                 make_response(sock);
             }
+            std::cout << "\033[35m" << " SIGO VIVO2" << "\033[0m" << std::endl;
             requests[sock].last_conection_time();
         }        
     }
@@ -379,12 +382,12 @@ void    SocketManager::sendResponse()
 {
     ssize_t send_size;
 
-    std::cout << "\033[32m" << " sendResponse " << "\033[0m" << std::endl;
+    //std::cout << "\033[32m" << " sendResponse " << "\033[0m" << std::endl;
     for (int client = listen_sockets; client < sock_num; client++)//recorre todos los sockets
     {
         if ((pfds[client].revents & POLLOUT) && !is_file(client) && fd_file.find(client) != fd_file.end())//si algun socket tiene un revent de POLLOUT
         {
-            std::cout << "\033[31m" << "SIGO VIVO " << response[client].getErrorCode() << "\033[0m" << std::endl;
+            //std::cout << "\033[31m" << "SIGO VIVO " << response[client].getErrorCode() << "\033[0m" << std::endl;
             if (response[client].getBytesRead() != 0 //no se ha leido nada
                 && ((fd_file[client] != -1 && (pfds[fd_file[client]].revents == 0))  || response[client].getErrorCode() == INTERNAL_SERVER_ERROR) //el revent del fd de archivo esta en 0 o hay un error interno
                 && (response[client].get_fileStat().st_size > BUFFER_SIZE || response[client].getPipeRes()))//se lee de una pipe o el tamaño del archivo es muy largo
@@ -414,25 +417,29 @@ void    SocketManager::CommonGatewayInterface()
 {
     pid_t pid_ret;
     int wstatus;
-
-    std::cout << "\033[32m" << " CommonGatewayInterface " << cgiClients.size() << "\033[0m" << std::endl;
+    int a = 0;
+    //std::cout << "\033[32m" << " CommonGatewayInterface " << cgiClients.size() << "\033[0m" << std::endl;
     std::map<int, CGI>::iterator it = cgiClients.begin();
-    for (size_t a = 0; a < cgiClients.size(); a++)
+    while (it != cgiClients.end())
     {
         std::cout << it->first << " antes it->second.getPid()  " << it->second.getPid()  << std::endl;
+        std::cout << "\033[35m" << "a " << a << " SIGO VIVO3 size " << cgiClients.size()<< "\033[0m" << std::endl;
+        a++;
         if (it->second.getPid() == -2)//si aun no se ha creado el proceso, solo se ha construido el objeto
         {
-            std::cout << it->first << "it->second.getPid()  " << it->second.getPid()  << std::endl;
+            //std::cout << it->first << "it->second.getPid()  " << it->second.getPid()  << std::endl;
             if (it->second.makeProcess())//cambia el pid del proceso al pid del proceso hijo
             {
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first], it->first);
                 cgiClients.erase(it);
+                //continue;
             }
             response[it->first].setPipeRes(true);
         }
         else
         {
+            std::cout << "\033[35m" << " SIGO VIVO4" << "\033[0m" << std::endl;
             pid_ret = waitpid(it->second.getPid(), &wstatus, WNOHANG);
             if (pid_ret == -1)//si hay error, devolver error 500
             {
@@ -442,6 +449,7 @@ void    SocketManager::CommonGatewayInterface()
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first], it->first);
                 cgiClients.erase(it);
+                //continue;
             }
             else if (pid_ret > 0)//si el hijo ha  terminado
             {
@@ -453,6 +461,7 @@ void    SocketManager::CommonGatewayInterface()
                     response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                     ErrorResponse(response[it->first], fd_file[it->first], it->first);
                     cgiClients.erase(it);
+                    //continue;
                 }
                 else{
                     std::cout << "\033[35m" << " Child finish " << "\033[0m" << std::endl;
@@ -463,13 +472,23 @@ void    SocketManager::CommonGatewayInterface()
                     fd_file[it->first] = sock_num;
                     sock_num++;
                     cgiClients.erase(it);
+                    //continue;
                 }
             }
-            else
-                it++;
+            //else
+            it++;
+            std::cout << "\033[35m" << " SIGO VIVOaqui" << "\033[0m" << std::endl;
         }
     }
-    
+}
+
+void    SocketManager::priint(int pfd_free)
+{
+    std::cout << requests[pfd_free].get_uri() << std::endl;
+    std::cout << response[pfd_free].getURI() << std::endl;
+    if (cgiClients.find(pfd_free) != cgiClients.end())
+        std::cout << cgiClients[pfd_free].getURI() << std::endl;
+    std::cout << fd_file.find(pfd_free)->first << " " << fd_file.find(pfd_free)->second  << std::endl;
 }
 
 void    SocketManager::close_move_pfd(int pfd_free)
@@ -477,6 +496,8 @@ void    SocketManager::close_move_pfd(int pfd_free)
     std::cout << pfd_free << " " << pfds[pfd_free].fd <<" CLOSEEEEEEE\n";
     if (pfds[pfd_free].fd == -1)
         return ;
+    std::cout << "Antes:" << std::endl;
+    priint(pfd_free);
     if (!is_file(pfd_free) && cgiClients.find(pfd_free) != cgiClients.end())
     {
         kill(cgiClients[pfd_free].getPid(), SIGINT);
@@ -503,6 +524,8 @@ void    SocketManager::close_move_pfd(int pfd_free)
             }
         }
         sock_num--;
+        std::cout << "Despues:" << std::endl;
+        priint(pfd_free);
         return ;
     }
     //movemos el ultimo pfd a la pos borrada
@@ -546,10 +569,13 @@ void    SocketManager::close_move_pfd(int pfd_free)
     }
     if (cgiClients.find(sock_num - 1) != cgiClients.end())
     {
+        std::cout << "\033[36m" << "move cgi " << pfd_free << "\033[0m" << std::endl;
+        std::cout << "\033[35m" << cgiClients.find(sock_num - 1)->second.getPid() << "\033[0m" << std::endl;
         CGI copy_cgi = cgiClients.find(sock_num - 1)->second;
         cgiClients.erase(sock_num - 1);
         cgiClients.erase(pfd_free);
         cgiClients[pfd_free] = copy_cgi;
+        std::cout << "\033[35m" << cgiClients.find(pfd_free)->second.getPid() << "\033[0m" << std::endl;
     }
     sock_num--;
 }

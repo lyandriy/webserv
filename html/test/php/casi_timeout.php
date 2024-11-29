@@ -14,7 +14,7 @@ $html = <<<HTML
     </style>
 </head>
 <body>
-    <h1>¡Enhorabuena!</h1>
+    <h1>¡Enhorabuena!PHP</h1>
     <h2>¡Has tenido la paciencia suficiente para esperar!</h2>
     <h3>El servidor que me ha devuelto no bloquea las peticiones, ¡mola, eh!</h3>
     <p>Eso es todo, menuda decepción...</p>
@@ -23,7 +23,7 @@ $html = <<<HTML
 HTML;
 
 // Espera por 20 segundos
-sleep(20);
+sleep(10);
 
 // Imprime el encabezado HTTP y el HTML
 header("Content-Type: text/html");

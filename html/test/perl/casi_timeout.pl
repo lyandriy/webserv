@@ -17,7 +17,7 @@ my $html = q(
     </style>
 </head>
 <body>
-    <h1>¡Enhorabuena!</h1>
+    <h1>¡Enhorabuena!PERL</h1>
     <h2>¡Has tenido la paciencia suficiente para esperar!</h2>
     <h3>El servidor que me ha devuelto no bloquea las peticiones, ¡mola, eh!</h3>
     <p>Eso es todo, menuda decepción...</p>
@@ -26,7 +26,7 @@ my $html = q(
 );
 
 # Espera por 20 segundos
-sleep(20);
+sleep(10);
 
 # Escribe el HTML en la salida estándar
 print "Content-Type: text/html\n\n";  # Encabezado de respuesta HTTP
