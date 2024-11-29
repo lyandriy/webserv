@@ -57,6 +57,10 @@ private:
 	Location					conf_loc;
 	int  						server_body_size;
 	time_t						conecction_time;
+	//añadidos por Lyudmyla
+	int	multip;
+	std::string	body_str;
+	std::string boundary;
 
 
 	void read_request_lines();
@@ -82,7 +86,7 @@ private:
 	int	manage_possible_chunked_beggining();
 	bool search_body_length_header();
 	bool search_chunked_body();
-
+	void multipart();
 public:
 	bool debug;
 	Request(void);

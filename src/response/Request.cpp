@@ -241,7 +241,10 @@ int	Request::manage_request_with_body(char *buffer, int read_size)
 	_body.insert(_body.end(), buffer, buffer + read_size);
 	size_t body_len = _body.size();
 	if (body_len == static_cast<size_t>(_body_size))
+	{
+		multipart();
 		_status = FULL_COMPLETE_REQUEST;
+	}
 	if (body_len > static_cast<size_t>(_body_size))
 	{
 		set_validity(INVALID_REQUEST, "The specified Content-Length does not match the actual size of the request body.");
@@ -728,6 +731,23 @@ void Request::print_request_complete_info()
 }
 
 //añadidas por Lyudmyla
+
+void	Request::multipart()
+{
+	if (!multip)
+		return ;
+	std::string sub;
+	std::string body(_body.begin(), _body.end());
+	size_t pos_end = body.find("\r\n\r\n");
+	std::string header = body.substr(0, pos_end);
+	//falta sacar el nombre del archivo
+	if (pos_end != std::string::npos)
+	{
+		sub = body.substr(pos_end + 4, body.find(boundary));
+	}
+	body_str = sub;
+}
+
 //va despues de recibir el header (listen es siempre de server)
 bool    Request::compareListen(std::vector<struct sockaddr_in> listen)
 {

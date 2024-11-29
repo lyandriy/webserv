@@ -141,7 +141,6 @@ void    CGI::dupEnv(std::map<std::string, std::string> &env)
     int     count = 0;
 
     envp = new char*[env.size() + 1];
-    std::cout << "hola " << env.size() << std::endl;
     for (it = env.begin(); it != env.end(); ++it)
     {
         std::cout << it->first << std::endl;
