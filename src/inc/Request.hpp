@@ -57,6 +57,8 @@ private:
 	Location					conf_loc;
 	int  						server_body_size;
 	time_t						conecction_time;
+	bool						_multipart;
+	std::string					_boundary;
 
 
 	void read_request_lines();
@@ -82,6 +84,7 @@ private:
 	int	manage_possible_chunked_beggining();
 	bool search_body_length_header();
 	bool search_chunked_body();
+	void set_multipart_header(std::string &);
 
 public:
 	bool debug;
@@ -140,4 +143,5 @@ public:
 	void print_body();
 	void print_raw_vector(std::vector<char> loquesea);
 	void print_raw_vector(std::vector<char>& loquesea, size_t start, size_t end);
+	void print_headers();
 };

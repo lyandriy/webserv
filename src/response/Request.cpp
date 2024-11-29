@@ -91,6 +91,7 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 int	Request::manage_incomplete_request(char *buffer, int read_size, std::vector<Server> &server)
 {
 	_req_accumulator.insert(_req_accumulator.end(), buffer, buffer + read_size);
+	print_raw_request();
 	if (search_double_CRLF() == false)
 		return INCOMPLETE_REQUEST;
 	else
@@ -141,6 +142,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
+	print_headers();
 	if (search_body_length_header() == true)
 	{
 		_status = REQUEST_WITH_BODY;
@@ -428,8 +430,42 @@ bool Request::read_headers_lines()
 		_headers[key] = value;
 		if (key == "Host")
 			set_host_and_port(value);
+		if (key == "Content-Type")
+			set_multipart_header(value);
 	}
 	return _valid;
+}
+
+void Request::set_multipart_header(std::string &value)
+{
+	std::cout << value << std::endl;
+	std::string aux;
+	std::string boundary_aux;
+	size_t semicolon_position = value.find(";");
+	if (semicolon_position != value.npos)
+	{
+		aux = value.substr(semicolon_position + 1);
+		aux = spaces_trim(aux);
+		size_t equal_position = aux.find("=");
+		if (equal_position != aux.npos)
+		{
+			boundary_aux = aux.substr(0, equal_position);
+			if (boundary_aux == "boundary")
+			{
+				_boundary = aux.substr(equal_position + 1);
+			}
+		}
+		aux = value.substr(0, semicolon_position);
+		if (aux == "multipart/form-data")
+		{
+			_multipart = true;
+			_headers["Content-Type"] = aux;
+		}
+	}
+	else if (value == "multipart/form-data")
+	{
+		_multipart = true;
+	}
 }
 
 std::string Request::spaces_trim(std::string &str)
@@ -1007,4 +1043,12 @@ void Request::print_raw_vector(std::vector<char>& loquesea, size_t start, size_t
 		std::cout.flush();
 	}
 	std::cout << std::endl;
+}
+void Request::print_headers()
+{
+	for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); it++)
+	{
+		std::cout << it->first << " -> " << it->second << std::endl;
+	}
+	std::cout << "boundary -> " << _boundary << std::endl; 
 }
