@@ -243,7 +243,6 @@ void    SocketManager::check_join(int sock, std::vector<Server> &server, char *b
 
 void    SocketManager::check_revent(int client)
 {
-    //printf("check_revent %d\n", client);//cambiar esta funcion
     if (pfds[client].revents & POLLERR) {
         printf("POLLERR %d\n", client);
         close_move_pfd(client);
@@ -337,27 +336,21 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
         }
         if (requests.find(sock) != requests.end() && !is_file(sock) && difftime(time(NULL), requests[sock].get_time()) > 65)//si no hay evento y el tiempo es mayoa a 65, desconectamos al socke
         {
-            std::cout << "\033[35m" << " SIGO VIVO2" << "\033[0m" << std::endl;
             if (requests[sock].get_current_status() == EMPTY_REQUEST)//si no se ha reecibido ninguna request solo cierra la conexion
                 close_move_pfd(sock);
             else if (response.find(sock) == response.end())
             {
                 requests[sock].set_error_code(REQUEST_TIMEOUT);//si empezo a resibir request pero tarda mucho
-                //printf("AQUI4\n");
                 make_response(sock);
             }
             else if (cgiClients.find(sock) != cgiClients.end() && cgiClients[sock].getPid() != -1)
             {
-                std::cout << "\033[35m" << " SIGO VIVO1" << "\033[0m" << std::endl;
                 kill(cgiClients[sock].getPid(), SIGINT);
-                std::cout << "\033[35m" << " SIGO VIVO1" << "\033[0m" << std::endl;
                 cgiClients.erase(sock);
                 response.erase(sock);
                 requests[sock].set_error_code(GATEWAY_TIMEOUT);//si empezo a resibir request pero tarda mucho
-                //printf("AQUI5\n");
                 make_response(sock);
             }
-            std::cout << "\033[35m" << " SIGO VIVO2" << "\033[0m" << std::endl;
             requests[sock].last_conection_time();
         }        
     }
@@ -417,14 +410,11 @@ void    SocketManager::CommonGatewayInterface()
 {
     pid_t pid_ret;
     int wstatus;
-    int a = 0;
+
     //std::cout << "\033[32m" << " CommonGatewayInterface " << cgiClients.size() << "\033[0m" << std::endl;
     std::map<int, CGI>::iterator it = cgiClients.begin();
     while (it != cgiClients.end())
     {
-        std::cout << it->first << " antes it->second.getPid()  " << it->second.getPid()  << std::endl;
-        std::cout << "\033[35m" << "a " << a << " SIGO VIVO3 size " << cgiClients.size()<< "\033[0m" << std::endl;
-        a++;
         if (it->second.getPid() == -2)//si aun no se ha creado el proceso, solo se ha construido el objeto
         {
             //std::cout << it->first << "it->second.getPid()  " << it->second.getPid()  << std::endl;
@@ -433,13 +423,11 @@ void    SocketManager::CommonGatewayInterface()
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first], it->first);
                 cgiClients.erase(it);
-                //continue;
             }
             response[it->first].setPipeRes(true);
         }
         else
         {
-            std::cout << "\033[35m" << " SIGO VIVO4" << "\033[0m" << std::endl;
             pid_ret = waitpid(it->second.getPid(), &wstatus, WNOHANG);
             if (pid_ret == -1)//si hay error, devolver error 500
             {
@@ -449,7 +437,6 @@ void    SocketManager::CommonGatewayInterface()
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first], it->first);
                 cgiClients.erase(it);
-                //continue;
             }
             else if (pid_ret > 0)//si el hijo ha  terminado
             {
@@ -461,7 +448,6 @@ void    SocketManager::CommonGatewayInterface()
                     response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                     ErrorResponse(response[it->first], fd_file[it->first], it->first);
                     cgiClients.erase(it);
-                    //continue;
                 }
                 else{
                     std::cout << "\033[35m" << " Child finish " << "\033[0m" << std::endl;
@@ -472,12 +458,9 @@ void    SocketManager::CommonGatewayInterface()
                     fd_file[it->first] = sock_num;
                     sock_num++;
                     cgiClients.erase(it);
-                    //continue;
                 }
             }
-            //else
             it++;
-            std::cout << "\033[35m" << " SIGO VIVOaqui" << "\033[0m" << std::endl;
         }
     }
 }
@@ -496,7 +479,6 @@ void    SocketManager::close_move_pfd(int pfd_free)
     std::cout << pfd_free << " " << pfds[pfd_free].fd <<" CLOSEEEEEEE\n";
     if (pfds[pfd_free].fd == -1)
         return ;
-    std::cout << "Antes:" << std::endl;
     priint(pfd_free);
     if (!is_file(pfd_free) && cgiClients.find(pfd_free) != cgiClients.end())
     {
@@ -524,7 +506,6 @@ void    SocketManager::close_move_pfd(int pfd_free)
             }
         }
         sock_num--;
-        std::cout << "Despues:" << std::endl;
         priint(pfd_free);
         return ;
     }
@@ -569,13 +550,10 @@ void    SocketManager::close_move_pfd(int pfd_free)
     }
     if (cgiClients.find(sock_num - 1) != cgiClients.end())
     {
-        std::cout << "\033[36m" << "move cgi " << pfd_free << "\033[0m" << std::endl;
-        std::cout << "\033[35m" << cgiClients.find(sock_num - 1)->second.getPid() << "\033[0m" << std::endl;
         CGI copy_cgi = cgiClients.find(sock_num - 1)->second;
         cgiClients.erase(sock_num - 1);
         cgiClients.erase(pfd_free);
         cgiClients[pfd_free] = copy_cgi;
-        std::cout << "\033[35m" << cgiClients.find(pfd_free)->second.getPid() << "\033[0m" << std::endl;
     }
     sock_num--;
 }
