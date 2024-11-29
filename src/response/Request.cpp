@@ -72,6 +72,7 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 	{
 	case INVALID_REQUEST:
 		return INVALID_REQUEST;
+		break;
 	case EMPTY_REQUEST:
 	case INCOMPLETE_REQUEST:
 		return manage_incomplete_request(buffer, read_size, server);
