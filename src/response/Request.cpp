@@ -746,6 +746,7 @@ void	Request::multipart()
 		sub = body.substr(pos_end + 4, body.find(boundary));
 	}
 	body_str = sub;
+	std::cout << "\033[31m" << body_str << "\033[0m" << std::endl;
 }
 
 //va despues de recibir el header (listen es siempre de server)
