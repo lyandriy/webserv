@@ -1,6 +1,4 @@
 # pragma once
-#ifndef RESPONSE_HPP
-#define RESPONSE_HPP
 #include "Webserver.hpp"
 
 class Request;
@@ -40,7 +38,7 @@ class Response
         int fd_pipe[2];//hay  que ver si cierro todos los fds
         bool pipeRes;
         int valread;
-        std::string upload_files;
+        std::map<std::string, std::string> upload_files;
     public:
         Response();
         ~Response();
@@ -119,5 +117,3 @@ class Response
 
         void print_full_info();
 };
-
-#endif

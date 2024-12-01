@@ -58,9 +58,9 @@ private:
 	int  						server_body_size;
 	time_t						conecction_time;
 	//añadidos por Lyudmyla
-	int	multip;
-	std::string	body_str;
-	std::string boundary;
+	std::map<std::string, std::string>	upload_files;
+	bool						_multipart;
+	std::string					_boundary;
 
 
 	void read_request_lines();
@@ -87,6 +87,9 @@ private:
 	bool search_body_length_header();
 	bool search_chunked_body();
 	void multipart();
+	void takeOutContent(std::string &);
+	void set_multipart_header(std::string &);
+
 public:
 	bool debug;
 	Request(void);
@@ -131,6 +134,8 @@ public:
 	void		set_current_status(int);
 	Location	getLoc() const;
 	Server		getServ() const;
+	bool		getMultipart() const;
+	std::map<std::string, std::string> getUploadFiles();
 	void		reset(void);
 
 	// Para debug //
@@ -144,4 +149,5 @@ public:
 	void print_body();
 	void print_raw_vector(std::vector<char> loquesea);
 	void print_raw_vector(std::vector<char>& loquesea, size_t start, size_t end);
+	void print_headers();
 };

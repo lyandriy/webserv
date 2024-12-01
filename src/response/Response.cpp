@@ -86,7 +86,7 @@ Response::Response(const Location &location, Request &request)
     valread = -1;
     fileStat.st_size = 0;
     cgi_state = 0;
-    //upload_files = request.get_upload_files();
+    upload_files = request.getUploadFiles();
 }
 
 Response::Response(const Server &server, Request &request)
@@ -129,7 +129,7 @@ Response::Response(const Server &server, Request &request)
     valread = -1;
     fileStat.st_size = 0;
     cgi_state = 0;
-    //upload_files = request.get_upload_files();
+    upload_files = request.getUploadFiles();
 }
 
 Response &Response::operator=(const Response &other){
@@ -566,22 +566,34 @@ int Response::postIsExec()
 
 int Response::makePost()
 {
-    int fd;
+    int fd = -1;
+    std::map <std::string, std::string>::iterator it;
+    std::string filename;
+     std::string filename_;
     std::string str(body.begin(), body.end());
 
     if (upload_files.empty())
-        upload_files = root;
-    std::ofstream file(upload_files.c_str(), std::ios::app);
-    if (file.is_open())
+        upload_files[root] = str;
+    for (it = upload_files.begin(); it != upload_files.end(); ++it)
     {
-        file << str;
+        filename = root;
+        if (root != it->first)
+        {
+            filename_ = it->first;
+            join_with_uri(filename, filename_);
+        }
+        std::ofstream file(filename.c_str(), std::ios::app);
+        if (file.is_open())
+            file << it->second;
+        else
+        {
+            error_code = FORBIDEN;
+            fd = open_error_file();
+            break ;
+        }
+    }
+    if (fd == -1)
         fd = get_fd("serverHTML/postResponse.html");
-    }
-    else
-    {
-        error_code = FORBIDEN;
-        fd = open_error_file();
-    }
     return (fd);
 }
 

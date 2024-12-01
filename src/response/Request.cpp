@@ -4,7 +4,7 @@ Request::Request(int free_pfd, int new_sock) : _fd_socket(free_pfd), _pos_socket
 											_method(""), _protocol(""), _host(""), _port(0),
 											_body(), _help_message(), _valid(true), _error_code(200), _headers(),
 											_params(), _body_size(0), _chunks(), _accept_method(), _request_line(""), 
-											_lines(), _type(0), _status(1)
+											_lines(), _type(0), _status(1), _multipart(false)
 {
 
 	conf_loc = Location();
@@ -60,6 +60,9 @@ Request& Request::operator=(Request const & other)
 		this->conf_loc = other.conf_loc;
 		this->server_body_size = other.server_body_size;
 		this->conecction_time = other.conecction_time;
+		this->upload_files = other.upload_files;
+		this->_multipart = other._multipart;
+		this->_boundary = other._boundary;
 	}
 	return *this;
 }
@@ -74,6 +77,7 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 	{
 	case INVALID_REQUEST:
 		return INVALID_REQUEST;
+		break;
 	case EMPTY_REQUEST:
 	case INCOMPLETE_REQUEST:
 		return manage_incomplete_request(buffer, read_size, server);
@@ -92,6 +96,7 @@ int Request::join_request(char *buffer, int read_size, std::vector<Server> &serv
 int	Request::manage_incomplete_request(char *buffer, int read_size, std::vector<Server> &server)
 {
 	_req_accumulator.insert(_req_accumulator.end(), buffer, buffer + read_size);
+	//print_raw_request();
 	if (search_double_CRLF() == false)
 		return INCOMPLETE_REQUEST;
 	else
@@ -142,6 +147,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
+	//print_headers();
 	if (search_body_length_header() == true)
 	{
 		_status = REQUEST_WITH_BODY;
@@ -171,6 +177,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		_status = FULL_COMPLETE_REQUEST;
 	}
 	check_request_line(server);
+	multipart();
 	return _status;
 }
 
@@ -240,6 +247,7 @@ int	Request::manage_request_with_body(char *buffer, int read_size)
 {
 	_body.insert(_body.end(), buffer, buffer + read_size);
 	size_t body_len = _body.size();
+	std::cout << "body_len " << body_len << " _body_size " << _body_size << std::endl;
 	if (body_len == static_cast<size_t>(_body_size))
 	{
 		multipart();
@@ -432,8 +440,42 @@ bool Request::read_headers_lines()
 		_headers[key] = value;
 		if (key == "Host")
 			set_host_and_port(value);
+		if (key == "Content-Type")
+			set_multipart_header(value);
 	}
 	return _valid;
+}
+
+void Request::set_multipart_header(std::string &value)
+{
+	std::cout << value << std::endl;
+	std::string aux;
+	std::string boundary_aux;
+	size_t semicolon_position = value.find(";");
+	if (semicolon_position != value.npos)
+	{
+		aux = value.substr(semicolon_position + 1);
+		aux = spaces_trim(aux);
+		size_t equal_position = aux.find("=");
+		if (equal_position != aux.npos)
+		{
+			boundary_aux = aux.substr(0, equal_position);
+			if (boundary_aux == "boundary")
+			{
+				_boundary = aux.substr(equal_position + 1);
+			}
+		}
+		aux = value.substr(0, semicolon_position);
+		if (aux == "multipart/form-data")
+		{
+			_multipart = true;
+			_headers["Content-Type"] = aux;
+		}
+	}
+	else if (value == "multipart/form-data")
+	{
+		_multipart = true;
+	}
 }
 
 std::string Request::spaces_trim(std::string &str)
@@ -647,6 +689,16 @@ int	Request::get_pos_socket()
 	return _pos_socket;
 }
 
+bool	Request::getMultipart() const
+{
+	return (this->_multipart);
+}
+
+std::map<std::string, std::string> Request::getUploadFiles()
+{
+	return (this->upload_files);
+}
+
 // --------------------  SETTERS  -------------------- //
 bool Request::set_validity(int error_code)
 {
@@ -734,19 +786,33 @@ void Request::print_request_complete_info()
 
 void	Request::multipart()
 {
-	if (!multip)
+	std::cout << "MULTIPART\n";
+	if (_multipart == 0)
 		return ;
-	std::string sub;
+	
+	size_t pos;
+	std::string copy_body;
 	std::string body(_body.begin(), _body.end());
-	size_t pos_end = body.find("\r\n\r\n");
-	std::string header = body.substr(0, pos_end);
-	//falta sacar el nombre del archivo
-	if (pos_end != std::string::npos)
+	_boundary.insert(0, "--");
+	while (body.size() > _boundary.size() + 10)
 	{
-		sub = body.substr(pos_end + 4, body.find(boundary));
+		if (body.find(_boundary) != std::string::npos)//elimino boundary
+			body.erase(body.find(_boundary), _boundary.size());
+		if ((pos = body.find("\r\n\r\n")) != std::string::npos)
+		{
+			std::string headers = body.substr(0, pos);//copio headers
+			body.erase(0, pos + 4);//elimino headers
+			copy_body = body.substr(0, body.find(_boundary) - 4);//copio body
+			body.erase(0, body.find(_boundary));//elimino body
+			if ((pos = headers.find("filename=\"")) != std::string::npos)
+			{
+				headers.erase(0, headers.find("filename=\"") + 10);
+				pos = headers.find("\"");
+				upload_files[headers.substr(0, pos)] = copy_body;
+			}
+		}
 	}
-	body_str = sub;
-	std::cout << "\033[31m" << body_str << "\033[0m" << std::endl;
+	
 }
 
 //va despues de recibir el header (listen es siempre de server)
@@ -1029,4 +1095,12 @@ void Request::print_raw_vector(std::vector<char>& loquesea, size_t start, size_t
 		std::cout.flush();
 	}
 	std::cout << std::endl;
+}
+void Request::print_headers()
+{
+	for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); it++)
+	{
+		std::cout << it->first << " -> " << it->second << std::endl;
+	}
+	std::cout << "boundary -> " << _boundary << std::endl; 
 }

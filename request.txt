@@ -1,16 +1,1 @@
-POST / HTTP/1.1
-Host: localhost:8081
-User-Agent: curl/7.68.0
-Accept: */*
-Content-Length: 456
-Content-Type: multipart/form-data; boundary=------------------------d74a9fcaa55cc5e9
-Connection: keep-alive\r\n
-\r\n
-
---------------------------d74a9fcaa55cc5e9
-Content-Disposition: form-data; name="file"; filename="archivo.txt"
-Content-Type: application/octet-stream\r\n\r\n
-
-<Contenido de archivo.txt>
-
---------------------------d74a9fcaa55cc5e9--
+CAPÍTULO 1: Que trata de la condición y ejercicio del famoso hidalgo D. Quijote de la Mancha
