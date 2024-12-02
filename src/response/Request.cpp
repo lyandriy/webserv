@@ -787,7 +787,7 @@ void Request::print_request_complete_info()
 void	Request::multipart()
 {
 	std::cout << "MULTIPART\n";
-	if (_multipart == 0)
+	if (_multipart == 0  && _status != FULL_COMPLETE_REQUEST)
 		return ;
 	
 	size_t pos;

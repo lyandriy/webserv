@@ -13,17 +13,17 @@
 # define HTTP_VERSION_NOT_SUPPORTED 505 //REQUEST--
 # define GATEWAY_TIMEOUT 504 //RESPONSE--
 
-# define ROOT_BAD_REQUEST "html/error/400.html"
-# define ROOT_FORBIDEN "html/error/403.html"
-# define ROOT_NOT_FOUND "html/error/404.html"
-# define ROOT_METHOD_NOT_ALLOWED "html/error/405.html"
-# define ROOT_REQUEST_TIMEOUT "html/error/408.html"
-# define ROOT_CONTENT_TOO_LARGE "html/error/413.html"
-# define ROOT_URI_TOO_LONG "html/error/414.html"
-# define ROOT_INTERNAL_SERVER_ERROR "html/error/500.html"
-# define ROOT_SERVICE_UNAVAIBLE "html/error/503.html"
-# define ROOT_HTTP_VERSION_NOT_SUPPORTED "html/error/505.html"
-# define ROOT_HTTP_GATEWAY_TIMEOUT "html/error/504.html"
+# define ROOT_BAD_REQUEST "serverHTML/error/400.html"
+# define ROOT_FORBIDEN "serverHTML/error/403.html"
+# define ROOT_NOT_FOUND "serverHTML/error/404.html"
+# define ROOT_METHOD_NOT_ALLOWED "serverHTML/error/405.html"
+# define ROOT_REQUEST_TIMEOUT "serverHTML/error/408.html"
+# define ROOT_CONTENT_TOO_LARGE "serverHTML/error/413.html"
+# define ROOT_URI_TOO_LONG "serverHTML/error/414.html"
+# define ROOT_INTERNAL_SERVER_ERROR "serverHTML/error/500.html"
+# define ROOT_SERVICE_UNAVAIBLE "serverHTML/error/503.html"
+# define ROOT_HTTP_VERSION_NOT_SUPPORTED "serverHTML/error/505.html"
+# define ROOT_HTTP_GATEWAY_TIMEOUT "serverHTML/error/504.html"
 
 # define HTML_AUTOINDEX_BEGIN "<!DOCTYPE html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Índice del Directorio</title></head>\n<body>\n    <h1>Índice del Directorio</h1>\n    <ul>\n"
 # define HTML_AUTOINDEX_END "    </ul>\n</body>\n</html>\r\n\r\n"

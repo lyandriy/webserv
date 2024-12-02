@@ -380,12 +380,13 @@ std::vector<Server> Parser::conf_file()
         if (!line.empty())
         {
             split(line);
-            if (words[0] == "server" && words.size() == 1)
+            if (words.size() == 1 && words[0] == "server")
                 IaMServer();
             else
             {
+                std::string error_word = words[0];
                 words.clear();
-                throw std::runtime_error("Error: Unrecognized keyword " + words[0] + ".");
+                throw std::runtime_error("Error: Unrecognized keyword " + error_word + ".");
             }
         }
         else

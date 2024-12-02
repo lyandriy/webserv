@@ -1,0 +1,17 @@
+server
+{
+    listen 8081;
+    server_name localhost;
+    root html/files;
+    index index.html;
+    accept_method GET POST;
+    location /other_file
+    {
+        index index.html;
+        client_max_body_size 2M;
+        root html/files/other_file;
+        autoindex on;
+        cgi on;
+        accept_method GET;
+    }
+}

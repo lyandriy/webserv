@@ -457,6 +457,7 @@ int    Response::open_error_file()
     {
         root = root_origin;
         join_with_uri(root, error_page[error_code]);
+        std::cout << root << " ERROR CODEeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee " << getErrorCode() << std::endl;
         stat(root.c_str(), &fileStat);
         fd = open(root.c_str(), O_RDONLY);
     }
@@ -464,7 +465,7 @@ int    Response::open_error_file()
     {
         std::ostringstream oss;
         oss << error_code;
-        root = "html/error/" + oss.str() + ".html";//si el archivo de error no esta configurado se retorna el de server
+        root = "serverHTML/error/" + oss.str() + ".html";//si el archivo de error no esta configurado se retorna el de server
         stat(root.c_str(), &fileStat);
         fd = open(root.c_str(), O_RDONLY);
     }
@@ -475,10 +476,12 @@ int Response::get_fd(std::string root)
 {
     int fd_file = -1;
     
+    std::cout << "ERROR CODE get_fd " << getErrorCode() << std::endl;
     if (stat(root.c_str(), &fileStat) == -1)
     {
         if (!(accept_method == "POST" && errno == ENOENT))
             error_code = NOT_FOUND;
+        std::cout << "ERROR CODE get_fd if " << getErrorCode() << std::endl;
     }
     if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
     {

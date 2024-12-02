@@ -191,7 +191,7 @@ int SocketManager::deleteMethod(int sock)
 
 void    SocketManager:: make_response(int sock)
 {
-    //std::cout << "\033[31m" << "make_response" << "\033[0m" << std::endl;
+    std::cout << "\033[32m" << "make_response" << "\033[0m" << std::endl;
     if (requests[sock].getLoc().getCGI() != -1)
         response[sock] = Response(requests[sock].getLoc(), requests[sock]);
     else
@@ -233,6 +233,7 @@ void    SocketManager:: make_response(int sock)
         pfds[sock].events = POLLOUT;
         sock_num++;
     }
+    //std::cout << "ERROR CODE " << response[sock].getErrorCode() << std::endl;
 }
 
 void    SocketManager::check_join(int sock, std::vector<Server> &server, char *buffer, int valread)
@@ -266,7 +267,7 @@ void    SocketManager::recvRequest(std::vector<Server> &server, int sock)
     char    buffer[BUFFER_SIZE + 1] = {0};
     int     valread;
 
-    //std::cout << "\033[32m" << " recvRequest " << "\033[0m" << std::endl;
+    std::cout << "\033[33m" << " recvRequest " << "\033[0m" << std::endl;
     check_revent(sock);/// no se que hacer con esto!!!!!!!!!!!!!!!!!!!!
     if (sock_num == BACKLOG - 2)//si no hay espacio en pollfd para el fd del archivo
     {
@@ -292,7 +293,7 @@ void    SocketManager::readFile(int sock, int file)
     int     valread;
     char    buffer[BUFFER_SIZE + 1] = {0};
     
-    //std::cout << "\033[32m" << " readFile " << "\033[0m" << std::endl;
+    std::cout << "\033[32m" << " readFile " << "\033[0m" << std::endl;
     valread = read(pfds[sock].fd, buffer, BUFFER_SIZE);
     if (valread == -1)
     {
@@ -324,7 +325,7 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
 {
     int file;
 
-    //std::cout << "\033[32m" << " reventPOLLIN " << "\033[0m" << std::endl;
+    std::cout << "\033[34m" << " reventPOLLIN " << "\033[0m" << std::endl;
     for (int sock = listen_sockets; sock < sock_num; sock++)//recorre todos los sockets
     {  
         if ((pfds[sock].revents & POLLIN))//si algun socket tiene un revent de POLLIN
@@ -376,7 +377,7 @@ void    SocketManager::sendResponse()
 {
     ssize_t send_size;
 
-    //std::cout << "\033[32m" << " sendResponse " << "\033[0m" << std::endl;
+    std::cout << "\033[31m" << " sendResponse " << "\033[0m" << std::endl;
     for (int client = listen_sockets; client < sock_num; client++)//recorre todos los sockets
     {
         if ((pfds[client].revents & POLLOUT) && !is_file(client) && fd_file.find(client) != fd_file.end())//si algun socket tiene un revent de POLLOUT
@@ -412,7 +413,7 @@ void    SocketManager::CommonGatewayInterface()
     pid_t pid_ret;
     int wstatus;
 
-    //std::cout << "\033[32m" << " CommonGatewayInterface " << cgiClients.size() << "\033[0m" << std::endl;
+    std::cout << "\033[36m" << " CommonGatewayInterface " << cgiClients.size() << "\033[0m" << std::endl;
     std::map<int, CGI>::iterator it = cgiClients.begin();
     while (it != cgiClients.end())
     {
