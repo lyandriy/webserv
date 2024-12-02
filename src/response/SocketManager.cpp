@@ -195,11 +195,21 @@ void    SocketManager:: make_response(int sock)
     if (requests[sock].getLoc().getCGI() != -1)
         response[sock] = Response(requests[sock].getLoc(), requests[sock]);
     else
+    {
+        std::cout << "\033[32m" << "aqui estoy" << "\033[0m" << std::endl;
         response[sock] = Response(requests[sock].getServ(), requests[sock]);
+        
+     }
+    
     if (requests[sock].getMultipart() == true)
+    {
+        std::cout << "\033[32m" << requests[sock].getMultipart() << "aqui no" << sock_num << "\033[0m" << std::endl;
         pfds[sock_num].fd = response[sock].makePost();
+    }
+        
     else
         pfds[sock_num].fd = response[sock].open_file(sock_num);
+    std::cout << "\033[32m" << "aqui no2" << "\033[0m" << std::endl;
     if (response[sock].getCGIState() == 1)
         cgiClients[sock] = CGI(response[sock]);
     else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "POST" && !response[sock].getPipeRes())
@@ -272,12 +282,13 @@ void    SocketManager::recvRequest(std::vector<Server> &server, int sock)
     if (sock_num == BACKLOG - 2)//si no hay espacio en pollfd para el fd del archivo
     {
         requests[sock].set_error_code(SERVICE_UNAVAIBLE);//en este caso mejor no abrir un archivo
-        make_response(sock);
+        ErrorResponse(response[sock], fd_file[sock], sock);
+        //make_response(sock);
     }
     else
     {
         valread = recv(pfds[sock].fd, buffer, BUFFER_SIZE, 0);//recibimos el mensaje de socke //ver por que es 0
-        //std::cout << "\033[35m" << "Client " << sock << std::endl << buffer << "\033[0m" << std::endl;
+        std::cout << "\033[35m" << "Client " << sock << std::endl << buffer << "\033[0m" << std::endl;
         if (requests[sock].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0 && response.find(sock) == response.end())
             make_response(sock);//ha terminado de recibir el mensaje
         else if (valread == 0 || valread == -1)
@@ -293,7 +304,7 @@ void    SocketManager::readFile(int sock, int file)
     int     valread;
     char    buffer[BUFFER_SIZE + 1] = {0};
     
-    std::cout << "\033[32m" << " readFile " << "\033[0m" << std::endl;
+    std::cout << "\033[32m" << " readFile " << file << "\033[0m" << std::endl;
     valread = read(pfds[sock].fd, buffer, BUFFER_SIZE);
     if (valread == -1)
     {
@@ -331,6 +342,7 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
         if ((pfds[sock].revents & POLLIN))//si algun socket tiene un revent de POLLIN
         {
             check_revent(sock);
+            std::cout << "\033[34m" << sock << " reventPOLLIN " << is_file(sock) << "\033[0m" << std::endl;
             if ((file = is_file(sock)))
                 readFile(sock, file);
             else

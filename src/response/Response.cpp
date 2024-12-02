@@ -544,6 +544,7 @@ int Response::open_file(int pos_file_response)
     int fd;
     _pos_file_response = pos_file_response;//posicion del fd en pollfd del archivo que se v a enviar al cliente
     root_origin = root;//copiamos rota original
+    std::cout << root << " y " <<uri << std::endl;
     join_with_uri(root, uri);
     fd = get_fd(root);//stat + abrimos ruta + uri
     if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio

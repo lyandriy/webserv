@@ -3,6 +3,7 @@
 # define WEBSERVER_HPP
 
 # define MAX_CLIENTS 20
+# define STRUCT_SIZE 1024
 # define BUFFER_SIZE 4096
 # define BACKLOG 1024
 # define CLOSE "close"
