@@ -28,7 +28,7 @@ CC = g++
 CFLAGS = -std=c++98 -Wall -Werror -Wextra #-g -O0 
 RM = rm -f
 
-OBJS = $(SRCS:%.cpp=bin/%.o)
+OBJS = $(SRCS:%.cpp=$(BIN_PATH)%.o)
 
 ###	--- RULES --- ###
 
