@@ -13,57 +13,50 @@ SRCS_PATH = src/
 INCS_PATH = inc/
 BIN_PATH = bin/
 
-SRCS =	src/response/main.cpp \
-		src/response/Location.cpp \
-		src/response/Server.cpp \
-		src/response/Parser.cpp \
-		src/response/Response.cpp \
-		src/response/Request.cpp \
-		src/response/SocketManager.cpp \
-		src/response/CGI.cpp \
+SRCS =	main.cpp \
+		Location.cpp \
+		Server.cpp \
+		Parser.cpp \
+		Response.cpp \
+		Request.cpp \
+		SocketManager.cpp \
+		CGI.cpp
 
-# Generar los archivos objeto respetando la estructura de directorios
-OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(BIN_PATH)%.o)
+OBJS = $(SRCS:%.c=bin/%.o)
 
 CC = g++
-CFLAGS = -std=c++98 -Wall -Werror -Wextra -g -O0 
+CFLAGS = -std=c++98 -Wall -Werror -Wextra #-g -O0 
 RM = rm -f
 
-### --- RULES --- ###
+OBJS = $(SRCS:%.cpp=$(BIN_PATH)%.o)
+
+###	--- RULES --- ###
 
 all: $(NAME)
 
-# Regla para compilar los archivos fuente en archivos objeto
 $(BIN_PATH)%.o: $(SRCS_PATH)%.cpp
-	# Crear la estructura de directorios según sea necesario
-	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	@mkdir -p $(BIN_PATH)
+	@$(CC) $(CFLAGS) -c $< -o $@
 
-# Regla para generar el ejecutable
-$(NAME): $(OBJS) #$(INCS_PATH)/webserv.hpp
+	
+$(NAME): $(OBJS)
 	echo $(PURPLE)"[Creating $(NAME)]"$(NONE)
-	$(CC) ${CFLAGS} -o $(NAME) $(OBJS)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 	echo $(GREEN)"$(NAME): ready to be executed"$(NONE)
 
-# Limpiar archivos objeto
 clean:
 	$(RM) $(OBJS)
-	rm -rf $(BIN_PATH)
+	rm -rf bin/
 	echo $(RED)"[Object Files Deleted]"$(NONE)
 
-# Limpiar todo, incluyendo el ejecutable
 fclean: clean
 	$(RM) $(NAME)
 	echo $(RED)"[Executable File Deleted]"$(NONE)
 
-# Regenerar todo desde cero
-re: fclean
-	$(MAKE)
+re: fclean #$(NAME)
+	clear
+	$(MAKE)	
+	
+.PHONY: all clean fclean re $(NAME)
 
-# Regla para ejecutar
-run: all
-	./$(NAME)
-
-.PHONY: all clean fclean re run
-
-.SILENT:
+.SILENT: all clean fclean re $(NAME)
