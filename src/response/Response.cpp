@@ -457,7 +457,6 @@ int    Response::open_error_file()
     {
         root = root_origin;
         join_with_uri(root, error_page[error_code]);
-        std::cout << root << " ERROR CODEeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee " << getErrorCode() << std::endl;
         stat(root.c_str(), &fileStat);
         fd = open(root.c_str(), O_RDONLY);
     }
@@ -476,12 +475,10 @@ int Response::get_fd(std::string root)
 {
     int fd_file = -1;
     
-    std::cout << "ERROR CODE get_fd " << getErrorCode() << std::endl;
     if (stat(root.c_str(), &fileStat) == -1)
     {
         if (!(accept_method == "POST" && errno == ENOENT))
             error_code = NOT_FOUND;
-        std::cout << "ERROR CODE get_fd if " << getErrorCode() << std::endl;
     }
     if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
     {
@@ -492,6 +489,7 @@ int Response::get_fd(std::string root)
             cgi_state = 1;
         else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1 || fcntl(fd_file, F_SETFD, O_CLOEXEC) == -1 || fcntl(fd_file, F_SETFL, O_NONBLOCK) == -1)
             error_code = INTERNAL_SERVER_ERROR;
+        std::cout << "open file " << root << std::endl;
     }
     return (fd_file);
 }

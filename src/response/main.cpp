@@ -49,6 +49,7 @@ int main(int argc, char **argv)
                     socketManager.sendResponse();//responder al cliente
                     socketManager.CommonGatewayInterface();  
                 }
+                
                 if (first_poll == 0)
                     first_poll++;
             }
