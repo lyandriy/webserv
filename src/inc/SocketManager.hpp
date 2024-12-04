@@ -49,6 +49,7 @@ class SocketManager
         void    managerFinishSend(int);
         std::string ContentLength(std::string &);
         std::string ContentTipe(std::string);
+        void    move_pfd(int);
 
         void    priint(int);
 };

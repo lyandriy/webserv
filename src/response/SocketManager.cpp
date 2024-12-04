@@ -362,17 +362,13 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
 
 void    SocketManager::managerFinishSend(int client)
 {
-    if (fd_file[client] != -1)
-        close_move_pfd(fd_file[client]);//cerrar el fd de archivo
-   
-    
     if (response[client].getConnectionVal() == CLOSE)
     {
         std::cout << client << std::endl;
         close_move_pfd(client);//cerrar conexion con el cliente
         std::cout << client << std::endl;
         
-    }
+    }   
     else
     {
         pfds[client].events = POLLIN;//volver a escuchar con el socket (ver cuando se sierra la conexion con el cliente)
@@ -381,6 +377,7 @@ void    SocketManager::managerFinishSend(int client)
         cgiClients.erase(client);
         requests[client].reset();
         requests[client].last_conection_time();//guardar el tiempo de ultima conexion
+        close_move_pfd(fd_file[client]);//cerrar el fd de archivo
     }
 }
 
@@ -484,7 +481,110 @@ void    SocketManager::CommonGatewayInterface()
     }
 }
 
+void    SocketManager::move_pfd(int pfd_free)
+{
+    std::cout << "MOVE_PFD " << pfd_free << std::endl;
+
+    if (pfd_free != sock_num - 1 && !is_file(pfd_free))//si no esta en ultima pos y es socket
+    {
+        std::cout << "SOY SOCKET " << pfd_free << std::endl;
+        if (requests.find(sock_num - 1) != requests.end())
+        {
+            requests[pfd_free] = requests.find(sock_num - 1)->second;
+            requests.erase(sock_num - 1);
+        }
+        if (response.find(sock_num - 1) != response.end())
+        {
+            fd_file[pfd_free] = fd_file.find(sock_num - 1)->second;
+            fd_file.erase(sock_num - 1);
+        }
+        if (cgiClients.find(sock_num - 1) != cgiClients.end())
+        {
+            cgiClients[pfd_free] = cgiClients.find(sock_num - 1)->second;
+            cgiClients.erase(pfd_free);
+        }
+        if (fd_file.find(sock_num - 1) != fd_file.end())
+        {
+            fd_file[pfd_free] = fd_file.find(sock_num - 1)->second;
+            fd_file.erase(sock_num - 1);
+        }
+        //movemos el ultimo pfd a la pos borrada
+        pfds[pfd_free].fd = pfds[sock_num - 1].fd;
+        pfds[pfd_free].events = pfds[sock_num - 1].events;
+        pfds[pfd_free].revents = pfds[sock_num - 1].revents;
+        //vaciar el ultimo pollfd
+        pfds[sock_num - 1].fd = -1;
+        pfds[sock_num - 1].events = 0;
+        pfds[sock_num - 1].revents = 0;
+    }
+    else if (pfd_free != sock_num - 1 && is_file(pfd_free))//si no esta en ultima pos y es file
+    {
+        std::cout << "SOY FILE " << pfd_free << std::endl;
+        for (std::map<int, int>::iterator it = fd_file.begin(); it != fd_file.end(); ++it)
+        {
+            if (it->second == sock_num - 1) 
+                it->second = pfd_free; // Actualizar el índice
+        }
+        //movemos el ultimo pfd a la pos borrada
+        pfds[pfd_free].fd = pfds[sock_num - 1].fd;
+        pfds[pfd_free].events = pfds[sock_num - 1].events;
+        pfds[pfd_free].revents = pfds[sock_num - 1].revents;
+        //vaciar el ultimo pollfd
+        pfds[sock_num - 1].fd = -1;
+        pfds[sock_num - 1].events = 0;
+        pfds[sock_num - 1].revents = 0;
+    }
+    sock_num--;
+}
+
 void    SocketManager::close_move_pfd(int pfd_free)
+{
+    std::cout <<  pfds[pfd_free].fd << " CLOSE \n";  
+    int i;
+    if (!is_file(pfd_free))//si es socket, se elimina toda su informacion
+    {
+        if (cgiClients.find(pfd_free) != cgiClients.end())
+        {
+            kill(cgiClients[pfd_free].getPid(), SIGINT);
+            close(cgiClients[pfd_free].getFDread());//vervsi esto no da error
+            close(cgiClients[pfd_free].getFDwrite());
+            cgiClients.erase(pfd_free);
+        }
+        requests.erase(pfd_free);
+        response.erase(pfd_free);
+        i = fd_file[pfd_free];
+        fd_file.erase(pfd_free);
+        close(pfds[pfd_free].fd);//cerramos el socket
+        pfds[pfd_free].fd = -1;
+        pfds[pfd_free].events = 0;
+        pfds[pfd_free].revents = 0;
+        move_pfd(pfd_free);
+        std::cout << "SOCKET A CERRAR " << pfd_free << std::endl;
+        std::cout << "ARCHIVO A CERRAR " << i << std::endl;
+        if (pfds[i].fd != -1)
+        {
+            close(pfds[i].fd);//cerramos el fd
+            pfds[i].fd = -1;
+            pfds[i].events = 0;
+            pfds[i].revents = 0;
+            move_pfd(i);
+        }
+    }
+    else
+    {
+        std::cout << "ARCHIVO A CERRAR " << pfd_free << std::endl;
+        if (pfds[pfd_free].fd != -1)
+        {
+            close(pfds[pfd_free].fd);
+            pfds[pfd_free].fd = -1;
+            pfds[pfd_free].events = 0;
+            pfds[pfd_free].revents = 0;
+            move_pfd(pfd_free);
+        }
+    }
+}
+
+/*void    SocketManager::close_move_pfd(int pfd_free)
 {
     std::cout <<  pfds[pfd_free].fd<< " CLOSE \n";  
     int i;
@@ -543,96 +643,6 @@ void    SocketManager::close_move_pfd(int pfd_free)
         pfds[sock_num - 1].events = 0;
         pfds[sock_num - 1].revents = 0;
     }
-    sock_num--;
-}
-
-/*void    SocketManager::close_move_pfd(int pfd_free)
-{
-    std::cout << pfd_free << " " << pfds[pfd_free].fd <<" CLOSEEEEEEE\n";
-    if (pfds[pfd_free].fd == -1)
-        return ;
-    //priint(pfd_free);
-    if (!is_file(pfd_free) && cgiClients.find(pfd_free) != cgiClients.end())
-    {
-        kill(cgiClients[pfd_free].getPid(), SIGINT);
-        close(cgiClients[pfd_free].getFDread());
-        close(cgiClients[pfd_free].getFDwrite());
-        cgiClients.erase(pfd_free);
-    }
-    close(pfds[pfd_free].fd);
-    if (pfd_free == (sock_num - 1))//si el pfd que hay que eliminar esta en la ultima pos, lo borramos y ya
-    {
-        std::cout << "hola\n";
-        pfds[sock_num - 1].fd = -1;
-        pfds[sock_num - 1].events = 0;
-        pfds[sock_num - 1].revents = 0;
-        requests.erase(sock_num - 1);
-        response.erase(sock_num - 1);
-        cgiClients.erase(sock_num - 1);
-        //fd_file.erase(sock_num - 1);
-        for (std::map<int, int>::iterator it = fd_file.begin(); it != fd_file.end(); ++it)
-        {
-            if (it->second == sock_num - 1)
-            {
-                std::cout << "ssssss " << it->second << std::endl;
-                fd_file.erase(it);
-                break;
-            }
-        }
-        sock_num--;
-        priint(pfd_free);
-        return ;
-    }
-    
-    //cuando la structura movida era de fd del archivo
-    for (std::map<int, int>::iterator it = fd_file.begin(); it != fd_file.end(); ++it)
-    {
-        if (it->second == sock_num - 1)//si utima pos (la que vamos a mover) es un fd del archivo
-        {
-            it->second = pfd_free;//cambiamos pos de este archivo
-            break;
-        }
-    }
-    //cuando la structura movida ha sido un socket
-    if (requests.find(sock_num - 1) != requests.end())//si este cliente tenia request
-    {
-        std::cout << pfd_free << "ccccc "  << std::endl;
-        Request copy_request = requests.find(sock_num - 1)->second;//copiamos su instancia de request
-        requests.erase(sock_num - 1);//borramos ultima pos
-        requests.erase(pfd_free);//borramos pos a eliminar
-        requests[pfd_free] = copy_request;//y sustituimos
-    }
-    if (response.find(sock_num - 1) != response.end())
-    {
-        std::cout << pfd_free << "bbbbbbbbbbb " << std::endl;
-        Response copy_response = response.find(sock_num - 1)->second;
-        response.erase(sock_num - 1);
-        response.erase(pfd_free);
-        response[pfd_free] = copy_response;
-    }
-    if (fd_file.find(sock_num - 1) != fd_file.end())
-    {
-        int copy_fd = fd_file.find(sock_num - 1)->second;
-        std::cout << pfd_free << "aaaaaa " << copy_fd << std::endl;
-        fd_file.erase(sock_num - 1);
-        fd_file.erase(pfd_free);
-        fd_file[pfd_free] = copy_fd;
-    }
-    if (cgiClients.find(sock_num - 1) != cgiClients.end())
-    {
-        CGI copy_cgi = cgiClients.find(sock_num - 1)->second;
-        cgiClients.erase(sock_num - 1);
-        cgiClients.erase(pfd_free);
-        cgiClients[pfd_free] = copy_cgi;
-    }
-    //movemos el ultimo pfd a la pos borrada
-    pfds[pfd_free].fd = pfds[sock_num - 1].fd;
-    pfds[pfd_free].events = pfds[sock_num - 1].events;
-    pfds[pfd_free].revents = pfds[sock_num - 1].revents;
-    //vaciar el ultimo pollfd
-    pfds[sock_num - 1].fd = -1;
-    pfds[sock_num - 1].events = 0;
-    pfds[sock_num - 1].revents = 0;
     sock_num--;
 }*/
 
