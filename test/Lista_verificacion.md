@@ -68,10 +68,9 @@
     - [ ] servernames_diff_port_same → solo funciona el primero
     - [ ] no_methods_accepted → todo 404 (debería ser 405 method not accepted)
 
-- [ ]  setup server_names or not
+- [x]  setup server_names or not
     - [ ] not_server_name → sin server name no nombre por defecto, ***es correcto??***
-- [ ]  Default port
-    - [ ] not_listen_port → no se establece puerto por defecto, ***es correcto??***
+- [x]  Default port
 - [ ]  Setup default error pages
     - [ ] páginas definidas, no siempre se devuelven
 - [ ]  Limit client body size
