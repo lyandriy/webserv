@@ -15,7 +15,7 @@ server
 server
 {
     listen 8080;
-    server_name localhost_two;
+    server_name c2r18s6;
     root html/files;
     index index.html;
     accept_method GET;

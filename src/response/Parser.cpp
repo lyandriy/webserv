@@ -41,7 +41,6 @@ Parser::Parser(const std::string file) : in_file(file.c_str())
         }
 
     }
-    
 }
 
 void    Parser::split(std::string &line)

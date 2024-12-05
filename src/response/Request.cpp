@@ -143,11 +143,13 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
 	extract_request_line();
+	std::cout << "\033[32m" << "uno " << _error_code << "\033[0m" << std::endl;
 	if (check_request_line() == false)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
 	//print_headers();
+	std::cout << "\033[32m" << "dos " << _error_code << "\033[0m" << std::endl;
 	if (search_body_length_header() == true)
 	{
 		_status = REQUEST_WITH_BODY;
@@ -176,7 +178,9 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	{
 		_status = FULL_COMPLETE_REQUEST;
 	}
+	std::cout << "\033[32m" << "tres " << _error_code << "\033[0m" << std::endl;
 	check_request_line(server);
+	std::cout << "\033[32m" << "cuatro " << _error_code << "\033[0m" << std::endl;
 	multipart();
 	return _status;
 }

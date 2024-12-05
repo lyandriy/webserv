@@ -22,6 +22,6 @@ html = html = f"""<!DOCTYPE html>
 </body>
 </html>"""
 
-time.sleep(10)
+time.sleep(40)
 
 sys.stdout.write(html)

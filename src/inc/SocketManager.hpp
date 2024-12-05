@@ -50,6 +50,8 @@ class SocketManager
         std::string ContentLength(std::string &);
         std::string ContentTipe(std::string);
         void    move_pfd(int);
+        void    close_pfd(int);
+        int free_pos();
 
         void    priint(int);
 };

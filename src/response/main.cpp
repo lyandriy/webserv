@@ -25,22 +25,32 @@ int main(int argc, char **argv)
             throw std::runtime_error("Too many arguments.");
         else
         {
-            Parser  parser(argv[1]);
-            server = parser.conf_file();
+            if (argc == 1)
+            {
+                Parser  parser("serverHTML/config_default");
+                server = parser.conf_file();
+            }
+            else
+            {
+                Parser  parser(argv[1]); 
+                server = parser.conf_file();
+            }
             SocketManager   socketManager = SocketManager(pfds, server);//abre los socket para cada puerto
 
             signal(SIGINT, closeWebserv);
             while (true)
             {
-                if (poll(pfds, socketManager.getSockNum(), 1000) == -1)//monitorear si hay algun cliente
+                if (poll(pfds, BACKLOG, 1000) == -1)//monitorear si hay algun cliente
                     std::cerr << "Error: poll error." << std::endl;    
-                for (int i = 0; i < socketManager.getSockNum(); ++i)
+                for (int i = 0; i < BACKLOG; ++i)
                 {
-                    std::cout << "socket " << i << ": ";
-                    std::cout << "  fd: " << pfds[i].fd << "; ";
-                    std::cout << "  events: " << pfds[i].events << "; ";
-                    std::cout << "  revents: " << pfds[i].revents << std::endl;
-                    socketManager.check_revent(i);
+                    if (pfds[i].fd != -1)
+                    {
+                        std::cout << "socket " << i << ": ";
+                        std::cout << "  fd: " << pfds[i].fd << "; ";
+                        std::cout << "  events: " << pfds[i].events << "; ";
+                        std::cout << "  revents: " << pfds[i].revents << std::endl;
+                    }
                 } 
                 if (first_poll > 0)
                 {
@@ -49,7 +59,6 @@ int main(int argc, char **argv)
                     socketManager.sendResponse();//responder al cliente
                     socketManager.CommonGatewayInterface();  
                 }
-                
                 if (first_poll == 0)
                     first_poll++;
             }
