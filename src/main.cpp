@@ -13,6 +13,7 @@ int main(int argc, char **argv)
         else
         {
             Parser  parser(argv[1]);
+            std::cout << "WOLOLO\n";
             server = parser.conf_file();
             SocketManager   socketManager = SocketManager(pfds, server);//abre los socket para cada puerto
 
