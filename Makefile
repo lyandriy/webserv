@@ -24,7 +24,7 @@ SRCS =	main.cpp \
 
 OBJS = $(SRCS:%.c=bin/%.o)
 
-CC = g++
+CC = c++
 CFLAGS = -std=c++98 -Wall -Werror -Wextra #-g -O0 
 RM = rm -f
 
@@ -35,8 +35,8 @@ OBJS = $(SRCS:%.cpp=$(BIN_PATH)%.o)
 all: $(NAME)
 
 $(BIN_PATH)%.o: $(SRCS_PATH)%.cpp
-	@mkdir -p $(BIN_PATH)
-	@$(CC) $(CFLAGS) -c $< -o $@
+	mkdir -p $(BIN_PATH)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 	
 $(NAME): $(OBJS)

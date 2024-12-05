@@ -7,52 +7,82 @@
 ### Requirements
 
 - [x]  Program name
-- [ ]  Makefile
-    - [ ]  Relink
-    - [ ]  Rules NAME, all, clean, fclean y re
-    - [ ]  c++
-    - [ ]  -Wall -Wextra -Werror -std=c++98
-    - [ ]  No external library and no Boost
+- [x]  Makefile
+    - [x]  Relink
+    - [x]  Rules NAME, all, clean, fclean y re
+    - [x]  c++
+    - [x]  -Wall -Wextra -Werror -std=c++98
+    - [x]  No external library and no Boost
 - [ ]  Allowed functions
 - [ ]  a configuration file as argument, or use a default path
+        ./webserver genera: basic_string::_M_construct null not valid, código salida == 1
 - [x]  execve another server
-- [ ]  Non-blocking
-- [ ]  1 poll for all I/O operations
+- [x]  Non-blocking
+        Esto diría que está bien, confirmar con Lyudmyla
+- [x]  1 poll for all I/O operations
 - [ ]  poll read and write at the same time
+        No tengo claro que esto lo estemos cumpliendo
 - [ ]  Never read or write without poll()
-- [ ]  Don’t check errno
+        El write de Response.cpp:440 hay un write a un fd[1] para el autoindex, comprobar que es correcto
+- [x]  Don’t check errno
+        Solo CGI.cpp(:157) usa errno, pero no lo checkea
 - [x]  Don’t use poll before read config file
 - [x]  Don’t write/send in any file descriptor without poll
-- [ ]  Macros FD_SET, FD_CLR, FD_ISSET, FD_ZERO allowed
+- [x]  Macros FD_SET, FD_CLR, FD_ISSET, FD_ZERO allowed
+        No las usamos porque son necesarias para select(), no para poll()
 - [ ]  Request don’t hang forever
-- [ ]  Compatible with any web browser
-- [ ]  HTTP 1.1
+        No se cómo probar esto si no es para una petición que pase por el CGI
+- [x]  Compatible with any web browser
+        Es compatible con firefox y chrome
+- [x]  HTTP 1.1
 - [ ]  HTTP response status
-    - [ ]  100
-    - [ ]  200
+    - [x]  100
+        Esto no es obligatorio, necesita de un header específico en la request que le indica al servidor que cuando le devuelva un 100 el cliente empezará a enviar el body
+    - [x]  200
+        Las que deben devolver 200 lo devuelven correctamente
     - [ ]  300
+        No se qué tipo de petición hacer para probar esto
     - [ ]  400
+        Hay peticiones que deben devolver 404 y devuelven 500
+            http://localhost:8081/jsbhfjasbdf.html
+                http://localhost:8081/favicon.ico  -> deberíamos meter un favicon.ico???
     - [ ]  500
+        Creo que estoy haciendo mal las peticiones para el CGI
 - [ ]  Default error pages
-- [ ]  Fork() solo para CGI
-- [ ]  Serve fully static webstatic
+        Para el 500 no se devuelve la página por defecto.
+- [x]  Fork() solo para CGI
+- [x]  Serve fully static webstatic
 - [ ]  Clients must can upload files
 - [ ]  GET, POST, DELETE
+    - [x]  GET
+    - [x]  POST
+    - [ ]  DELETE
+        No se cómo probarlo
 - [ ]  Test de estres
 - [ ]  Listen multiple ports
 
 ### Configuration file
 
 - [ ]  Port + host for each server
+    - [ ] servernames_port_diff → ambos funcionan
+    - [ ] servernames_diff_port_same → solo funciona el primero
+    - [ ] no_methods_accepted → todo 404 (debería ser 405 method not accepted)
+
 - [ ]  setup server_names or not
+    - [ ] not_server_name → sin server name no nombre por defecto, ***es correcto??***
 - [ ]  Default port
+    - [ ] not_listen_port → no se establece puerto por defecto, ***es correcto??***
 - [ ]  Setup default error pages
+    - [ ] páginas definidas, no siempre se devuelven
 - [ ]  Limit client body size
+    - [ ] Server.cpp:7 client_max_body_size = 1; petición con body > 1, no produce error
 - [ ]  Rules / configuración
-    - [ ]  Define list HTTP methods
+    - [x]  Define list HTTP methods
     - [ ]  Define HTTP redirection
-    - [ ]  Define directory root and url
-    - [ ]  Turn on or off directory listing
+        - [ ] redirection config → error "Invalid keyword return!"
+    - [x]  Define directory root and url
+    - [x]  Turn on or off directory listing
+        - [ ] autoindex_on_off → todo correcto
     - [ ]  Set default file to answer if request = directory
     - [ ]  CGI based on file extension
     - [ ]  CGI work with POST and GET
@@ -171,4 +201,7 @@ Usar telnet, curl, archivos preparados para demostrar que funciona:
 
 - [ ]  Leaks
 - [ ]  
+___
+`curl http://wololo:8081/test/hola --resolve wololo:8081:127.0.0.1`
 
+***
