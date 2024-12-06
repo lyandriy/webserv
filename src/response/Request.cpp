@@ -143,13 +143,11 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	if (check_any_valid_line() == false)
 		return INVALID_REQUEST;
 	extract_request_line();
-	std::cout << "\033[32m" << "uno " << _error_code << "\033[0m" << std::endl;
 	if (check_request_line() == false)
 		return INVALID_REQUEST;
 	if (read_headers_lines() == false)
 		return INVALID_REQUEST;
 	//print_headers();
-	std::cout << "\033[32m" << "dos " << _error_code << "\033[0m" << std::endl;
 	if (search_body_length_header() == true)
 	{
 		_status = REQUEST_WITH_BODY;
@@ -178,9 +176,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	{
 		_status = FULL_COMPLETE_REQUEST;
 	}
-	std::cout << "\033[32m" << "tres " << _error_code << "\033[0m" << std::endl;
 	check_request_line(server);
-	std::cout << "\033[32m" << "cuatro " << _error_code << "\033[0m" << std::endl;
 	multipart();
 	return _status;
 }
@@ -251,7 +247,6 @@ int	Request::manage_request_with_body(char *buffer, int read_size)
 {
 	_body.insert(_body.end(), buffer, buffer + read_size);
 	size_t body_len = _body.size();
-	std::cout << "body_len " << body_len << " _body_size " << _body_size << std::endl;
 	if (body_len == static_cast<size_t>(_body_size))
 	{
 		multipart();
@@ -452,7 +447,6 @@ bool Request::read_headers_lines()
 
 void Request::set_multipart_header(std::string &value)
 {
-	std::cout << value << std::endl;
 	std::string aux;
 	std::string boundary_aux;
 	size_t semicolon_position = value.find(";");

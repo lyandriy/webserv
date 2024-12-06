@@ -35,10 +35,6 @@ CGI::CGI(const Response &response)
     this->accept_method = response.getAcceptMethod();
     this->pid = -2;
     std::map<std::string, std::string>::iterator it;
-    for (it = params.begin(); it != params.end(); ++it)
-    {
-        std::cout << it->first + "=" + it->second << std::endl;
-    }
 }
 
 void    CGI::setRoot(std::string root)
@@ -98,8 +94,6 @@ int CGI::getFDwrite() const
 
 pid_t   CGI::getPid() const
 {
-    std::cout << "\033[34m" << "Hola soy getPid " << "\033[0m" << std::endl;
-    std::cout << "\033[34m" << "get  pid " << pid << "\033[0m" << std::endl;
     return (this->pid);
 }
 
@@ -143,7 +137,6 @@ void    CGI::dupEnv(std::map<std::string, std::string> &env)
     envp = new char*[env.size() + 1];
     for (it = env.begin(); it != env.end(); ++it)
     {
-        std::cout << it->first << std::endl;
         query_parameter = it->first + "=" + it->second;
         envp[count] = new char [query_parameter.size() + 1];
         std::strcpy(envp[count], query_parameter.c_str());

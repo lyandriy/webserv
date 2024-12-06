@@ -79,7 +79,7 @@ SocketManager::SocketManager(struct pollfd* pfds_, std::vector<Server> &server)
     status_code[408] = "HTTP/1.1 408 Request timeout\r\n";
     status_code[413] = "HTTP/1.1 413 Content Too Large\r\n";
     status_code[414] = "HTTP/1.1 414 URI Too Long\r\n";
-    status_code[500] = "HTTP/1.1 500 OInternal Server ErrorK\r\n";
+    status_code[500] = "HTTP/1.1 500 Internal Server Error\r\n";
     status_code[503] = "HTTP/1.1 503 Service Unavailable\r\n";
     status_code[504] = "HTTP/1.1 504 Gateway Timeout\r\n";
     status_code[505] = "HTTP/1.1 505 HTTP Version Not Supported\r\n";
@@ -130,7 +130,7 @@ void    SocketManager::acceptClient()
 
     for (int i = 0; i < listen_sockets; i++)//recorrer los socket de escucha
     {
-        if (pfds[i].revents & POLLIN)//si hay algun evento
+        if ((pfds[i].revents & POLLIN) && pfds[i].fd != -1)//si hay algun evento
         {
             pos_free = free_pos();
             if (pos_free == BACKLOG - 1)
@@ -220,8 +220,6 @@ void    SocketManager:: make_response(int sock)
             cgiClients[sock] = CGI(response[sock]);
         else
         {
-            std::cerr << "aqui pasa algo 1\n";
-            std::cout << "aqui pasa algo 1\n";
             pfds[pos_free].fd = response[sock].makePost();
             pfds[pos_free].events = POLLIN;
             fd_file[sock] = pos_free;
@@ -229,15 +227,9 @@ void    SocketManager:: make_response(int sock)
         }
     }
     else if (pfds[pos_free].fd == -1)
-    {
-        std::cout << "aqui pasa algo 4\n";
-        std::cerr << "aqui pasa algo 4\n";
         ErrorResponse(response[sock], fd_file[sock], sock);
-    }
     else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "DELETE")
     {
-        std::cout << "aqui pasa algo 2\n";
-        std::cerr << "aqui pasa algo 2\n";
         close(pfds[pos_free].fd);
         pfds[pos_free].fd = deleteMethod(sock);
         pfds[pos_free].events = POLLIN;
@@ -246,8 +238,6 @@ void    SocketManager:: make_response(int sock)
     }
     else
     {
-        std::cout << "aqui pasa algo 3\n";
-        std::cerr << "aqui pasa algo 3\n";
         pfds[pos_free].events = POLLIN;
         fd_file[sock] = pos_free;
         pfds[sock].events = POLLOUT;
@@ -257,7 +247,6 @@ void    SocketManager:: make_response(int sock)
 void    SocketManager::check_join(int sock, std::vector<Server> &server, char *buffer, int valread)
 {
     requests[sock].join_request(buffer, valread, server);
-    std::cout << requests[sock].get_error_code() << std::endl;
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock);
 }
@@ -291,8 +280,6 @@ void    SocketManager::recvRequest(std::vector<Server> &server, int sock)
     check_revent(sock);/// no se que hacer con esto!!!!!!!!!!!!!!!!!!!!
     if (pos_free == BACKLOG - 2)//si no hay espacio en pollfd para el fd del archivo
     {
-        std::cerr << "aqui pasa algo 5\n";
-        std::cout << "aqui pasa algo 5\n";
         requests[sock].set_error_code(SERVICE_UNAVAIBLE);//en este caso mejor no abrir un archivo
         ErrorResponse(response[sock], fd_file[sock], sock);
         //make_response(sock);
@@ -304,10 +291,7 @@ void    SocketManager::recvRequest(std::vector<Server> &server, int sock)
         if (requests[sock].get_current_status() == FULL_COMPLETE_REQUEST && valread == 0 && response.find(sock) == response.end())
             make_response(sock);//ha terminado de recibir el mensaje
         else if (valread == 0 || valread == -1)
-        {
-            std::cout << "1111\n";
             close_pfd(sock);
-        }
         else
             check_join(sock, server, buffer, valread);//recibe una parte del mensaje
     }
@@ -324,7 +308,6 @@ void    SocketManager::readFile(int sock, int file)
     if (valread == -1)
     {
         response[is_file(sock)].setBytesRead(0);
-        std::cout << "22222\n";
         close_pfd(sock);
     }
     //si el fd es pipe o tamaño del achivo es mayr a BUFFER_SIZE hacer chunkd response en otros casos respuesta normal
@@ -355,9 +338,8 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
     std::cout << "\033[34m" << " reventPOLLIN " << "\033[0m" << std::endl;
     for (int sock = listen_sockets; sock < BACKLOG; sock++)//recorre todos los sockets
     {  
-        if ((pfds[sock].revents & POLLIN))//si algun socket tiene un revent de POLLIN
+        if ((pfds[sock].revents & POLLIN) && pfds[sock].fd != -1)//si algun socket tiene un revent de POLLIN
         {
-            std::cout << "aqui me muero\n ";
             check_revent(sock);
             if ((file = is_file(sock)))
                 readFile(sock, file);
@@ -366,13 +348,9 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
         }
         if (requests.find(sock) != requests.end() && !is_file(sock) && pfds[sock].fd != -1 && difftime(time(NULL), requests[sock].get_time()) > 65)//si no hay evento y el tiempo es mayoa a 65, desconectamos al socke
         {
-            std::cout << sock << " y " << pfds[sock].fd <<  " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
             if (requests[sock].get_current_status() == EMPTY_REQUEST)//si no se ha reecibido ninguna request solo cierra la conexion
-            {
-                std::cout << "3333333\n";
                     close_pfd(sock);
-            
-            }else if (response.find(sock) == response.end())
+            else if (response.find(sock) == response.end())
             {
                 requests[sock].set_error_code(REQUEST_TIMEOUT);//si empezo a resibir request pero tarda mucho
                 make_response(sock);
@@ -393,13 +371,7 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
 void    SocketManager::managerFinishSend(int client)
 {
     if (response[client].getConnectionVal() == CLOSE)
-    {
-        std::cout << client << std::endl;
-        std::cout << "4444 \n";
-        close_pfd(client);//cerrar conexion con el cliente
-        std::cout << client << std::endl;
-        
-    }   
+        close_pfd(client);//cerrar conexion con el cliente 
     else
     {
         pfds[client].events = POLLIN;//volver a escuchar con el socket (ver cuando se sierra la conexion con el cliente)
@@ -409,8 +381,6 @@ void    SocketManager::managerFinishSend(int client)
         cgiClients.erase(client);
         requests[client].reset();
         requests[client].last_conection_time();//guardar el tiempo de ultima conexion
-        std::cout << "555555 \n";
-        
     }
 }
 
@@ -425,9 +395,8 @@ void    SocketManager::sendResponse()
     std::cout << "\033[31m" << " sendResponse " << fd_file.size() << " hola" << "\033[0m" << std::endl;
     for (int client = listen_sockets; client < BACKLOG; client++)//recorre todos los sockets
     {
-        if ((pfds[client].revents & POLLOUT) && !is_file(client) && fd_file.find(client) != fd_file.end())//si algun socket tiene un revent de POLLOUT
+        if ((pfds[client].revents & POLLOUT) && !is_file(client) && fd_file.find(client) != fd_file.end() && pfds[client].fd != -1)//si algun socket tiene un revent de POLLOUT
         {
-            std::cout << "\033[31m" << "SIGO VIVO " << response[client].getErrorCode() << "\033[0m" << std::endl;
             if (response[client].getBytesRead() != 0 //no se ha leido nada
                 && ((fd_file[client] != -1 && (pfds[fd_file[client]].revents == 0))  || response[client].getErrorCode() == INTERNAL_SERVER_ERROR) //el revent del fd de archivo esta en 0 o hay un error interno
                 && (response[client].get_fileStat().st_size > BUFFER_SIZE || response[client].getPipeRes()))//se lee de una pipe o el tamaño del archivo es muy largo
@@ -437,7 +406,6 @@ void    SocketManager::sendResponse()
             }
             if (!response[client].getStringBuffer().empty())
             {
-                //sleep (5);
                 send_size = send(pfds[client].fd, response[client].getStringBuffer().c_str(), response[client].getStringBuffer().size(), 0);//enviar el buffer leido de archivo
                 std::cout << "\033[36m" << response[client].getStringBuffer() << "\033[0m" << std::endl;
                 response[client].setSendSize(send_size);
@@ -468,7 +436,6 @@ void    SocketManager::CommonGatewayInterface()
             //std::cout << it->first << "it->second.getPid()  " << it->second.getPid()  << std::endl;
             if (it->second.makeProcess())//cambia el pid del proceso al pid del proceso hijo
             {
-                std::cerr << "aqui pasa algo 7\n";
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first], it->first);
                 cgiClients.erase(it);
@@ -506,7 +473,6 @@ void    SocketManager::CommonGatewayInterface()
                     pfds[pos_free].fd = it->second.getFDread();
                     pfds[pos_free].events = POLLIN;
                     pfds[it->first].events = POLLOUT;
-                    std::cout << " --------------- " << it->first << std::endl;
                     fd_file[it->first] = pos_free;
                     cgiClients.erase(it);
                 }
@@ -520,7 +486,6 @@ void    SocketManager::close_pfd(int pfd_free)
 {
     int file_pos = -1;
 
-    std::cout << "HOLA!!!!!!\n";
     if (!is_file(pfd_free))
     {
         if (fd_file.find(pfd_free) != fd_file.end())
@@ -542,7 +507,6 @@ void    SocketManager::close_pfd(int pfd_free)
         {
             if (pfds[file_pos].fd != -1)
             {
-                std::cout << "I " << file_pos << std::endl;
                 close(pfds[file_pos].fd);
                 pfds[file_pos].fd = -1;
                 pfds[file_pos].events = 0;
@@ -550,17 +514,14 @@ void    SocketManager::close_pfd(int pfd_free)
             }
         }   
         close(pfds[pfd_free].fd);//cerramos el socket
-        std::cout << "II " << file_pos << std::endl;
         pfds[pfd_free].fd = -1;
         pfds[pfd_free].events = 0;
         pfds[pfd_free].revents = 0;
     }
     else
     {
-        std::cout << pfd_free << std::endl;
         if (pfd_free != -1 && pfds[pfd_free].fd != -1)
         {
-            std::cout << "III " << pfd_free << std::endl;
             close(pfds[pfd_free].fd);
             pfds[pfd_free].fd = -1;
             pfds[pfd_free].events = 0;
@@ -581,7 +542,6 @@ std::string SocketManager::make_response_str(Response &response, std::string buf
     timeinfo = localtime (&rawtime);
     std::ostringstream str;
 
-    std::cout << "\033[36m" << " size of response " << response.get_fileStat().st_size << "\033[0m" << std::endl;
     str << status_code[response.getErrorCode()]
         << "Connection: " << response.getConnectionVal() << "\r\n"
         << "Date: " << days[timeinfo->tm_wday] << ", "
@@ -597,29 +557,41 @@ std::string SocketManager::make_response_str(Response &response, std::string buf
     return (str.str());
 }
 
-/*std::string SocketManager::ContentLength(std::string &buffer)
+std::string SocketManager::separateHeaders(std::string &buffer)
 {
-    size_t pos = buffer.find("Content-Length:");
-    size_t pos_end = buffer.find("\r\n");
-    size_t first_numb;
-    size_t last_numb;
-    std::string sub;
-    std::string numb;
-    int int_numb;
+    size_t pos_end;
+    std::string headers;
 
-    if (pos != std::string::npos && pos_end != std::string::npos)
+    pos_end = buffer.find("\r\n\r\n");
+    if (pos_end == std::string::npos && pos_end != (buffer.size() - 4))
     {
-        sub = buffer.substr(pos, pos_end);
-        first_numb = sub.find_first_not_of(" ");
-        last_numb = sub.find_last_not_of(" ");
-        numb = sub.substr(first_numb, last_numb);
-        int_numb = atoi(numb.c_str());
-        if (int_numb > BUFFER_SIZE)
+        pos_end = buffer.find("\n\n");
+        if (pos_end != std::string::npos && pos_end != (buffer.size() - 2))
         {
-            buffer.replace(pos, (pos - pos_end), "Transfer-Encoding: chunked");
+            headers = buffer.substr(0, pos_end);
+            buffer.erase(0, (pos_end + 2));
         }
     }
-}*/
+    else if (pos_end != (buffer.size() - 4))
+    {
+        headers = buffer.substr(0, pos_end);
+        buffer.erase(0, (pos_end + 4));
+    }
+    size_t pos = headers.find("Content-Length:");
+    if (pos != std::string::npos)
+    {
+        pos_end = headers.find("\r\n", pos);
+        if (pos_end == std::string::npos)
+        {
+            pos_end = headers.find("\n", pos);
+            if (pos_end != std::string::npos)
+                headers.erase(pos, (pos_end + 1));
+        }
+        else
+            headers.erase(pos, (pos_end + 2));
+    }
+    return (headers);
+}
 
 std::string SocketManager::make_chunked_response(Response &response, std::string buffer, int valread)
 {
@@ -632,9 +604,9 @@ std::string SocketManager::make_chunked_response(Response &response, std::string
     time (&rawtime);
     timeinfo = localtime (&rawtime);
     std::ostringstream str;
+    std::string headers = separateHeaders(buffer);
 
     (void)valread;
-    std::cout << "\033[36m" << " size of response " << response.get_fileStat().st_size << "\033[0m" << std::endl;
     str << status_code[response.getErrorCode()]
         << "Connection: " << response.getConnectionVal() << "\r\n"
         << "Date: " << days[timeinfo->tm_wday] << ", "
@@ -645,8 +617,10 @@ std::string SocketManager::make_chunked_response(Response &response, std::string
         << std::setw(2) << std::setfill('0') << timeinfo->tm_min << ":"
         << std::setw(2) << std::setfill('0') << timeinfo->tm_sec
         << " GMT\r\n"
-        << "Transfer-Encoding: chunked" << "\r\n"
-        << "\r\n" << std::hex << buffer.size() << "\r\n" << buffer << "\r\n";
+        << "Transfer-Encoding: chunked" << "\r\n";
+    if (!headers.empty())
+        str << headers << "\r\n";
+    str << "\r\n" << std::hex << buffer.size() << "\r\n" << buffer << "\r\n";
     return (str.str());
 }
 
