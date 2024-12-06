@@ -1,0 +1,44 @@
+server
+{
+    listen 8080;
+    server_name localhost;
+    root html/test;
+    accept_method GET POST;
+    index index.html;
+    autoindex on;
+    cgi off;
+    location /hola
+    {
+        accept_method GET;
+    }
+}
+
+server
+{
+    listen 8081;
+    server_name wololo;
+    root html;
+    accept_method GET POST;
+    index index.html;
+    autoindex off;
+    cgi off;
+    location /hola
+    {
+        accept_method GET;
+    }
+}
+
+server
+{
+    listen 8082;
+    server_name caracola;
+    root html;
+    accept_method GET POST;
+    index index.html;
+    autoindex off;
+    cgi off;
+    location /hola
+    {
+        accept_method GET;
+    }
+}

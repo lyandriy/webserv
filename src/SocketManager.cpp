@@ -390,9 +390,9 @@ void    SocketManager::sendResponse()
 
     for (std::map<int, int>::iterator it = fd_file.begin(); it != fd_file.end(); ++it)
     {
-        std::cout << "socket " << it->first << "fd " << it->second << std::endl;
+        std::cout << "socket " << it->first << " fd " << it->second << std::endl;
     }
-    std::cout << "\033[31m" << " sendResponse " << fd_file.size() << " hola" << "\033[0m" << std::endl;
+    std::cout << "\033[31m" << " sendResponse " << "\033[0m" << std::endl;
     for (int client = listen_sockets; client < BACKLOG; client++)//recorre todos los sockets
     {
         if ((pfds[client].revents & POLLOUT) && !is_file(client) && fd_file.find(client) != fd_file.end() && pfds[client].fd != -1)//si algun socket tiene un revent de POLLOUT
@@ -427,7 +427,7 @@ void    SocketManager::CommonGatewayInterface()
     pid_t pid_ret;
     int wstatus;
 
-    std::cout << "\033[36m" << " CommonGatewayInterface " << cgiClients.size() << "\033[0m" << std::endl;
+    std::cout << "\033[36m" << " CommonGatewayInterface " << "\033[0m" << std::endl;
     std::map<int, CGI>::iterator it = cgiClients.begin();
     while (it != cgiClients.end())
     {
