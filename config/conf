@@ -15,10 +15,10 @@ server
         error_page 404 pruebacgi.c;
         index hola1;
         client_max_body_size 2M;
-        root html/files/hola;
+        root html;
         autoindex off;
         cgi on;
-        redirection hola2;
+        redirection /test/redirect/prueba.html;
         accept_method GET;
     }
 }

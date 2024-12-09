@@ -1,0 +1,17 @@
+[31mServer Name: localhost
+[0mAccept Method: GET 1 POST 0 DELETE 0
+Client Max Body Size: 1048576
+Root: serverHTML
+Autoindex: 0
+Index: index.html
+CGI: 0
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8080
+Error Pages: 
+Locations (0): 
+socket 0:   fd: 3;   events: 1;   revents: 0
+
+Received Interrupt Signal. Shutting down the web server...
+Web server stopped.
+Thank you for using the service.

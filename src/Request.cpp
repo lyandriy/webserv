@@ -866,7 +866,7 @@ int    Request::check_request_line(std::vector<Server> &server)
 			    break;
 			else
 			{
-				this->_error_code = NOT_FOUND;
+				this->_error_code = BAD_REQUEST;
         		return (0);
 			}
 		}
