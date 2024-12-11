@@ -183,10 +183,30 @@ int SocketManager::deleteMethod(int sock)
 {
     int result;
     int fd = -1;
+    /* struct stat info;
+
+    try{
+        if (stat("deleted", &info) == 0 && (info.st_mode & S_IFDIR))
+        {
+            std::cout << "EL DIRECTORIO DELETE EXISTE" << std::endl;
+        }
+        else
+        {
+            std::cout << "EL DIRECTORIO delete no existe" << std::endl;
+        }
+    }
+    catch (...)
+    {
+    std::cout << "ha habido un error" <<  std::endl;} */
+
     std::string newname = "deleted" + response[sock].getURI();
+    // std::cout << "--->>> " << newname << " <<<---" << std::endl;
     result = rename(response[sock].getRoot().c_str(), newname.c_str());
+    // std::cout << "--->>> " << response[sock].getRoot() << " <<<---" << std::endl;
     if (result == 0)
-        fd = response[sock].get_fd("serverHTML/deletedResponse.html");
+        {
+            fd = response[sock].get_fd("serverHTML/deletedResponse.html");
+        }
     if (result != 0)
     {
         response[sock].setErrorCode(NOT_FOUND);

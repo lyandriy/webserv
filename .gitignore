@@ -4,3 +4,4 @@ webserv
 */**/*.o
 */**/*wololo*
 **/wololo/
+**/*/__pycache__

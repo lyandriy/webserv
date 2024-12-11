@@ -334,11 +334,50 @@ def test13():
 
 def test14():
 	# 14 request con chunks
-	pass
+	from chunked import chunked_test
+	response = chunked_test()
+	try:
+		file = open("html/files/indexxx.html")
+		file_content = file.read()
+		file.close()
+	except:
+		print(Fore.RED + f"TEST {test} INCORRECTO")
+	else:
+		if file_content == "MozillaFirefox\nDeveloper\nNetwork":
+			print(Fore.GREEN + f"TEST {test} CORRECTO")
+			
+	""" url = url_base + "/indexxxxxx.html"
+	headers = {
+		"Host": "localhost:8081",
+		"Transfer-Encoding": "chunked",
+		"Content-Type": "text/plain"
+	}
+
+	def chunked_body():
+		chunks = [
+			"E\r\nMozillaFirefox\r\n",
+			"9\r\nDeveloper\r\n",
+			"7\r\nNetwork\r\n",
+			"0\r\n\r\n"		
+		]
+		for chunk in chunks:
+			yield bytes(chunk, 'utf-8 ')
+	response = requests.post(url, headers=headers, data=chunked_body())
+
+	print("Código de respuesta:", response.status_code)
+	print("Texto de la respuesta:", response.text) """
 
 def test15():
 	# 15 delete
-	pass
+	url = url_base + "/un_archivo_para_delete.txt"
+	if not os.path.exists("html/files/un_archivo_para_delete.txt"):
+		body_content = "Algo de contenido para el archivo del test 15"
+		headers['Host'] = 'localhost:8081'
+		headers['Content-Type'] = 'text/plain'
+		headers['Content-Length'] = str(len(body_content))
+		requests.post(url, headers=headers, data=body_content)
+	response = requests.delete(url, headers=headers)
+	print(response.status_code, response.text)
 
 def test16():
 	# 16 cgi basico
@@ -367,25 +406,25 @@ def test21():
 
 
 if __name__ == '__main__':
-	test1()
-	test2()
-	test3()
-	test4()
-	test5()
-	test6()
-	test7()
-	test8()
-	test9()
-	test10()
-	test11()
-	#test12() # el test 12 es llamado dentro del test 11
-	test13()
+	# test1()
+	# test2()
+	# test3()
+	# test4()
+	# test5()
+	# test6()
+	# test7()
+	# test8()
+	# test9()
+	# test10()
+	# test11()
+	# #test12() # el test 12 es llamado dentro del test 11
+	# test13()
 	test14()
-	test15()
-	test16()
-	test17()
-	test18()
-	test19()
-	test20()
-	test21()
+	# test15()
+	# test16()
+	# test17()
+	# test18()
+	# test19()
+	# test20()
+	# test21()
 
