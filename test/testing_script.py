@@ -299,6 +299,9 @@ def test12():
 
 def test13():
 	# 13 petición POST con un body grande no procesable de una vez
+	global test
+	test += 1
+
 	try:
 		file = open('html/test/un_archivo_cualquiera.txt', 'r')
 		body_content = file.read()
@@ -334,6 +337,8 @@ def test13():
 
 def test14():
 	# 14 request con chunks
+	global test
+	test += 1
 	from chunked import chunked_test
 	response = chunked_test()
 	try:
@@ -345,6 +350,7 @@ def test14():
 	else:
 		if file_content == "MozillaFirefox\nDeveloper\nNetwork":
 			print(Fore.GREEN + f"TEST {test} CORRECTO")
+	print(Style.RESET_ALL)
 			
 	""" url = url_base + "/indexxxxxx.html"
 	headers = {
@@ -369,6 +375,8 @@ def test14():
 
 def test15():
 	# 15 delete
+	global test
+	test += 1
 	url = url_base + "/un_archivo_para_delete.txt"
 	if not os.path.exists("html/files/un_archivo_para_delete.txt"):
 		body_content = "Algo de contenido para el archivo del test 15"
@@ -381,26 +389,54 @@ def test15():
 
 def test16():
 	# 16 cgi basico
-	pass
+	global test
+	test += 1
+	url = url_base + "/python/hola.py"
+	headers['Content-Type'] = 'text/plain'
+	headers['Host'] = 'localhost:8081'
+	response = requests.get(url, headers=headers)
+	with open("serverHTML/error/403.html", 'r') as file:
+		content_error = file.read()
+	if response.status_code == 403 and response.text == content_error:
+		print(Fore.GREEN + f"TEST {test} CORRECTO")
+	else:
+		print(Fore.GREEN + f"TEST {test} CORRECTO")
+	print(Style.RESET_ALL)
 
 def test17():
 	# 17 cgi con viariables de entorno
-	pass
+	global test
+	test += 1
+	url = url_base + "/python/saludo_user_simple.py"
+	headers['Content-Type'] = 'text/plain'
+	headers['Host'] = 'localhost:8081'
+	headers['user'] = "josgarci"
+	response = requests.post(url, headers=headers)
+	print(Fore.GREEN + response.text)
+	print(Style.RESET_ALL)
 
 def test18():
 	# 18 cgi duradero pero sin timeout
+	global test
+	test += 1
 	pass
 
 def test19():
 	# 19 cgi que llega a timeout
+	global test
+	test += 1
 	pass
 
 def test20():
 	# 20 cgi que da error
+	global test
+	test += 1
 	pass
 
 def test21():
 	# 21 cgi con post
+	global test
+	test += 1
 	pass
 
 
@@ -419,10 +455,10 @@ if __name__ == '__main__':
 	# test11()
 	# #test12() # el test 12 es llamado dentro del test 11
 	# test13()
-	test14()
+	# test14()
 	# test15()
 	# test16()
-	# test17()
+	test17()
 	# test18()
 	# test19()
 	# test20()
