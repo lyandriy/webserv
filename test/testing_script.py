@@ -439,7 +439,9 @@ def test21():
 	test += 1
 	pass
 
-
+# probar metodos no aceptados
+# probar borrar archivos sin permiso
+# hacer test para un get de post previo y recuperar archivo
 
 if __name__ == '__main__':
 	# test1()
