@@ -1,0 +1,115 @@
+[31mServer Name: localhost
+[0mAccept Method: GET 1 POST 1 DELETE 1
+Client Max Body Size: 1073741824
+Root: html/files
+Autoindex: 1
+Index: index.html
+CGI: 1
+Redirection: 
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8081
+Error Pages: 
+  Error Code: 404, Page: error/404.html
+Locations (0): 
+socket 0:   fd: 3;   events: 1;   revents: 0
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 1
+[33m1 acceptClient 4[0m
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+socket 1:   fd: 4;   events: 1;   revents: 1
+[34m reventPOLLIN [0m
+[33m recvRequest [0m
+[35mClient 1
+DELETE /prueba.html HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+[0m
+MULTIPART
+[32mmake_response[0m
+ aqui al abrir html/files/prueba.html
+deleted/prueba.html
+html/files/error/404.html
+socket 1 fd 2
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+socket 1:   fd: 4;   events: 4;   revents: 4
+socket 2:   fd: 5;   events: 1;   revents: 1
+[34m reventPOLLIN [0m
+socket 1 fd 2
+[31m sendResponse [0m
+[36mHTTP/1.1 404 Not Found
+Connection: close
+Date: Mon, 15 Dec 2024 11:52:43 GMT
+Content-Length: 31
+
+Error 404. Not found. From HTML[0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+
+Received Interrupt Signal. Shutting down the web server...
+Web server stopped.
+Thank you for using the service.

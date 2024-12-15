@@ -557,25 +557,64 @@ std::string SocketManager::make_response_str(Response &response, std::string buf
     return (str.str());
 }
 
+int SocketManager::check_headers(std::string &headers)
+{
+    size_t pos;
+    size_t start = 0;
+    std::vector<std::string> line;
+
+    pos = headers.find("\n");
+    if (pos != std::string::npos)
+    {
+        while (pos != std::string::npos)
+        {
+            line.push_back(headers.substr(start, pos));
+            start = pos + 1;
+            pos = headers.find("\n");
+        }
+    }
+    else
+        return (0);
+    std::string name;
+    std::string value;
+    for (std::vector::iterator it = line.begin(); it != line.end(); ++it)
+    {
+        pos = *it.find(":");
+        if (pos != std::string::npos)
+        {
+            name = *it.substr(0, pos);
+            value = *it.substr(pos + 1, *ît.size())
+            if (!is_name(name) || !is_value(value))
+                return (0);
+        }
+        else
+            return (0);
+    }
+}
+
+
 std::string SocketManager::separateHeaders(std::string &buffer)
 {
     size_t pos_end;
     std::string headers;
 
+    std::cout << "Hasta aqui\n";
     pos_end = buffer.find("\r\n\r\n");
-    if (pos_end == std::string::npos && pos_end != (buffer.size() - 4))
+    if (pos_end == std::string::npos)
     {
         pos_end = buffer.find("\n\n");
-        if (pos_end != std::string::npos && pos_end != (buffer.size() - 2))
+        if (pos_end != std::string::npos)
         {
-            headers = buffer.substr(0, pos_end);
-            buffer.erase(0, (pos_end + 2));
+            headers = buffer.substr(0, pos_end) + "\n";
+            if (check_headers(headers))
+                buffer.erase(0, (pos_end + 2));
         }
     }
-    else if (pos_end != (buffer.size() - 4))
+    else
     {
         headers = buffer.substr(0, pos_end);
-        buffer.erase(0, (pos_end + 4));
+        if (check_headers(headers))
+            buffer.erase(0, (pos_end + 4));
     }
     size_t pos = headers.find("Content-Length:");
     if (pos != std::string::npos)

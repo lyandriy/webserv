@@ -459,6 +459,7 @@ int    Response::open_error_file()
         join_with_uri(root, error_page[error_code]);
         stat(root.c_str(), &fileStat);
         fd = open(root.c_str(), O_RDONLY);
+        std::cout << root << std::endl;
     }
     if (fd == -1)
     {
@@ -551,6 +552,7 @@ int Response::open_file(int pos_file_response)
     }
     if (fd == -1 && cgi_state == 0 && accept_method != "POST")
         fd = open_error_file();//funcion que abre archivo de error
+   std::cout << " aqui al abrir " << root << std::endl;
     return (fd);
 }
 
