@@ -429,6 +429,7 @@ void    SocketManager::CommonGatewayInterface()
 
     std::cout << "\033[36m" << " CommonGatewayInterface " << "\033[0m" << std::endl;
     std::map<int, CGI>::iterator it = cgiClients.begin();
+    std::map<int, CGI>::iterator it_next;
     while (it != cgiClients.end())
     {
         if (it->second.getPid() == -2)//si aun no se ha creado el proceso, solo se ha construido el objeto
@@ -441,6 +442,7 @@ void    SocketManager::CommonGatewayInterface()
                 cgiClients.erase(it);
             }
             response[it->first].setPipeRes(true);
+            it++;
         }
         else
         {
@@ -452,7 +454,10 @@ void    SocketManager::CommonGatewayInterface()
                 close(it->second.getFDwrite());
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first], it->first);
+                it_next = it;
+                it_next++;
                 cgiClients.erase(it);
+                it = it_next;
             }
             else if (pid_ret > 0)//si el hijo ha  terminado
             {
@@ -463,7 +468,10 @@ void    SocketManager::CommonGatewayInterface()
                     close(it->second.getFDwrite());
                     response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                     ErrorResponse(response[it->first], fd_file[it->first], it->first);
+                    it_next = it;
+                    it_next++; 
                     cgiClients.erase(it);
+                    it = it_next;
                 }
                 else
                 {
@@ -474,10 +482,14 @@ void    SocketManager::CommonGatewayInterface()
                     pfds[pos_free].events = POLLIN;
                     pfds[it->first].events = POLLOUT;
                     fd_file[it->first] = pos_free;
+                    it_next = it;
+                    it_next++; 
                     cgiClients.erase(it);
+                    it = it_next;
                 }
             }
-            it++;
+            else
+                it++;
         }
     }
 }
@@ -557,6 +569,43 @@ std::string SocketManager::make_response_str(Response &response, std::string buf
     return (str.str());
 }
 
+int SocketManager::is_name(std::string &name)
+{
+    for (int i = 0; name[i]; i++)
+    {
+        if (!isalnum(name[i]) && name[i] != '-')
+        {
+            std::cout << "otro 2" << name[i] << std::endl;
+            return (0);
+        }
+    }
+    return (1);
+}
+
+int SocketManager::is_value(std::string &value)
+{
+    size_t i = 0;
+    std::string str;
+
+    while (value[i] == ' ' || value[i] == '\t')
+        i++;
+    if (i == (value.size() - 1))
+        return (0);
+    for (; i < value.size(); i++)
+    {
+        if (!isprint(value[i]))
+        {
+            str = value.substr(i, value.size());
+            if (str == "\n" || str == "\r\n")
+                return (1);
+            std::cout << "otro 1 " << value[i] << std::endl;
+            return (0);
+        }
+    }
+    std::cout << "otro " << std::endl;
+    return (1);
+}
+
 int SocketManager::check_headers(std::string &headers)
 {
     size_t pos;
@@ -568,28 +617,34 @@ int SocketManager::check_headers(std::string &headers)
     {
         while (pos != std::string::npos)
         {
+            std::cout << "otro pos " << pos << std::endl;
             line.push_back(headers.substr(start, pos));
             start = pos + 1;
-            pos = headers.find("\n");
+            pos = headers.find("\n", start);
         }
     }
     else
         return (0);
     std::string name;
     std::string value;
-    for (std::vector::iterator it = line.begin(); it != line.end(); ++it)
+    for (std::vector<std::string>::iterator it = line.begin(); it != line.end(); ++it)
     {
-        pos = *it.find(":");
+        pos = it->find(":");
         if (pos != std::string::npos)
         {
-            name = *it.substr(0, pos);
-            value = *it.substr(pos + 1, *ît.size())
+            name = it->substr(0, pos);
+            value = it->substr(pos + 1, it->size());
             if (!is_name(name) || !is_value(value))
+            {
+                std::cout << "HASTA AQUIIIIII"<< std::endl;
                 return (0);
+            }
         }
         else
             return (0);
     }
+    headers.erase(headers.size());
+    return (1);
 }
 
 
@@ -598,23 +653,28 @@ std::string SocketManager::separateHeaders(std::string &buffer)
     size_t pos_end;
     std::string headers;
 
-    std::cout << "Hasta aqui\n";
     pos_end = buffer.find("\r\n\r\n");
+    std::cout << pos_end << std::endl;
     if (pos_end == std::string::npos)
     {
         pos_end = buffer.find("\n\n");
+        std::cout << "otro " << pos_end << std::endl;
         if (pos_end != std::string::npos)
         {
             headers = buffer.substr(0, pos_end) + "\n";
             if (check_headers(headers))
                 buffer.erase(0, (pos_end + 2));
+            else
+                headers.clear();
         }
     }
     else
     {
-        headers = buffer.substr(0, pos_end);
+                headers = buffer.substr(0, pos_end) + "\n";
         if (check_headers(headers))
             buffer.erase(0, (pos_end + 4));
+        else
+            headers.clear();
     }
     size_t pos = headers.find("Content-Length:");
     if (pos != std::string::npos)
@@ -629,6 +689,11 @@ std::string SocketManager::separateHeaders(std::string &buffer)
         else
             headers.erase(pos, (pos_end + 2));
     }
+    pos = headers.size();
+    while (pos > 0 && !std::isprint(headers[pos - 1]))
+        --pos;
+    headers.resize(pos); 
+    std::cout << headers << "pos_end " << headers.size() << std::endl;
     return (headers);
 }
 

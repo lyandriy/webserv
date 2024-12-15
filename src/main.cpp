@@ -36,7 +36,6 @@ int main(int argc, char **argv)
                 server = parser.conf_file();
             }
             SocketManager   socketManager = SocketManager(pfds, server);//abre los socket para cada puerto
-
             signal(SIGINT, closeWebserv);
             while (true)
             {

@@ -52,12 +52,11 @@ Response::Response(const Location &location, Request &request)
     this->index = location.getIndex();
     this->redirection = location.getRedirection();
     if (!redirection.empty())
-        root = redirection;
+        uri = redirection;
     this->root_origin = root;
     this->error_page = location.getErrorPage();
     this->cgi = location.getCGI();
     this->autoindex = location.getAutoindex();
-    
     this->listen.sin_family = AF_INET;
     this->listen.sin_port = htons(request.get_port());
     this->listen.sin_addr.s_addr = INADDR_ANY;
@@ -93,9 +92,6 @@ Response::Response(const Server &server, Request &request)
 {
     this->root = server.getRoot();
     this->index = server.getIndex();
-    this->redirection = server.getRedirection();
-    if (!redirection.empty())
-        root = redirection;
     this->root_origin = root;
     this->error_page = server.getErrorPage();
     this->autoindex = server.getAutoindex();
@@ -543,6 +539,7 @@ int Response::open_file(int pos_file_response)
     _pos_file_response = pos_file_response;//posicion del fd en pollfd del archivo que se v a enviar al cliente
     root_origin = root;//copiamos rota original
     join_with_uri(root, uri);
+    std::cout << "root " << root  << std::endl;
     fd = get_fd(root);//stat + abrimos ruta + uri
     if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
     {

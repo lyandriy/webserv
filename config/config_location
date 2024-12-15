@@ -5,7 +5,7 @@ server
     root html/files;
     index index.html;
     accept_method GET POST;
-    location /other_file
+    location /other_file//es la uri que se manda por el cliente
     {
         index index.html;
         client_max_body_size 2M;
@@ -13,5 +13,6 @@ server
         autoindex on;
         cgi on;
         accept_method GET;
+        redirection /hola;//es lo que valos a sustituir por uri
     }
 }

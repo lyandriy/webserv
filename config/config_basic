@@ -10,3 +10,4 @@ server
     autoindex on;
     cgi on;
 }
+   

@@ -28,7 +28,6 @@ Server &Server::operator=(const Server &other)
     this->root = other.root;
     this->index = other.index;
     this->accept_method = other.accept_method;
-    this->redirection = other.redirection;
     this->error_page = other.error_page;
     this->client_max_body_size = other.client_max_body_size;
     this->autoindex = other.autoindex;
@@ -75,11 +74,6 @@ void    Server::setAcceptMethod(std::vector<std::string> &words)
         accept_method.post = 0;
     if (std::find(words.begin(), words.end(), "DELETE") == words.end())
         accept_method.del = 0;
-}
-
-void    Server::setRedirection(std::string words)
-{
-    redirection = words;
 }
 
 void    Server::setErrorPage(std::vector<std::string> &words)
@@ -172,7 +166,6 @@ void    Server::fillLocation()
         (*itl).server_name = this->server_name;
         if ((*itl).accept_method.get == -1 && (*itl).accept_method.post == -1 && (*itl).accept_method.del == -1)
             (*itl).accept_method = this->accept_method;
-        (*itl).redirection = this->redirection;
         if ((*itl).cgi == -1)
             (*itl).cgi = this->cgi;
         if ((*itl).root.empty())
@@ -222,11 +215,6 @@ httpMethods    Server::getAcceptMethod() const
     return(this->accept_method);
 }
 
-std::string    Server::getRedirection() const
-{
-    return(this->redirection);
-}
-
 std::map<int, std::string>    Server::getErrorPage() const
 {
     return(this->error_page);
@@ -267,7 +255,6 @@ void Server::printValuesServer() const {
             std::cout << "Autoindex: " << autoindex << std::endl;
             std::cout << "Index: " << index << std::endl;
             std::cout << "CGI: " << cgi << std::endl;
-            std::cout << "Redirection: " << redirection << std::endl;
 
             // Imprimir listen (direcciones)
             std::cout << "Listen Addresses: " << std::endl;

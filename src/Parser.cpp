@@ -294,8 +294,6 @@ void    Parser::key_words_server()
         this->server[server_size].setAutoindex(words[1]);
     else if (words[0] == "cgi" && words.size() == 2 && cgi() == 1)
         this->server[server_size].setCGI(words[1]);
-    else if (words[0] == "redirection" && words.size() == 2 && redirection() == 1)
-        this->server[server_size].setRedirection(words[1]);
     else if (words.size() > 4 && words[0] == "location" && words[1][0] == '/' && words[2] == "{")
         location_pars();
     else

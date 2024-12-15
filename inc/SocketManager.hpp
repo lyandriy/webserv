@@ -52,6 +52,9 @@ class SocketManager
         void    move_pfd(int);
         void    close_pfd(int);
         int free_pos();
+        int check_headers(std::string &);
+        int is_name(std::string &);
+        int is_value(std::string &);
 
         void    priint(int);
 };
