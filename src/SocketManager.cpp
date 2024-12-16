@@ -214,7 +214,7 @@ void    SocketManager:: make_response(int sock)
         pfds[pos_free].fd = response[sock].open_file(pos_free);
     if (response[sock].getCGIState() == 1)
         cgiClients[sock] = CGI(response[sock]);
-    else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "POST" && !response[sock].getPipeRes())
+    else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "POST" && !response[sock].getPipeRes() && requests[sock].getMultipart() != true)
     {
         if (response[sock].postIsExec())
             cgiClients[sock] = CGI(response[sock]);
@@ -247,6 +247,7 @@ void    SocketManager:: make_response(int sock)
 void    SocketManager::check_join(int sock, std::vector<Server> &server, char *buffer, int valread)
 {
     requests[sock].join_request(buffer, valread, server);
+    std::cout << "get_current_status " << requests[sock].get_current_status() << std::endl;
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock);
 }
