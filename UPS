@@ -1,0 +1,21 @@
+[31mServer Name: localhost
+[0mAccept Method: GET 1 POST 1 DELETE 1
+Client Max Body Size: 1073741824
+Root: html/files
+Autoindex: 1
+Index: index.html
+CGI: 1
+Listen Addresses: 
+  IP: 0.0.0.0, Port: 8081
+Error Pages: 
+  Error Code: 404, Page: error/404.html
+Locations (0): 
+socket 0:   fd: 3;   events: 1;   revents: 0
+socket 0:   fd: 3;   events: 1;   revents: 0
+[34m reventPOLLIN [0m
+[31m sendResponse [0m
+[36m CommonGatewayInterface [0m
+
+Received Interrupt Signal. Shutting down the web server...
+Web server stopped.
+Thank you for using the service.

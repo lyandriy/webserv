@@ -154,7 +154,6 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		split_at_CRLFx2();
 		if (static_cast<int>(_body.size()) == _body_size)
 		{
-			std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n\n";
 			_status = FULL_COMPLETE_REQUEST;
 		}
 		if (static_cast<int>(_body.size()) > _body_size)
@@ -178,7 +177,8 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 		_status = FULL_COMPLETE_REQUEST;
 	}
 	check_request_line(server);
-	multipart();
+	// std::cout << "\033[23mMultipart LLAMAdA 1\033[0m" << std::endl;
+	// multipart();
 	return _status;
 }
 
@@ -211,6 +211,7 @@ int Request::manage_possible_chunked_beggining()
 
 	for (size_t i = 0; i < _chunks.size(); i++)
 	{
+	std::cout << "\033[33m" << i << "\033[0m" << std::endl;
 		if (_chunks[i] == '\r' && i + 1 <= _chunks.size() && _chunks[i + 1] == '\n')
 		{
 			CRLF_count++;
@@ -241,6 +242,7 @@ int Request::manage_possible_chunked_beggining()
 	}
 		_last_chunk_size = (CRLF_count % 2 == 1) ? aux.first : -1;
 	_chunks.erase(_chunks.begin(), _chunks.begin() + start);
+	// std::cout << "\033[43mSaliendo de la función de primer bloque de chunks\033[0m" << std::endl;
 	return CHUNKED_REQUEST;
 }
 
@@ -297,6 +299,7 @@ int	Request::manage_chunked_request(char *buffer, int read_size)
 			}
 			if (aux.first == 0)
 			{
+				std::cout << "\033[43mFinalizada la gestión de chunked request\033[0m" << std::endl;
 				_status = FULL_COMPLETE_REQUEST;
 				return _status;
 			}
@@ -801,9 +804,8 @@ void	Request::multipart()
 			if ((pos = body.find("\r\n\r\n")) != std::string::npos)
 			{
 				std::string headers = body.substr(0, pos);//copio headers
-				std::cout << headers << std::endl;
 				body.erase(0, pos + 4);//elimino headers
-				copy_body = body.substr(0, (body.find(_boundary) - 4));//copio body
+				copy_body = body.substr(0, (body.find(_boundary) - 2));//copio body
 				body.erase(0, body.find(_boundary));//elimino body
 				if ((pos = headers.find("filename=\"")) != std::string::npos)
 				{

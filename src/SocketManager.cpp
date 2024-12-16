@@ -183,10 +183,13 @@ int SocketManager::deleteMethod(int sock)
 {
     int result;
     int fd = -1;
+
     std::string newname = "deleted" + response[sock].getURI();
     result = rename(response[sock].getRoot().c_str(), newname.c_str());
     if (result == 0)
-        fd = response[sock].get_fd("serverHTML/deletedResponse.html");
+        {
+            fd = response[sock].get_fd("serverHTML/deletedResponse.html");
+        }
     if (result != 0)
     {
         response[sock].setErrorCode(NOT_FOUND);
@@ -247,7 +250,6 @@ void    SocketManager:: make_response(int sock)
 void    SocketManager::check_join(int sock, std::vector<Server> &server, char *buffer, int valread)
 {
     requests[sock].join_request(buffer, valread, server);
-    std::cout << "get_current_status " << requests[sock].get_current_status() << std::endl;
     if (requests[sock].get_error_code() != 200 || requests[sock].get_current_status() == FULL_COMPLETE_REQUEST)//juntar los request y ver si body es mas largo de lo permitido. Si esta mal hay que indicar el _error_code para generar la respuesta de error
         make_response(sock);
 }
@@ -575,10 +577,7 @@ int SocketManager::is_name(std::string &name)
     for (int i = 0; name[i]; i++)
     {
         if (!isalnum(name[i]) && name[i] != '-')
-        {
-            std::cout << "otro 2" << name[i] << std::endl;
             return (0);
-        }
     }
     return (1);
 }
@@ -599,11 +598,9 @@ int SocketManager::is_value(std::string &value)
             str = value.substr(i, value.size());
             if (str == "\n" || str == "\r\n")
                 return (1);
-            std::cout << "otro 1 " << value[i] << std::endl;
             return (0);
         }
     }
-    std::cout << "otro " << std::endl;
     return (1);
 }
 
@@ -618,7 +615,6 @@ int SocketManager::check_headers(std::string &headers)
     {
         while (pos != std::string::npos)
         {
-            std::cout << "otro pos " << pos << std::endl;
             line.push_back(headers.substr(start, pos));
             start = pos + 1;
             pos = headers.find("\n", start);
@@ -636,10 +632,7 @@ int SocketManager::check_headers(std::string &headers)
             name = it->substr(0, pos);
             value = it->substr(pos + 1, it->size());
             if (!is_name(name) || !is_value(value))
-            {
-                std::cout << "HASTA AQUIIIIII"<< std::endl;
                 return (0);
-            }
         }
         else
             return (0);
@@ -659,7 +652,6 @@ std::string SocketManager::separateHeaders(std::string &buffer)
     if (pos_end == std::string::npos)
     {
         pos_end = buffer.find("\n\n");
-        std::cout << "otro " << pos_end << std::endl;
         if (pos_end != std::string::npos)
         {
             headers = buffer.substr(0, pos_end) + "\n";
@@ -671,7 +663,7 @@ std::string SocketManager::separateHeaders(std::string &buffer)
     }
     else
     {
-                headers = buffer.substr(0, pos_end) + "\n";
+        headers = buffer.substr(0, pos_end) + "\n";
         if (check_headers(headers))
             buffer.erase(0, (pos_end + 4));
         else
