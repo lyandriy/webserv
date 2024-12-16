@@ -175,7 +175,6 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	}
 	else
 	{
-		std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n\n";
 		_status = FULL_COMPLETE_REQUEST;
 	}
 	check_request_line(server);
@@ -236,7 +235,6 @@ int Request::manage_possible_chunked_beggining()
 			if (aux.first == 0)
 			{
 				_status = FULL_COMPLETE_REQUEST;
-				multipart();
 				return _status;
 			}
 		}
@@ -300,7 +298,6 @@ int	Request::manage_chunked_request(char *buffer, int read_size)
 			if (aux.first == 0)
 			{
 				_status = FULL_COMPLETE_REQUEST;
-				multipart();
 				return _status;
 			}
 		}
