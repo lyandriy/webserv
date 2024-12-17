@@ -1,6 +1,7 @@
 import requests
 from colorama import Fore, Style
 import os
+import time
 
 def another_request():
 	x = input("Enviar siguiente petición?:\n")
@@ -439,6 +440,28 @@ def test21():
 	test += 1
 	pass
 
+def test22():
+	# 22 metodos no aceptados
+	global test
+	test += 1
+	url = url_base + "/"
+	headers['Host'] = 'localhost:8081'
+	response_get = requests.get(url, headers=headers)
+	print("GET", response_get.status_code, response_get.text)
+	url = url_base + "/wollllooooolllllooooo"
+	body = "Un body para las prueba"
+	headers['Content-Type'] = 'text/plain'
+	headers['Content-Length'] = str(len(body))
+	print(headers)
+	response_post = requests.post(url, headers=headers, data=body)
+	print("POST", str(response_post.status_code), response_post.text)
+	input("COmprueba que existe el archivo wollllooooolllllooooo\n")
+	url = url_base + "/test/wollllooooolllllooooo"
+	headers.clear()
+	response_del = requests.delete(url, headers=headers)
+	print("DELETE", str(response_del.status_code), response_del.text)
+
+
 # probar metodos no aceptados
 # probar borrar archivos sin permiso
 # hacer test para un get de post previo y recuperar archivo
@@ -460,9 +483,10 @@ if __name__ == '__main__':
 	# test14()
 	# test15()
 	# test16()
-	test17()
+	# test17()
 	# test18()
 	# test19()
 	# test20()
 	# test21()
+	test22()
 

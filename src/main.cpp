@@ -46,10 +46,12 @@ int main(int argc, char **argv)
                 {
                     if (pfds[i].fd != -1)
                     {
-                        std::cout << "socket " << i << ": ";
-                        std::cout << "  fd: " << pfds[i].fd << "; ";
-                        std::cout << "  events: " << pfds[i].events << "; ";
-                        std::cout << "  revents: " << pfds[i].revents << std::endl;
+                        // std::cout << "socket " << i << ": ";
+                        // std::cout << "  fd: " << pfds[i].fd << "; ";
+                        // std::cout << "  events: " << pfds[i].events << "; ";
+                        // std::cout << "  revents: " << pfds[i].revents << std::endl;
+                        std::cout << ".";
+                        std::cout.flush();
                     }
                 } 
                 if (first_poll > 0)

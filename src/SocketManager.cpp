@@ -145,7 +145,7 @@ void    SocketManager::acceptClient()
             {
                 pfds[pos_free].fd = new_sock;
                 pfds[pos_free].events = POLLIN;
-                std::cout << "\033[33m" << pos_free << " acceptClient " << pfds[pos_free].fd << "\033[0m" << std::endl;
+                // std::cout << "\033[33m" << pos_free << " acceptClient " << pfds[pos_free].fd << "\033[0m" << std::endl;
                 requests[pos_free] = Request(pos_free, new_sock);
                 requests[pos_free].last_conection_time();
             }
@@ -355,7 +355,7 @@ void    SocketManager::reventPOLLIN(std::vector<Server> &server)
 {
     int file;
 
-    std::cout << "\033[34m" << " reventPOLLIN " << "\033[0m" << std::endl;
+    // std::cout << "\033[34m" << " reventPOLLIN " << "\033[0m" << std::endl;
     for (int sock = listen_sockets; sock < BACKLOG; sock++)//recorre todos los sockets
     {  
         if ((pfds[sock].revents & POLLIN) && pfds[sock].fd != -1)//si algun socket tiene un revent de POLLIN
@@ -412,7 +412,7 @@ void    SocketManager::sendResponse()
     {
         std::cout << "socket " << it->first << " fd " << it->second << std::endl;
     }
-    std::cout << "\033[31m" << " sendResponse " << "\033[0m" << std::endl;
+    // std::cout << "\033[31m" << " sendResponse " << "\033[0m" << std::endl;
     for (int client = listen_sockets; client < BACKLOG; client++)//recorre todos los sockets
     {
         if ((pfds[client].revents & POLLOUT) && !is_file(client) && fd_file.find(client) != fd_file.end() && pfds[client].fd != -1)//si algun socket tiene un revent de POLLOUT
@@ -447,7 +447,7 @@ void    SocketManager::CommonGatewayInterface()
     pid_t pid_ret;
     int wstatus;
 
-    std::cout << "\033[36m" << " CommonGatewayInterface " << "\033[0m" << std::endl;
+    // std::cout << "\033[36m" << " CommonGatewayInterface " << "\033[0m" << std::endl;
     std::map<int, CGI>::iterator it = cgiClients.begin();
     while (it != cgiClients.end())
     {
