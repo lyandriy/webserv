@@ -1,2 +1,0 @@
-Si haces un post con un body la uri de la petición será la ruta en la que se guarda el archivo y este body será el contenido del archivo.
-Si te olvidas de activar el header de content-length pierdes mucho tiempo debugeando algo que sí funciona bien.
