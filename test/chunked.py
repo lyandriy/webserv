@@ -21,6 +21,7 @@ def chunked_test():
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.connect(('localhost', 8081))
 	for request in requests:
+		print("WOlolo")
 		sock.sendall(request.encode('utf-8'))
 		response = sock.recv(4096)
 		print(response.decode('utf-8'))
@@ -28,7 +29,8 @@ def chunked_test():
 	sock.close()
 	return response
 
-
+if __name__ == '__main__':
+	chunked_test()
 # requests.append(f"GET /index.html HTTP/1.1\r\nHost: localhost:8080\r\nPeticion:{i}\r\n\r\n")
 # test pendientes:
 	# menos de 3 elementos en request line
