@@ -183,26 +183,9 @@ int SocketManager::deleteMethod(int sock)
 {
     int result;
     int fd = -1;
-    /* struct stat info;
-
-    try{
-        if (stat("deleted", &info) == 0 && (info.st_mode & S_IFDIR))
-        {
-            std::cout << "EL DIRECTORIO DELETE EXISTE" << std::endl;
-        }
-        else
-        {
-            std::cout << "EL DIRECTORIO delete no existe" << std::endl;
-        }
-    }
-    catch (...)
-    {
-    std::cout << "ha habido un error" <<  std::endl;} */
 
     std::string newname = "deleted" + response[sock].getURI();
-    // std::cout << "--->>> " << newname << " <<<---" << std::endl;
     result = rename(response[sock].getRoot().c_str(), newname.c_str());
-    // std::cout << "--->>> " << response[sock].getRoot() << " <<<---" << std::endl;
     if (result == 0)
         {
             fd = response[sock].get_fd("serverHTML/deletedResponse.html");
@@ -234,7 +217,7 @@ void    SocketManager:: make_response(int sock)
         pfds[pos_free].fd = response[sock].open_file(pos_free);
     if (response[sock].getCGIState() == 1)
         cgiClients[sock] = CGI(response[sock]);
-    else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "POST" && !response[sock].getPipeRes())
+    else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "POST" && !response[sock].getPipeRes() && requests[sock].getMultipart() != true)
     {
         if (response[sock].postIsExec())
             cgiClients[sock] = CGI(response[sock]);
@@ -594,10 +577,7 @@ int SocketManager::is_name(std::string &name)
     for (int i = 0; name[i]; i++)
     {
         if (!isalnum(name[i]) && name[i] != '-')
-        {
-            std::cout << "otro 2" << name[i] << std::endl;
             return (0);
-        }
     }
     return (1);
 }
@@ -618,11 +598,9 @@ int SocketManager::is_value(std::string &value)
             str = value.substr(i, value.size());
             if (str == "\n" || str == "\r\n")
                 return (1);
-            std::cout << "otro 1 " << value[i] << std::endl;
             return (0);
         }
     }
-    std::cout << "otro " << std::endl;
     return (1);
 }
 
@@ -637,7 +615,6 @@ int SocketManager::check_headers(std::string &headers)
     {
         while (pos != std::string::npos)
         {
-            std::cout << "otro pos " << pos << std::endl;
             line.push_back(headers.substr(start, pos));
             start = pos + 1;
             pos = headers.find("\n", start);
@@ -655,10 +632,7 @@ int SocketManager::check_headers(std::string &headers)
             name = it->substr(0, pos);
             value = it->substr(pos + 1, it->size());
             if (!is_name(name) || !is_value(value))
-            {
-                std::cout << "HASTA AQUIIIIII"<< std::endl;
                 return (0);
-            }
         }
         else
             return (0);
@@ -678,7 +652,6 @@ std::string SocketManager::separateHeaders(std::string &buffer)
     if (pos_end == std::string::npos)
     {
         pos_end = buffer.find("\n\n");
-        std::cout << "otro " << pos_end << std::endl;
         if (pos_end != std::string::npos)
         {
             headers = buffer.substr(0, pos_end) + "\n";
@@ -690,7 +663,7 @@ std::string SocketManager::separateHeaders(std::string &buffer)
     }
     else
     {
-                headers = buffer.substr(0, pos_end) + "\n";
+        headers = buffer.substr(0, pos_end) + "\n";
         if (check_headers(headers))
             buffer.erase(0, (pos_end + 4));
         else

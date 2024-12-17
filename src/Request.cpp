@@ -252,9 +252,8 @@ int	Request::manage_request_with_body(char *buffer, int read_size)
 	size_t body_len = _body.size();
 	if (body_len == static_cast<size_t>(_body_size))
 	{
-	std::cout << "\033[23mMultipart LLAMAdA 1\033[0m" << std::endl;
-		multipart();
 		_status = FULL_COMPLETE_REQUEST;
+		multipart();
 	}
 	if (body_len > static_cast<size_t>(_body_size))
 	{
@@ -789,33 +788,34 @@ void Request::print_request_complete_info()
 
 void	Request::multipart()
 {
-	std::cout << "MULTIPART\n";
-	if (_multipart == 0  && _status != FULL_COMPLETE_REQUEST)
+	std::cout << _status << " MULTIPART\n";
+	if (_multipart == 0)
 		return ;
-	
-	size_t pos;
-	std::string copy_body;
-	std::string body(_body.begin(), _body.end());
-	_boundary.insert(0, "--");
-	while (body.size() > _boundary.size() + 10)
+	else if (_multipart == 1 && _status == FULL_COMPLETE_REQUEST)
 	{
-		if (body.find(_boundary) != std::string::npos)//elimino boundary
-			body.erase(body.find(_boundary), _boundary.size());
-		if ((pos = body.find("\r\n\r\n")) != std::string::npos)
+		size_t pos;
+		std::string copy_body;
+		std::string body(_body.begin(), _body.end());
+		_boundary.insert(0, "--");
+		while (body.size() > _boundary.size() + 10)
 		{
-			std::string headers = body.substr(0, pos);//copio headers
-			body.erase(0, pos + 4);//elimino headers
-			copy_body = body.substr(0, body.find(_boundary) - 4);//copio body
-			body.erase(0, body.find(_boundary));//elimino body
-			if ((pos = headers.find("filename=\"")) != std::string::npos)
+			if (body.find(_boundary) != std::string::npos)//elimino boundary
+				body.erase(body.find(_boundary), _boundary.size());
+			if ((pos = body.find("\r\n\r\n")) != std::string::npos)
 			{
-				headers.erase(0, headers.find("filename=\"") + 10);
-				pos = headers.find("\"");
-				upload_files[headers.substr(0, pos)] = copy_body;
+				std::string headers = body.substr(0, pos);//copio headers
+				body.erase(0, pos + 4);//elimino headers
+				copy_body = body.substr(0, (body.find(_boundary) - 2));//copio body
+				body.erase(0, body.find(_boundary));//elimino body
+				if ((pos = headers.find("filename=\"")) != std::string::npos)
+				{
+					headers.erase(0, headers.find("filename=\"") + 10);
+					pos = headers.find("\"");
+					upload_files[headers.substr(0, pos)] = copy_body;
+				}
 			}
 		}
 	}
-	
 }
 
 //va despues de recibir el header (listen es siempre de server)
