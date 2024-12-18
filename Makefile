@@ -25,7 +25,7 @@ SRCS =	main.cpp \
 OBJS = $(SRCS:%.c=bin/%.o)
 
 CC = c++
-CFLAGS = -std=c++98 -Wall -Werror -Wextra
+CFLAGS = -std=c++98 -Wall -Werror -Wextra -g
 RM = rm -f
 
 OBJS = $(SRCS:%.cpp=$(BIN_PATH)%.o)
@@ -36,6 +36,7 @@ all: $(NAME)
 
 $(BIN_PATH)%.o: $(SRCS_PATH)%.cpp
 	mkdir -p $(BIN_PATH)
+	mkdir -p deleted
 	$(CC) $(CFLAGS) -c $< -o $@
 
 	

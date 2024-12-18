@@ -41,7 +41,6 @@ int main(int argc, char **argv)
                     std::cerr << "Error: poll error." << std::endl;    
                 if (first_poll > 0)
                 {
-                    std::cout << "Working...\n";
                     socketManager.acceptClient();
                     socketManager.reventPOLLIN(server);
                     socketManager.sendResponse();

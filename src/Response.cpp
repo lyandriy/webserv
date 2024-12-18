@@ -555,7 +555,6 @@ int Response::open_file(int pos_file_response)
     fd = get_fd(root);
     if (fd == -1 && cgi_state == 0 && accept_method != "POST")
         fd = open_error_file();
-    std::cout << root << std::endl;
     return (fd);
 }
 
