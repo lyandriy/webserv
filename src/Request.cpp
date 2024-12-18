@@ -178,7 +178,7 @@ int	Request::manage_headers_received(std::vector<Server> &server)
 	}
 	check_request_line(server);
 	// std::cout << "\033[23mMultipart LLAMAdA 1\033[0m" << std::endl;
-	// multipart();
+	multipart();
 	return _status;
 }
 

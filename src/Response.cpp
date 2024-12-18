@@ -3,10 +3,7 @@
 Response::Response(){}
 
 Response::~Response()
-{
-    if (pipeRes)
-        close(fd_pipe[1]);
-}
+{}
 
 Response::Response(const Response &other)
 {
@@ -477,7 +474,7 @@ int Response::get_fd(std::string root)
         if (!(accept_method == "POST" && errno == ENOENT))
             error_code = NOT_FOUND;
     }
-    if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
+    else if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
     {
         if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
             error_code = FORBIDEN;
@@ -486,6 +483,12 @@ int Response::get_fd(std::string root)
             cgi_state = 1;
         else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1 || fcntl(fd_file, F_SETFD, O_CLOEXEC) == -1 || fcntl(fd_file, F_SETFL, O_NONBLOCK) == -1)
             error_code = INTERNAL_SERVER_ERROR;
+    }
+    else if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
+    {
+        join_with_uri(root, index);//root + index
+        if ((fd_file = get_fd(root)) == -1 && autoindex)//probamos root + index, si no existe y autoindex es on
+            fd_file = make_autoindex_file();//hacemos el archivo de autoindex
     }
     return (fd_file);
 }
@@ -540,12 +543,6 @@ int Response::open_file(int pos_file_response)
     root_origin = root;//copiamos rota original
     join_with_uri(root, uri);
     fd = get_fd(root);//stat + abrimos ruta + uri
-    if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
-    {
-        join_with_uri(root, index);//root + index
-        if ((fd = get_fd(root)) == -1 && autoindex)//probamos root + index, si no existe y autoindex es on
-            fd = make_autoindex_file();//hacemos el archivo de autoindex
-    }
     if (fd == -1 && cgi_state == 0 && accept_method != "POST")
         fd = open_error_file();//funcion que abre archivo de error
     return (fd);
@@ -566,20 +563,34 @@ int Response::makePost()
     int fd = -1;
     std::map <std::string, std::string>::iterator it;
     std::string filename;
-     std::string filename_;
+    std::string filename_;
+    struct stat fileStat_;
     std::string str(body.begin(), body.end());
 
+    std::cout << upload_files.empty() << root << "makePost\n";
     if (upload_files.empty())
-        upload_files[root] = str;
+    {
+        error_code = NOT_FOUND;
+        fd = open_error_file();
+        return (fd);
+    }
     for (it = upload_files.begin(); it != upload_files.end(); ++it)
     {
+        join_with_uri(root, uri);
         filename = root;
-        if (root != it->first)
+        if (stat(filename.c_str(), &fileStat_) == -1)
+        {
+            error_code = FORBIDEN;
+            fd = open_error_file();
+            return (fd);
+        }
+        if (S_ISDIR(fileStat_.st_mode))
         {
             filename_ = it->first;
             join_with_uri(filename, filename_);
         }
         std::ofstream file(filename.c_str(), std::ios::app);
+        std::cout << filename << " makePost\n";
         if (file.is_open())
             file << it->second;
         else

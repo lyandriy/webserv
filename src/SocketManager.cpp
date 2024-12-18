@@ -110,7 +110,10 @@ SocketManager::SocketManager(struct pollfd* pfds_, std::vector<Server> &server)
     }
     listen_sockets = sock_num;
     for (int i = sock_num; i < BACKLOG; i++)
+    {
         pfds[i].fd = -1;
+        pfds[i].events = 0;
+    }
 }
 
 int SocketManager::free_pos()
@@ -183,13 +186,25 @@ int SocketManager::deleteMethod(int sock)
 {
     int result;
     int fd = -1;
+    std::string root = response[sock].getRoot();
+    std::string uri = response[sock].getURI();
+    size_t pos = root.find_last_of("/");
+    std::string newname;
 
-    std::string newname = "deleted" + response[sock].getURI();
-    result = rename(response[sock].getRoot().c_str(), newname.c_str());
+    if (S_ISDIR(response[sock].get_fileStat().st_mode) || pos == std::string::npos)
+    {
+        response[sock].setErrorCode(NOT_FOUND);
+        fd = response[sock].open_error_file();
+        return (fd);
+    }
+    else
+        newname = "deleted/" + root.substr(pos + 1);
+    std::cout << root << " <-root, uri->" << uri << " newmane-> " << newname << std::endl;
+    result = rename(root.c_str(), newname.c_str());
     if (result == 0)
-        {
-            fd = response[sock].get_fd("serverHTML/deletedResponse.html");
-        }
+    {
+        fd = response[sock].get_fd("serverHTML/deletedResponse.html");
+    }
     if (result != 0)
     {
         response[sock].setErrorCode(NOT_FOUND);
@@ -233,7 +248,8 @@ void    SocketManager:: make_response(int sock)
         ErrorResponse(response[sock], fd_file[sock], sock);
     else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "DELETE")
     {
-        close(pfds[pos_free].fd);
+        if (fcntl(pfds[pos_free].fd, F_GETFD) != -1)
+            close(pfds[pos_free].fd);
         pfds[pos_free].fd = deleteMethod(sock);
         pfds[pos_free].events = POLLIN;
         pfds[sock].events = POLLOUT;
@@ -453,8 +469,10 @@ void    SocketManager::CommonGatewayInterface()
             if (pid_ret == -1)//si hay error, devolver error 500
             {
                 kill(cgiClients[it->first].getPid(), SIGINT);
-                close(it->second.getFDread());
-                close(it->second.getFDwrite());
+                if (fcntl(it->second.getFDread(), F_GETFD) != -1)
+                    close(it->second.getFDread());
+                if (fcntl(it->second.getFDwrite(), F_GETFD) != -1)
+                    close(it->second.getFDwrite());
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first], it->first);
                 it_next = it;
@@ -467,8 +485,10 @@ void    SocketManager::CommonGatewayInterface()
                 if (WIFSIGNALED(wstatus) || WEXITSTATUS(wstatus))
                 {
                     kill(cgiClients[it->first].getPid(), SIGINT);
-                    close(it->second.getFDread());
-                    close(it->second.getFDwrite());
+                    if (fcntl(it->second.getFDread(), F_GETFD) != -1)
+                        close(it->second.getFDread());
+                    if (fcntl(it->second.getFDwrite(), F_GETFD) != -1)
+                        close(it->second.getFDwrite());
                     response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                     ErrorResponse(response[it->first], fd_file[it->first], it->first);
                     it_next = it;
@@ -510,8 +530,10 @@ void    SocketManager::close_pfd(int pfd_free)
             if (cgiClients[pfd_free].getPid() != -2)
             {
                 kill(cgiClients[pfd_free].getPid(), SIGINT);
-                close(cgiClients[pfd_free].getFDread());//vervsi esto no da error
-                close(cgiClients[pfd_free].getFDwrite());
+                if (fcntl(cgiClients[pfd_free].getFDread(), F_GETFD) != -1)
+                    close(cgiClients[pfd_free].getFDread());
+                if (fcntl(cgiClients[pfd_free].getFDwrite(), F_GETFD) != -1)
+                    close(cgiClients[pfd_free].getFDwrite());
             }
             cgiClients.erase(pfd_free);
         }
@@ -522,13 +544,15 @@ void    SocketManager::close_pfd(int pfd_free)
         {
             if (pfds[file_pos].fd != -1)
             {
-                close(pfds[file_pos].fd);
+                if (fcntl(pfds[file_pos].fd, F_GETFD) != -1)
+                    close(pfds[file_pos].fd);
                 pfds[file_pos].fd = -1;
                 pfds[file_pos].events = 0;
                 pfds[file_pos].revents = 0;
             }
-        }   
-        close(pfds[pfd_free].fd);//cerramos el socket
+        }
+        if (fcntl(pfds[file_pos].fd, F_GETFD) != -1)  
+            close(pfds[pfd_free].fd);//cerramos el socket
         pfds[pfd_free].fd = -1;
         pfds[pfd_free].events = 0;
         pfds[pfd_free].revents = 0;
@@ -537,7 +561,8 @@ void    SocketManager::close_pfd(int pfd_free)
     {
         if (pfd_free != -1 && pfds[pfd_free].fd != -1)
         {
-            close(pfds[pfd_free].fd);
+            if (fcntl(pfds[file_pos].fd, F_GETFD) != -1)
+                close(pfds[pfd_free].fd);
             pfds[pfd_free].fd = -1;
             pfds[pfd_free].events = 0;
             pfds[pfd_free].revents = 0;

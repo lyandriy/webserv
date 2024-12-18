@@ -18,7 +18,6 @@ int main(int argc, char **argv)
     int first_poll = 0;
     std::vector<Server> server;
     struct pollfd pfds[BACKLOG];
-    
     try
     {
         if (argc > 2)
