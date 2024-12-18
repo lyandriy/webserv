@@ -190,9 +190,3 @@ int    Location::getCGI() const
 std::string Location::getUri() const{
     return (this->locationUri);
 }
-
-Location    Location::clone() const
-{
-    Location	clon = Location(*this);
-	return (clon);
-}

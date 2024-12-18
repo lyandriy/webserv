@@ -46,6 +46,4 @@ class Location
         int    getAutoindex() const;
         int    getCGI() const;
         std::string getUri() const;
-
-        Location    clone() const;
 };

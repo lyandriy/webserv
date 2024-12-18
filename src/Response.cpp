@@ -50,7 +50,11 @@ Response::Response(const Location &location, Request &request)
     this->redirection = location.getRedirection();
     this->uri = request.get_uri();
     if (!redirection.empty())
-        uri = redirection;
+    {
+        std::size_t pos = uri.find(location.getUri());
+        if (pos != std::string::npos)
+            uri.replace(pos, location.getUri().length(), this->redirection);
+    }
     this->root_origin = root;
     this->error_page = location.getErrorPage();
     this->cgi = location.getCGI();

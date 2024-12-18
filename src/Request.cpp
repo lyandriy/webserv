@@ -829,6 +829,11 @@ int    Request::check_request_line(std::vector<Server> &server)
 				return (1);
 			}
 		}
+		else
+		{
+			this->_error_code = METHOD_NOT_ALLOWED;
+			return (0);
+		}
     }
 	this->_error_code = NOT_FOUND;
 	return (0);
