@@ -592,6 +592,7 @@ int Response::makePost()
     }
     if (fd == -1)
         fd = get_fd("serverHTML/postResponse.html");
+    std::cout << " makePost terminado \n";
     return (fd);
 }
 

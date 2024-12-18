@@ -147,7 +147,6 @@ void    CGI::dupEnv(std::map<std::string, std::string> &env)
 
 int   CGI::makeProcess()
 {
-    std::cout << "\033[36m" << " makeProcess CGI " << "\033[0m" << std::endl;
     if (pipe(fd_pipe) == -1 || !control_fd(fd_pipe[0]) || !control_fd(fd_pipe[1]))
     {
         std::cerr << "Pipe error." << strerror(errno) << std::endl;
@@ -187,7 +186,6 @@ int   CGI::makeProcess()
 
 void    CGI::make_execve()
 {
-    std::cout << "\033[37m" << " I'm child fron CGI " << "\033[0m" << std::endl;
     if (accept_method == "POST")
     {
         std::string str(body.begin(), body.end());
