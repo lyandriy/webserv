@@ -32,7 +32,6 @@ for request in requests:
 	print(response.decode('utf-8'))
 	time.sleep(0.5)	
 sock.close()    
-print(len(requests[0]))
 
 
 # requests.append(f"GET /index.html HTTP/1.1\r\nHost: localhost:8080\r\nPeticion:{i}\r\n\r\n")

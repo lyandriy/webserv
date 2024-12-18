@@ -3,10 +3,8 @@
 use strict;
 use warnings;
 
-# Obtener el valor de 'user' desde las variables de entorno
 my $user = $ENV{'USER'};
 
-# Definir el contenido HTML dependiendo de si se encuentra el valor de 'user'
 my $html;
 
 if (defined $user) {
@@ -49,6 +47,5 @@ if (defined $user) {
 );
 }
 
-# Imprime el encabezado y el HTML
 print "Content-Type: text/html\n\n";
 print $html;

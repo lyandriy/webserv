@@ -3,13 +3,10 @@
 use strict;
 use warnings;
 
-# Obtener el valor de 'user' desde las variables de entorno
 my $user = $ENV{'USER'};
 
-# Asignar un valor predeterminado si 'user' no está definido
 my $corrector = defined $user ? $user : "corrector guapete";
 
-# Definir el contenido HTML
 my $html = qq(
 <!DOCTYPE html>
 <html lang="es">
@@ -29,6 +26,5 @@ my $html = qq(
 </html>
 );
 
-# Imprime el encabezado HTTP y el HTML
 print "Content-Type: text/html\n\n";
 print $html;

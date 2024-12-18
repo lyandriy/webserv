@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Time::HiRes qw(sleep);
 
-# Define el HTML
 my $html = q(
 <!DOCTYPE html>
 <html lang="es">
@@ -23,9 +22,7 @@ my $html = q(
 </html>
 );
 
-# Espera por 200 segundos
 sleep(200);
 
-# Escribe el HTML en la salida estándar
-print "Content-Type: text/html\n\n";  # Encabezado de respuesta HTTP
+print "Content-Type: text/html\n\n";
 print $html;

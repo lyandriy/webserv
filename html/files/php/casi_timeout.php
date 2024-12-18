@@ -1,7 +1,6 @@
 #!/usr/bin/php
 <?php
 
-// Define el HTML
 $html = <<<HTML
 <!DOCTYPE html>
 <html lang="es">
@@ -22,10 +21,8 @@ $html = <<<HTML
 </html>
 HTML;
 
-// Espera por 20 segundos
 sleep(10);
 
-// Imprime el encabezado HTTP y el HTML
 header("Content-Type: text/html");
 echo $html;
 ?>

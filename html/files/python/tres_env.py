@@ -2,12 +2,10 @@
 
 import os
 
-# Obtener las variables de entorno
-user = os.environ.get('user', 'Usuario desconocido')  # Valor por defecto si no está definida
-years = os.environ.get('years', 'No especificado')   # Valor por defecto si no está definida
-answer = os.environ.get('answer', 'No respondido')    # Valor por defecto si no está definida
+user = os.environ.get('user', 'Usuario desconocido')
+years = os.environ.get('years', 'No especificado') 
+answer = os.environ.get('answer', 'No respondido')  
 
-# Generar un mensaje usando las variables de entorno
 html = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,5 +23,4 @@ html = f"""<!DOCTYPE html>
 </body>
 </html>"""
 
-# Mostrar el resultado
 print(html)

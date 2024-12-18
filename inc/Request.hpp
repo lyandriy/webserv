@@ -26,7 +26,6 @@ class Location;
 class Request
 {
 private:
-	// Importantes //
 	int					_fd_socket;
 	int					_pos_socket;
 	std::vector<char>	_req_accumulator;
@@ -34,16 +33,15 @@ private:
 	std::string 		_uri;
 	std::string 		_protocol;
 	std::string 		_host;			
-	int					_port;			// unsigned int?//puerdo de request line
+	int					_port;
 	std::vector<char>	_body;
 	std::string			_help_message;
 	bool				_valid;
 	int					_error_code;
-	std::map<std::string, std::string> _headers;//esta aqui el puerto de header
+	std::map<std::string, std::string> _headers;
 	std::map<std::string, std::string> _params;
-	int					_body_size;//del header
+	int					_body_size;
 
-	// Auxiliares //
 	std::vector<char> 			_chunks;
 	int							_chunk_size;
 	std::vector<std::string> 	_accept_method;
@@ -57,7 +55,6 @@ private:
 	Location					conf_loc;
 	int  						server_body_size;
 	time_t						conecction_time;
-	//añadidos por Lyudmyla
 	std::map<std::string, std::string>	upload_files;
 	bool						_multipart;
 	std::string					_boundary;
@@ -87,26 +84,21 @@ private:
 	bool search_body_length_header();
 	bool search_chunked_body();
 	void multipart();
-	void takeOutContent(std::string &);
 	void set_multipart_header(std::string &);
 
 public:
 	bool debug;
 	Request(void);
 	Request(int i, int fd);
-	Request(int i, int fd, std::vector<char> request_accumulator, int type);
-	Request(char *buffer);
 	Request(Request const &copy);
 	Request & operator=(Request const & rhs);
 	~Request();
 
 	int join_request(char *buffer, int read_size, std::vector<Server> &server);
 
-	//  -----   SETTERS   -----  //
 	bool set_validity(int error_code);
 	bool set_validity(int error_code, std::string help_message);
 
-	//  -----   GETTERS   -----  //
 	std::vector<char> get_full_request();
 	std::vector<char> get_body();
 	std::string get_method();
@@ -125,9 +117,9 @@ public:
 	int			get_fd_socket();
 	int			get_pos_socket();
 	void		split_at_CRLFx2();
-	int			check_request_line(std::vector<Server> &);//!!!
+	int			check_request_line(std::vector<Server> &);
 	Location    compareUri(const std::vector<Location> &);
-	bool		compareListen(std::vector<struct sockaddr_in>);//!!!
+	bool		compareListen(std::vector<struct sockaddr_in>);
 	bool		compareMethod(Server &);
 	void		last_conection_time();
 	void		set_error_code(int);
@@ -138,7 +130,6 @@ public:
 	std::map<std::string, std::string> getUploadFiles();
 	void		reset(void);
 
-	// Para debug //
 	void check_lines(std::vector<std::string> lines);
 	void find_CRLF(const std::string &str);
 	void check_vector(const std::vector<char> &request);

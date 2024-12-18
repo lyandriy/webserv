@@ -25,7 +25,7 @@ SRCS =	main.cpp \
 OBJS = $(SRCS:%.c=bin/%.o)
 
 CC = g++
-CFLAGS = -std=c++98 -Wall -Werror -Wextra -g3 -O0 #-fsanitize=address
+CFLAGS = -std=c++98 -Wall -Werror -Wextra
 RM = rm -f
 
 OBJS = $(SRCS:%.cpp=$(BIN_PATH)%.o)

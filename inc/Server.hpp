@@ -1,6 +1,4 @@
 # pragma once
-#ifndef SERVER_HPP
-#define SERVER_HPP
 #include "Webserver.hpp"
 
 class Location;
@@ -8,16 +6,16 @@ class Location;
 class Server
 {
     private:
-        std::vector<struct sockaddr_in> listen;      //es 80
-        std::string server_name;                     //obligatorio
-        std::string root;                            //obligatorio
-        std::string index;                           //404
-        httpMethods accept_method;                   //get
-        std::map<int, std::string>  error_page;      //obligatorio
-        int  client_max_body_size;//0
-        int    autoindex;                           //bool off
-        int    cgi;                                 //bool off
-        std::vector<Location>  location;            //no es obligatorio
+        std::vector<struct sockaddr_in> listen;
+        std::string server_name;
+        std::string root;
+        std::string index;
+        httpMethods accept_method;
+        std::map<int, std::string>  error_page;
+        int  client_max_body_size;
+        int    autoindex;
+        int    cgi;
+        std::vector<Location>  location;
 
         void    setListen(std::string);
         void    setServerName(std::string);
@@ -42,19 +40,16 @@ class Server
         Server(int);
         Server &operator=(const Server &);
 
-        std::vector<struct sockaddr_in>    getListen() const;
-        std::string    getServerName() const;
-        std::string    getRoot() const;
-        std::string    getIndex() const;
-        httpMethods    getAcceptMethod() const;
-        std::map<int, std::string>    getErrorPage() const;
-        int    getBodySize() const;
-        int    getAutoindex() const;
-        int    getCGI() const;
-        std::string     getUri(int) const;
-        std::vector<Location>  getLocation() const;
-        
-        void    printValuesServer() const;
-};
+        std::vector<struct sockaddr_in> getListen() const;
+        std::string                     getServerName() const;
+        std::string                     getRoot() const;
+        std::string                     getIndex() const;
+        httpMethods                     getAcceptMethod() const;
+        std::map<int, std::string>      getErrorPage() const;
+        int                             getBodySize() const;
+        int                             getAutoindex() const;
+        int                             getCGI() const;
+        std::string                     getUri(int) const;
+        std::vector<Location>           getLocation() const;
 
-#endif
+};

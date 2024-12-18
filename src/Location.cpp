@@ -196,27 +196,3 @@ Location    Location::clone() const
     Location	clon = Location(*this);
 	return (clon);
 }
-
-void Location::printValues() const {
-    std::cout << "URI: " << locationUri << std::endl;
-    std::cout << "Server Name: " << server_name << std::endl;
-    std::cout << "Accept Method: GET " << accept_method.get << " POST " << accept_method.post << " DELETE " << accept_method.del << std::endl;
-    std::cout << "Client Max Body Size: " << client_max_body_size << std::endl;
-    std::cout << "Root: " << root << std::endl;
-    std::cout << "Autoindex: " << autoindex << std::endl;
-    std::cout << "Index: " << index << std::endl;
-    std::cout << "CGI: " << cgi << std::endl;
-    std::cout << "Redirection: " << redirection << std::endl;
-    // Imprimir listen (direcciones)
-    std::cout << "Listen Addresses: " << std::endl;
-    for (size_t i = 0; i < listen.size(); i++) {
-        char ip[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &(listen[i].sin_addr), ip, INET_ADDRSTRLEN);
-        std::cout << "  IP: " << ip << ", Port: " << ntohs(listen[i].sin_port) << std::endl;
-    }
-    // Imprimir error_page (páginas de error)
-    std::cout << "Error Pages: " << std::endl;
-    for (std::map<int, std::string>::const_iterator it = error_page.begin(); it != error_page.end(); ++it) {
-        std::cout << "  Error Code: " << it->first << ", Page: " << it->second << std::endl;
-    }
-}

@@ -1,6 +1,4 @@
 # pragma once
-#ifndef LOCATION_HPP
-#define LOCATION_HPP
 #include "Webserver.hpp"
 
 class Server;
@@ -50,8 +48,4 @@ class Location
         std::string getUri() const;
 
         Location    clone() const;
-
-        void    printValues() const;
 };
-
-#endif

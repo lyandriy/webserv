@@ -1,10 +1,8 @@
 #!/usr/bin/php
 <?php
 
-// Obtener el valor de 'user' desde las variables de entorno
 $user = getenv('USER');
 
-// Definir el contenido HTML dependiendo de si se encuentra el valor de 'user'
 if ($user !== false) {
     $html = <<<HTML
 <!DOCTYPE html>
@@ -45,7 +43,6 @@ HTML;
 HTML;
 }
 
-// Imprime el encabezado HTTP y el HTML
 header("Content-Type: text/html");
 echo $html;
 ?>

@@ -48,6 +48,7 @@ Response::Response(const Location &location, Request &request)
     this->root = location.getRoot();
     this->index = location.getIndex();
     this->redirection = location.getRedirection();
+    this->uri = request.get_uri();
     if (!redirection.empty())
         uri = redirection;
     this->root_origin = root;
@@ -59,7 +60,7 @@ Response::Response(const Location &location, Request &request)
     this->listen.sin_addr.s_addr = INADDR_ANY;
     this->accept_method = request.get_method();
     this->error_code = request.get_error_code();
-    this->uri = request.get_uri();
+    
     this->protocol = request.get_protocol();
     this->host = request.get_host();
     this->help_message = request.get_help_message();
@@ -449,19 +450,18 @@ int    Response::open_error_file()
 {
     int fd = -1;
 
-    if (!error_page[error_code].empty())//si el archivo de error esta configurado
+    if (!error_page[error_code].empty())
     {
         root = root_origin;
         join_with_uri(root, error_page[error_code]);
         stat(root.c_str(), &fileStat);
         fd = open(root.c_str(), O_RDONLY);
-        std::cout << root << std::endl;
     }
     if (fd == -1)
     {
         std::ostringstream oss;
         oss << error_code;
-        root = "serverHTML/error/" + oss.str() + ".html";//si el archivo de error no esta configurado se retorna el de server
+        root = "serverHTML/error/" + oss.str() + ".html";
         stat(root.c_str(), &fileStat);
         fd = open(root.c_str(), O_RDONLY);
     }
@@ -477,9 +477,9 @@ int Response::get_fd(std::string root)
         if (!(accept_method == "POST" && errno == ENOENT))
             error_code = NOT_FOUND;
     }
-    else if (S_ISREG(fileStat.st_mode))//si la ruta es un archivo
+    else if (S_ISREG(fileStat.st_mode))
     {
-        if (access(root.c_str(), R_OK) == -1)//si archivo no tiene permisos
+        if (access(root.c_str(), R_OK) == -1)
             error_code = FORBIDEN;
         else if (cgi && error_code == 200 && root.size() > 3 
                 && (root.substr(root.size() - 3) == ".py" || root.substr(root.size() - 4) == ".php" || root.substr(root.size() - 3) == ".pl"))
@@ -487,11 +487,11 @@ int Response::get_fd(std::string root)
         else if ((fd_file = open(root.c_str(), O_RDONLY)) == -1 || fcntl(fd_file, F_SETFD, O_CLOEXEC) == -1 || fcntl(fd_file, F_SETFL, O_NONBLOCK) == -1)
             error_code = INTERNAL_SERVER_ERROR;
     }
-    else if (S_ISDIR(fileStat.st_mode))//si la ruta es un directorio
+    else if (S_ISDIR(fileStat.st_mode))
     {
-        join_with_uri(root, index);//root + index
-        if ((fd_file = get_fd(root)) == -1 && autoindex)//probamos root + index, si no existe y autoindex es on
-            fd_file = make_autoindex_file();//hacemos el archivo de autoindex
+        join_with_uri(root, index);
+        if ((fd_file = get_fd(root)) == -1 && autoindex)
+            fd_file = make_autoindex_file();
     }
     return (fd_file);
 }
@@ -502,8 +502,8 @@ void    Response::join_with_uri(std::string &root, std::string &uri)
         root.erase(root.size() - 1);
     else if (root[root.size() - 1] != '/' && uri[0] != '/')
         root += '/';
-    root += uri;//unimos dos strings
-    if (root[root.size() - 1] == '/')//si  tiene /, eliminamos
+    root += uri;
+    if (root[root.size() - 1] == '/')
         root.erase(root.size() - 1);
 }
 
@@ -513,23 +513,23 @@ int Response::make_autoindex_file()
     struct dirent *file_list;
 
     root = root_origin;
-    join_with_uri(root, uri);//recupero la ruta sin el autoindex
-    DIR *dir = opendir(root.c_str());//abro el dir
-    if (dir != NULL)//reviso si se puede habrir
+    join_with_uri(root, uri);
+    DIR *dir = opendir(root.c_str());
+    if (dir != NULL)
     {
-        if (uri.rfind("/") != uri.size() - 1)//compribar que la uri termina con /
+        if (uri.rfind("/") != uri.size() - 1)
             uri += "/";
-        if (pipe(fd_pipe) != -1)//abrimos pipe
+        if (pipe(fd_pipe) != -1)
         {
-            html_text = HTML_AUTOINDEX_BEGIN;//metemos el texto de inicio
+            html_text = HTML_AUTOINDEX_BEGIN;
             while ((file_list = readdir(dir)) != NULL)
                 html_text += "      <li><a href=\"" + uri + file_list->d_name + "\">" + file_list->d_name + "</a></li>\n";
-            html_text += HTML_AUTOINDEX_END;//metemos el texto de final
-            if (write(fd_pipe[1], html_text.c_str(), html_text.size()) != -1)//escribimos en pipe
+            html_text += HTML_AUTOINDEX_END;
+            if (write(fd_pipe[1], html_text.c_str(), html_text.size()) != -1)
             {
-                closedir(dir);//cerramos el directorio
+                closedir(dir);
                 error_code = OK;
-                fileStat.st_size = html_text.size();//poner una fcntl
+                fileStat.st_size = html_text.size();
                 pipeRes = true;
                 return (fd_pipe[0]);
             }
@@ -542,12 +542,13 @@ int Response::make_autoindex_file()
 int Response::open_file(int pos_file_response)
 {
     int fd;
-    _pos_file_response = pos_file_response;//posicion del fd en pollfd del archivo que se v a enviar al cliente
-    root_origin = root;//copiamos rota original
+    _pos_file_response = pos_file_response;
+    root_origin = root;
     join_with_uri(root, uri);
-    fd = get_fd(root);//stat + abrimos ruta + uri
+    fd = get_fd(root);
     if (fd == -1 && cgi_state == 0 && accept_method != "POST")
-        fd = open_error_file();//funcion que abre archivo de error
+        fd = open_error_file();
+    std::cout << root << std::endl;
     return (fd);
 }
 
@@ -568,9 +569,16 @@ int Response::makePost()
     std::string str(body.begin(), body.end());
     if (stat(root.c_str(), &fileStat_) == -1)
     {
-    std::cout << root << " makePost\n";
-        error_code = FORBIDEN;
-        fd = open_error_file();
+        std::ofstream file(root.c_str(), std::ios::app);
+        if (file.is_open())
+            file << str;
+        else
+        {
+            error_code = FORBIDEN;
+            fd = open_error_file();
+        }
+        if (fd == -1)
+            fd = get_fd("serverHTML/postResponse.html");
         return (fd);
     }
     else if (S_ISDIR(fileStat_.st_mode))
@@ -582,7 +590,6 @@ int Response::makePost()
         return (fd);
     }
     std::ofstream file(root.c_str(), std::ios::app);
-    std::cout << root << " makePost\n";
     if (file.is_open())
         file << str;
     else
@@ -592,7 +599,6 @@ int Response::makePost()
     }
     if (fd == -1)
         fd = get_fd("serverHTML/postResponse.html");
-    std::cout << " makePost terminado \n";
     return (fd);
 }
 
@@ -603,9 +609,7 @@ int Response::makeUpload()
     std::string filename;
     std::string filename_;
     struct stat fileStat_;
-    
 
-    //std::cout <<  << " makePost\n";
     if (upload_files.empty())
     {
         error_code = NOT_FOUND;
@@ -628,7 +632,6 @@ int Response::makeUpload()
             join_with_uri(filename, filename_);
         }
         std::ofstream file(filename.c_str(), std::ios::app);
-        std::cout << filename << " makePost\n";
         if (file.is_open())
             file << it->second;
         else
@@ -641,63 +644,4 @@ int Response::makeUpload()
     if (fd == -1)
         fd = get_fd("serverHTML/postResponse.html");
     return (fd);
-}
-
-//*********************** PRINT RESPONSE ************************//
-
-void Response::print_full_info() {
-    std::cout << "-------- Response Info --------" << std::endl;
-
-    // Información básica
-    struct sockaddr_in listen_info = getListen();
-    std::cout << "Listen (Port): " << ntohs(listen_info.sin_port) << std::endl;
-    std::cout << "Host (Server Name): " << getHost() << std::endl;
-    std::cout << "Root Directory: " << getRoot() << std::endl;
-    std::cout << "URI: " << getURI() << std::endl;
-
-    // Redirección
-    std::cout << "Redirection URI: " << getRedirection() << std::endl;
-
-    // Otras configuraciones
-    std::cout << "Index File: " << getIndex() << std::endl;
-    std::cout << "Autoindex: " << (getAutoindex() ? "Enabled" : "Disabled") << std::endl;
-    std::cout << "Accepted Method: " << getAcceptMethod() << std::endl;
-
-    // Páginas de error
-    std::cout << "Error Pages: " << std::endl;
-    std::map<int, std::string> error_pages = getErrorPage();
-    std::map<int, std::string>::const_iterator it;
-    for (it = error_pages.begin(); it != error_pages.end(); ++it) {
-        std::cout << "  Error " << it->first << ": " << it->second << std::endl;
-    }
-
-    // Estado del CGI
-    std::cout << "CGI Enabled: " << (getCGI() ? "true" : "false") << std::endl;
-
-    // Protocolo y mensajes
-    std::cout << "Protocol: " << getProtocol() << std::endl;
-    std::cout << "Help Message: " << getHelpMessage() << std::endl;
-
-    // Headers
-    std::cout << "Headers: " << std::endl;
-    std::map<std::string, std::string> headers = getHeaders();
-    std::map<std::string, std::string>::const_iterator headers_it;
-    for (headers_it = headers.begin(); headers_it != headers.end(); ++headers_it) {
-        std::cout << "  " << headers_it->first << ": " << headers_it->second << std::endl;
-    }
-
-    // Información del socket
-    std::cout << "File Descriptor (Socket FD): " << get_fd_socket() << std::endl;
-    std::cout << "Socket Position: " << get_pos_socket() << std::endl;
-    std::cout << "File Response Position: " << get_pos_file_response() << std::endl;
-
-    // Información del archivo
-    struct stat file_stat = get_fileStat();
-    std::cout << "File Size: " << file_stat.st_size << std::endl;
-    std::cout << "Last Modified: " << ctime(&file_stat.st_mtime); // Convierte time_t a formato legible
-
-    // Valor de conexión
-    std::cout << "Connection Value: " << getConnectionVal() << std::endl;
-
-    std::cout << "--------------------------------" << std::endl;
 }

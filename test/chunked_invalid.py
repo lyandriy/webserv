@@ -6,7 +6,7 @@ requests: list[str] = []
 i = 0
 requests.append(																	# Esta es válida, simula una petición hecha con header Transfer-Encoding: chunked
 	"GET /index.html HTTP/1.1\r\n"
-	"Host: localhost:8080\r\n"
+	"Host: localhost:8081\r\n"
 	"Transfer-Encoding: chunked\r\n"
 	"Content-Type: text/plain\r\n"
 	"\r\n"
@@ -23,7 +23,7 @@ requests.append(																	# Esta es válida, simula una petición hecha c
 	# request con parámetros repetidos, misma key pero diferente valor
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('localhost', 8080))
+sock.connect(('localhost', 8081))
 for request in requests:
 	sock.sendall(request.encode('utf-8'))
 	response = sock.recv(4096)

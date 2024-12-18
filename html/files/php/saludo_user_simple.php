@@ -1,13 +1,10 @@
 #!/usr/bin/php
 <?php
 
-// Obtener el valor de 'user' desde las variables de entorno
 $user = getenv('USER');
 
-// Asignar un valor predeterminado si 'user' no está definido
 $corrector = $user ? $user : "corrector guapete";
 
-// Definir el contenido HTML
 $html = <<<HTML
 <!DOCTYPE html>
 <html lang="es">
@@ -27,7 +24,6 @@ $html = <<<HTML
 </html>
 HTML;
 
-// Imprime el encabezado HTTP y el HTML
 header("Content-Type: text/html");
 echo $html;
 ?>

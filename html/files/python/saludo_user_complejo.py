@@ -17,7 +17,7 @@ if user != None:
 </head>
 <body>
 	<h1>Enhorabuena {user}!</h1>
-	<h2>Has ejecutado un script que recibe tu login como header!</h2>
+	<h2>Has ejecutado un script que recibe tu login como parámetro!</h2>
 	<h3>Mola, eh!</h3>
 </body>
 </html>"""
@@ -35,12 +35,12 @@ else:
 </head>
 <body>
 	<h1 style="background-color: red;">¿A qué juegas?</h1>
-	<h2>Has ejecutado un script que recibe tu login como header!</h2>
-	<h3>Pero no has pasado ningún header de user! Por favor, en tu petición añade "user:tu_login"</h3>
+	<h2>Has ejecutado un script que recibe tu login como parámetro!</h2>
+	<h3>Pero no has pasado ningún parámetro! Por favor, en tu petición añade "?user=tu_login"</h3>
 </body>
 </html>"""
 
 sys.stdout.write(html)
-# print(html, end="")
+
 
 

@@ -1,7 +1,5 @@
 # include "../inc/Webserver.hpp"
 
-//std::cout << "\033[31m" << client << " POLLOUT " << pfds[client].fd << "\033[0m" << std::endl;
-
 void    closeWebserv(int signal)
 {
     if (signal == 2)
@@ -35,29 +33,18 @@ int main(int argc, char **argv)
                 Parser  parser(argv[1]); 
                 server = parser.conf_file();
             }
-            SocketManager   socketManager = SocketManager(pfds, server);//abre los socket para cada puerto
+            SocketManager   socketManager = SocketManager(pfds, server);
             signal(SIGINT, closeWebserv);
             while (true)
             {
-                if (poll(pfds, BACKLOG, 1000) == -1)//monitorear si hay algun cliente
+                if (poll(pfds, BACKLOG, 1000) == -1)
                     std::cerr << "Error: poll error." << std::endl;    
-                for (int i = 0; i < BACKLOG; ++i)
-                {
-                    if (pfds[i].fd != -1)
-                    {
-                        // std::cout << ".";
-                        // std::cout.flush();
-                        /* std::cout << "socket " << i << ": ";
-                        std::cout << "  fd: " << pfds[i].fd << "; ";
-                        std::cout << "  events: " << pfds[i].events << "; ";
-                        std::cout << "  revents: " << pfds[i].revents << std::endl; */
-                    }
-                } 
                 if (first_poll > 0)
                 {
-                    socketManager.acceptClient();//comprueba si hay un cliente y lo acepta
-                    socketManager.reventPOLLIN(server);//recibe mensajes de request
-                    socketManager.sendResponse();//responder al cliente
+                    std::cout << "Working...\n";
+                    socketManager.acceptClient();
+                    socketManager.reventPOLLIN(server);
+                    socketManager.sendResponse();
                     socketManager.CommonGatewayInterface();  
                 }
                 if (first_poll == 0)
@@ -72,6 +59,3 @@ int main(int argc, char **argv)
     }
     return (0);
 }
-
-//recvisar close_move_pfd
-//response con cgi

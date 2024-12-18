@@ -1,6 +1,0 @@
-bin/*
-.vscode/*
-*/**/*.o
-*/**/*wololo*
-**/wololo/
-**/*/__pycache__

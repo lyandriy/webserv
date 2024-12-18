@@ -1,16 +1,13 @@
 #!/usr/bin/php
 <?php
 
-// Recupera todas las variables de entorno
 $li_tags = "";
 foreach ($_ENV as $key => $value) {
     $li_tags .= "<li>$key: $value</li>\n";
 }
 
-// Crea el contenido HTML
 $ul = "<ul>\n" . $li_tags . "</ul>\n";
 
-// Define el HTML
 $html = <<<HTML
 <!DOCTYPE html>
 <html lang="es">
@@ -35,7 +32,6 @@ $html = <<<HTML
 </html>
 HTML;
 
-// Imprime el encabezado HTTP y el HTML
 header("Content-Type: text/html");
 echo $html;
 ?>

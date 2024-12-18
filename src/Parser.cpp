@@ -130,9 +130,7 @@ int    Parser::accept_method(){
 int Parser::error_code(std::string str_number)
 {
     int int_number;
-    int code[38] = {400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412,
-                  413, 414, 415, 416, 417, 421, 422, 423, 424, 425, 426, 428, 429,
-                  431, 451, 500, 501, 502, 503, 504, 505, 506, 507, 508, 511};
+    int code[11] = {400, 403, 404, 405, 408, 413, 414, 500, 503, 504, 505};
 
     if (!str_number.empty())
        int_number = atoi(str_number.c_str());
@@ -390,10 +388,5 @@ std::vector<Server> Parser::conf_file()
             throw std::runtime_error("Error file.");
     }
     compareServer();
-    server_size = server.size();
-    //SI HAY DOS SERVER CON EL MISMO HOST SE GUARDA SOLO EL PRIMERO. 
-    //SI HAY DOS SERVER CON EL MISMO PUERTO SE GUARDA SOLO EL PRIMERO.
-    for (int i = 0; i < server_size; i++)
-        this->server[i].printValuesServer();
     return (server);
 }

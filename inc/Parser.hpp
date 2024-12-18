@@ -1,6 +1,4 @@
 # pragma once
-#ifndef PARSER_HPP
-#define PARSER_HPP
 #include "Webserver.hpp"
 
 class Server;
@@ -45,7 +43,6 @@ class Parser
 
         void    IaMServer();
         void    compareServer();
-        bool    comparePort(std::vector<Server>::iterator &, std::vector<Server>::iterator &);
     public:
         Parser(const std::string);
         ~Parser();
@@ -53,5 +50,3 @@ class Parser
         std::vector<Server>    conf_file();
         
 };
-
-#endif

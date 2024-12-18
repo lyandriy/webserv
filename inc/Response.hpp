@@ -2,40 +2,37 @@
 #include "Webserver.hpp"
 
 class Request;
-//class CGI;
 
 class Response
 {
     private:
-        struct sockaddr_in listen;//el puerto por el que van a comunicarse
-        std::string host;//es el server_name
-        std::string root;//la ruta donde estan los archivos
-        std::string uri;//lo que va despues de server_name(host), se una el root y uri y se busca alli
-        std::string redirection;//redirecciona una ruta a otra
-        std::string index;//de envia este archivo en caso si indican solo la ruta sin el archivo
-        bool    autoindex;//en caso que no esta indes, se manda el listado de archivos en la ruta
-        std::string accept_method;//mettodo get, post, delete
-        std::map<int, std::string>  error_page;//paginas de error que se pueden usar
+        struct sockaddr_in listen;
+        std::string host;
+        std::string root;
+        std::string uri;
+        std::string redirection;
+        std::string index;
+        bool    autoindex;
+        std::string accept_method;
+        std::map<int, std::string>  error_page;
         int error_code;
-        
-        bool    cgi;//on o off
+        bool    cgi;
         std::string protocol;
         std::string help_message;
         std::map<std::string, std::string>  headers;
         std::map<std::string, std::string> params;
         std::vector<char>	body;
         int _fd_socket;
-	    int _pos_socket;//posicion del socket en pfds
-        int _pos_file_response;//posicion del archivo que se va a responder en pfds
-        struct stat fileStat;//informacion sobre el archivo
+	    int _pos_socket;
+        int _pos_file_response;
+        struct stat fileStat;
         std::string connection_val;
         size_t total_bytes_read;
         std::string root_origin;
         std::string string_buffer;
         ssize_t send_size;
-        //nuevo
         int cgi_state;
-        int fd_pipe[2];//hay  que ver si cierro todos los fds
+        int fd_pipe[2];
         bool pipeRes;
         int valread;
         bool    multipart;
@@ -116,6 +113,4 @@ class Response
         int     postIsExec();
         int     makeUpload();
         int     makePost();
-
-        void print_full_info();
 };

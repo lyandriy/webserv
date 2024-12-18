@@ -3,17 +3,14 @@
 use strict;
 use warnings;
 
-# Recupera todas las variables de entorno
 my $li_tags = "";
 foreach my $key (keys %ENV) {
     my $value = $ENV{$key};
     $li_tags .= "<li>$key: $value</li>\n";
 }
 
-# Crea el contenido HTML
 my $ul = "<ul>\n" . $li_tags . "</ul>\n";
 
-# Define el HTML
 my $html = qq(
 <!DOCTYPE html>
 <html lang="es">
@@ -38,6 +35,5 @@ my $html = qq(
 </html>
 );
 
-# Escribe el encabezado y el HTML
 print "Content-Type: text/html\n\n";
 print $html;
