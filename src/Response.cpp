@@ -618,8 +618,8 @@ int Response::makeUpload()
     }
     for (it = upload_files.begin(); it != upload_files.end(); ++it)
     {
-        join_with_uri(root, uri);
         filename = root;
+        join_with_uri(filename, uri);
         if (stat(filename.c_str(), &fileStat_) == -1)
         {
             error_code = FORBIDEN;
@@ -640,6 +640,7 @@ int Response::makeUpload()
             fd = open_error_file();
             break ;
         }
+        filename.clear();
     }
     if (fd == -1)
         fd = get_fd("serverHTML/postResponse.html");

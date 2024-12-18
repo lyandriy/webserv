@@ -4,7 +4,7 @@ server
     server_name localhost;
     root html/files;
     index index.html;
-    accept_method GET POST;
+    accept_method GET;
     location /other_file
     {
         index index.html;
