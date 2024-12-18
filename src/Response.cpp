@@ -49,11 +49,15 @@ Response::Response(const Location &location, Request &request)
     this->index = location.getIndex();
     this->redirection = location.getRedirection();
     this->uri = request.get_uri();
+    this->error_code = request.get_error_code();
     if (!redirection.empty())
     {
         std::size_t pos = uri.find(location.getUri());
         if (pos != std::string::npos)
+        {
             uri.replace(pos, location.getUri().length(), this->redirection);
+            error_code = REDIRECTION;
+        }
     }
     this->root_origin = root;
     this->error_page = location.getErrorPage();
@@ -63,7 +67,6 @@ Response::Response(const Location &location, Request &request)
     this->listen.sin_port = htons(request.get_port());
     this->listen.sin_addr.s_addr = INADDR_ANY;
     this->accept_method = request.get_method();
-    this->error_code = request.get_error_code();
     
     this->protocol = request.get_protocol();
     this->host = request.get_host();

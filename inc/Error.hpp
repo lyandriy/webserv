@@ -1,6 +1,7 @@
 # pragma once
 
 # define OK 200
+# define REDIRECTION 301
 # define BAD_REQUEST 400
 # define FORBIDEN 403
 # define NOT_FOUND 404

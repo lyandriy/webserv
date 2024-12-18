@@ -79,6 +79,7 @@ SocketManager::SocketManager(struct pollfd* pfds_, std::vector<Server> &server)
     int flag = 0;
     pfds = pfds_;
     status_code[200] = "HTTP/1.1 200 OK\r\n";
+    status_code[301] = "HTTP/1.1 301 Moved Permanently\r\n";
     status_code[400] = "HTTP/1.1 400 Bad Request\r\n";
     status_code[403] = "HTTP/1.1 403 Forbidden\r\n";
     status_code[404] = "HTTP/1.1 404 Not Found\r\n";
