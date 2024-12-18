@@ -83,6 +83,7 @@ Response::Response(const Location &location, Request &request)
     fileStat.st_size = 0;
     cgi_state = 0;
     upload_files = request.getUploadFiles();
+    multipart = request.getMultipart();
 }
 
 Response::Response(const Server &server, Request &request)
@@ -123,6 +124,7 @@ Response::Response(const Server &server, Request &request)
     fileStat.st_size = 0;
     cgi_state = 0;
     upload_files = request.getUploadFiles();
+    multipart = request.getMultipart();
 }
 
 Response &Response::operator=(const Response &other){
@@ -157,6 +159,7 @@ Response &Response::operator=(const Response &other){
     this->pipeRes = other.pipeRes;
     this->valread = other.valread;
     this->upload_files = other.upload_files; 
+    this->multipart = other.multipart;
     return *this;
 }
 
@@ -561,13 +564,47 @@ int Response::postIsExec()
 int Response::makePost()
 {
     int fd = -1;
+    struct stat fileStat_;
+    std::string str(body.begin(), body.end());
+    if (stat(root.c_str(), &fileStat_) == -1)
+    {
+    std::cout << root << " makePost\n";
+        error_code = FORBIDEN;
+        fd = open_error_file();
+        return (fd);
+    }
+    else if (S_ISDIR(fileStat_.st_mode))
+        join_with_uri(root, index);
+    if (stat(root.c_str(), &fileStat_) == -1)
+    {
+        error_code = FORBIDEN;
+        fd = open_error_file();
+        return (fd);
+    }
+    std::ofstream file(root.c_str(), std::ios::app);
+    std::cout << root << " makePost\n";
+    if (file.is_open())
+        file << str;
+    else
+    {
+        error_code = FORBIDEN;
+        fd = open_error_file();
+    }
+    if (fd == -1)
+        fd = get_fd("serverHTML/postResponse.html");
+    return (fd);
+}
+
+int Response::makeUpload()
+{
+    int fd = -1;
     std::map <std::string, std::string>::iterator it;
     std::string filename;
     std::string filename_;
     struct stat fileStat_;
-    std::string str(body.begin(), body.end());
+    
 
-    std::cout << upload_files.empty() << root << "makePost\n";
+    //std::cout <<  << " makePost\n";
     if (upload_files.empty())
     {
         error_code = NOT_FOUND;
@@ -584,7 +621,7 @@ int Response::makePost()
             fd = open_error_file();
             return (fd);
         }
-        if (S_ISDIR(fileStat_.st_mode))
+        else if (S_ISDIR(fileStat_.st_mode))
         {
             filename_ = it->first;
             join_with_uri(filename, filename_);

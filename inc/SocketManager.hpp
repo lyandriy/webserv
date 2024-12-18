@@ -18,8 +18,8 @@ class SocketManager
         //nuevo
         std::map<int, CGI> cgiClients;//son los que tienen una request con cgi
 
-        SocketManager();
     public:
+        SocketManager();
         ~SocketManager();
         SocketManager(const SocketManager &);
         SocketManager &operator=(const SocketManager &);
@@ -55,6 +55,7 @@ class SocketManager
         int check_headers(std::string &);
         int is_name(std::string &);
         int is_value(std::string &);
+        void clearObject();
 
         void    priint(int);
 };

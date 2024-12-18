@@ -24,6 +24,13 @@ int SocketManager::getSockNum() const
     return (this->sock_num);
 }
 
+
+void  SocketManager::clearObject()
+{
+    requests.clear();
+    response.clear();
+}
+
 int SocketManager::connect_socket(struct sockaddr_in &addr_vect)
 {
     struct sockaddr_in  socket_addr;
@@ -227,7 +234,7 @@ void    SocketManager:: make_response(int sock)
     else
         response[sock] = Response(requests[sock].getServ(), requests[sock]);
     if (requests[sock].getMultipart() == true)
-        pfds[pos_free].fd = response[sock].makePost();        
+        pfds[pos_free].fd = response[sock].makeUpload();        
     else
         pfds[pos_free].fd = response[sock].open_file(pos_free);
     if (response[sock].getCGIState() == 1)
@@ -248,8 +255,7 @@ void    SocketManager:: make_response(int sock)
         ErrorResponse(response[sock], fd_file[sock], sock);
     else if (response[sock].getErrorCode() == 200 && requests[sock].get_method() == "DELETE")
     {
-        if (fcntl(pfds[pos_free].fd, F_GETFD) != -1)
-            close(pfds[pos_free].fd);
+        close(pfds[pos_free].fd);
         pfds[pos_free].fd = deleteMethod(sock);
         pfds[pos_free].events = POLLIN;
         pfds[sock].events = POLLOUT;
@@ -469,10 +475,8 @@ void    SocketManager::CommonGatewayInterface()
             if (pid_ret == -1)//si hay error, devolver error 500
             {
                 kill(cgiClients[it->first].getPid(), SIGINT);
-                if (fcntl(it->second.getFDread(), F_GETFD) != -1)
-                    close(it->second.getFDread());
-                if (fcntl(it->second.getFDwrite(), F_GETFD) != -1)
-                    close(it->second.getFDwrite());
+                close(it->second.getFDread());
+                close(it->second.getFDwrite());
                 response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                 ErrorResponse(response[it->first], fd_file[it->first], it->first);
                 it_next = it;
@@ -485,10 +489,8 @@ void    SocketManager::CommonGatewayInterface()
                 if (WIFSIGNALED(wstatus) || WEXITSTATUS(wstatus))
                 {
                     kill(cgiClients[it->first].getPid(), SIGINT);
-                    if (fcntl(it->second.getFDread(), F_GETFD) != -1)
-                        close(it->second.getFDread());
-                    if (fcntl(it->second.getFDwrite(), F_GETFD) != -1)
-                        close(it->second.getFDwrite());
+                    close(it->second.getFDread());
+                    close(it->second.getFDwrite());
                     response[it->first].setErrorCode(INTERNAL_SERVER_ERROR);
                     ErrorResponse(response[it->first], fd_file[it->first], it->first);
                     it_next = it;
@@ -530,10 +532,8 @@ void    SocketManager::close_pfd(int pfd_free)
             if (cgiClients[pfd_free].getPid() != -2)
             {
                 kill(cgiClients[pfd_free].getPid(), SIGINT);
-                if (fcntl(cgiClients[pfd_free].getFDread(), F_GETFD) != -1)
-                    close(cgiClients[pfd_free].getFDread());
-                if (fcntl(cgiClients[pfd_free].getFDwrite(), F_GETFD) != -1)
-                    close(cgiClients[pfd_free].getFDwrite());
+                close(cgiClients[pfd_free].getFDread());
+                close(cgiClients[pfd_free].getFDwrite());
             }
             cgiClients.erase(pfd_free);
         }
@@ -544,15 +544,13 @@ void    SocketManager::close_pfd(int pfd_free)
         {
             if (pfds[file_pos].fd != -1)
             {
-                if (fcntl(pfds[file_pos].fd, F_GETFD) != -1)
-                    close(pfds[file_pos].fd);
+                close(pfds[file_pos].fd);
                 pfds[file_pos].fd = -1;
                 pfds[file_pos].events = 0;
                 pfds[file_pos].revents = 0;
             }
         }
-        if (fcntl(pfds[file_pos].fd, F_GETFD) != -1)  
-            close(pfds[pfd_free].fd);//cerramos el socket
+        close(pfds[pfd_free].fd);//cerramos el socket
         pfds[pfd_free].fd = -1;
         pfds[pfd_free].events = 0;
         pfds[pfd_free].revents = 0;
@@ -561,8 +559,7 @@ void    SocketManager::close_pfd(int pfd_free)
     {
         if (pfd_free != -1 && pfds[pfd_free].fd != -1)
         {
-            if (fcntl(pfds[file_pos].fd, F_GETFD) != -1)
-                close(pfds[pfd_free].fd);
+            close(pfds[pfd_free].fd);
             pfds[pfd_free].fd = -1;
             pfds[pfd_free].events = 0;
             pfds[pfd_free].revents = 0;

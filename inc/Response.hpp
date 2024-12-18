@@ -38,6 +38,7 @@ class Response
         int fd_pipe[2];//hay  que ver si cierro todos los fds
         bool pipeRes;
         int valread;
+        bool    multipart;
         std::map<std::string, std::string> upload_files;
     public:
         Response();
@@ -113,6 +114,7 @@ class Response
         void    remove_sent_data(ssize_t);
         void    closeFD();
         int     postIsExec();
+        int     makeUpload();
         int     makePost();
 
         void print_full_info();
