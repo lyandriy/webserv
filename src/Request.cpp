@@ -211,7 +211,6 @@ int Request::manage_possible_chunked_beggining()
 
 	for (size_t i = 0; i < _chunks.size(); i++)
 	{
-	std::cout << "\033[33m" << i << "\033[0m" << std::endl;
 		if (_chunks[i] == '\r' && i + 1 <= _chunks.size() && _chunks[i + 1] == '\n')
 		{
 			CRLF_count++;
@@ -242,7 +241,6 @@ int Request::manage_possible_chunked_beggining()
 	}
 		_last_chunk_size = (CRLF_count % 2 == 1) ? aux.first : -1;
 	_chunks.erase(_chunks.begin(), _chunks.begin() + start);
-	// std::cout << "\033[43mSaliendo de la función de primer bloque de chunks\033[0m" << std::endl;
 	return CHUNKED_REQUEST;
 }
 
@@ -273,6 +271,8 @@ int	Request::manage_chunked_request(char *buffer, int read_size)
 	(void)read_size;
 	
 	_chunks.insert(_chunks.end(), buffer, buffer + std::strlen(buffer));
+	std::cout << "--------------------------------------------------------------------" << std::endl;
+	print_raw_vector(_chunks);
 	CRLF_count =  (_last_chunk_size != -1) ? _last_chunk_size : 0;
 	for (size_t i = 0; i < _chunks.size(); i++)
 	{
